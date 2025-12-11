@@ -64,6 +64,9 @@ test-alchemy: ## Run I/O Alchemy arrangement tests
 test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
 
+test-recreation: ## Run signal recreation tests
+	.venv/bin/pytest tests/techno/test_signal_recreation.py -v -s
+
 # === Code Quality ===
 lint: ## Run pre-commit checks on all files
 	uv run pre-commit run --all-files
@@ -97,6 +100,16 @@ run-visualizer: ## Launch audio visualizer
 analyze-asset: ## Analyze audio file (usage: make analyze-asset FILE=path/to/audio.wav)
 	@if [ -z "$(FILE)" ]; then echo "Error: FILE argument required"; exit 1; fi
 	.venv/bin/python -m src.ableton_mcp.analysis.track "$(FILE)"
+
+analyze-stems: ## Analyze separated stems
+	@echo "📊 Analyzing stems..."
+	@mkdir -p assets/analysis
+	@.venv/bin/python analysis/analyze_stems.py assets/audio/stems/htdemucs_ft/ALCHEMY_I_O --output assets/analysis/stem_analysis.json
+
+separate-stems: ## Separate reference track into stems
+	@echo "🔬 Separating ALCHEMY_I_O.mp3 into stems..."
+	@mkdir -p assets/audio/stems
+	@.venv/bin/python -m demucs --mp3 -n htdemucs_ft -o assets/audio/stems assets/audio/reference/ALCHEMY_I_O.mp3
 
 check-port: ## Check if Ableton Remote Script is listening
 	@lsof -i :9877 2>/dev/null && echo "✓ Port 9877 active" || echo "✗ Port 9877 not in use"
