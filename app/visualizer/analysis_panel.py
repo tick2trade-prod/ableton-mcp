@@ -1,5 +1,6 @@
 """Analysis Panel - Display librosa analysis results using DearPyGui."""
 
+from pathlib import Path
 
 try:
     import dearpygui.dearpygui as dpg
@@ -59,6 +60,41 @@ Ableton Recommendations:
 
             dpg.add_text("File: N/A", tag="analysis_file")
             dpg.add_text("Tempo: -- BPM", tag="analysis_tempo")
+            dpg.add_text("Actions:")
+
+            def load_in_ableton():
+                if not self.analysis_data:
+                    return
+                # TODO: Implement load_browser_item or load_file logic
+                # For now, we try 'load_browser_item' if we can guess URI, or just log
+                # Since we don't have file path -> URI mapping yet,
+                # we'll try sending a custom debug message or just show status.
+
+                # If we had the file in User Library, we could guess URI.
+                # Let's try to infer if it's in the User Library?
+                path = self.analysis_data.get("path", "")
+
+                from app.visualizer.client import send
+                # Mocking a load command - ideally we need 'load_file' support
+                # in remote script or 'load_browser_item' with correct URI.
+                # We'll assume user wants to know it sent something.
+
+                # Try to load as a generic 'load_file' if we added it, but we didn't.
+                # So we will just ping for session info to prove connection.
+                res = send("get_session_info")
+
+                if res.get("status") == "success":
+                    dpg.set_value(
+                        "status_text",
+                        f"Connected! (Load not impl yet)\nPath: {Path(path).name}",
+                    )
+                else:
+                    dpg.set_value("status_text", f"Error: {res.get('message')}")
+
+            dpg.add_button(
+                label="Load in Ableton (Test Conn)", callback=load_in_ableton, width=-1
+            )
+            dpg.add_text("", tag="status_text", color=(0, 255, 0))
             dpg.add_text("Key: N/A", tag="analysis_key")
             dpg.add_text("Duration: --s", tag="analysis_duration")
 

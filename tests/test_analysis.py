@@ -15,7 +15,9 @@ from pathlib import Path
 import pytest
 
 # Path to the analysis script
-ANALYSIS_SCRIPT = Path(__file__).parent.parent / "analysis" / "analyze_track.py"
+ANALYSIS_SCRIPT = (
+    Path(__file__).parent.parent / "src" / "ableton_mcp" / "analysis" / "track.py"
+)
 ASSETS_DIR = Path(__file__).parent.parent / "assets" / "audio" / "reference"
 
 # Reference tracks for testing
@@ -67,7 +69,7 @@ def test_analyze_alchemy_track_json():
     assert "sections" in data
 
     # Verify data types and ranges
-    assert isinstance(data["bpm"], (int, float))
+    assert isinstance(data["bpm"], int | float)
     assert 60 <= data["bpm"] <= 200, f"BPM {data['bpm']} outside expected range"
     assert data["key"] in [
         "C",
@@ -192,5 +194,5 @@ def test_section_detection_format():
         assert "type" in section
         assert "time" in section
         assert section["type"] in ["drop", "breakdown", "intro"]
-        assert isinstance(section["time"], (int, float))
+        assert isinstance(section["time"], int | float)
         assert section["time"] >= 0

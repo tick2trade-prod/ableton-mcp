@@ -91,6 +91,28 @@ class AudioViewer:
             f"Duration: {result.get('duration', 0):.1f}s",
         )
 
+        if "spectrogram" in result:
+            spec_db = result["spectrogram"]
+            # Normalize to 0-1 range for visualization
+            spec_norm = (spec_db - spec_db.min()) / (spec_db.max() - spec_db.min())
+
+            # DearPyGui expects 1D array of values (row-major)
+            # and bounds for the axes
+            rows, cols = spec_norm.shape
+            values = spec_norm.flatten().tolist()
+
+            dpg.configure_item(
+                "spectrogram_series",
+                values=values,
+                rows=rows,
+                cols=cols,
+                bounds_min=(0, 0),
+                bounds_max=(
+                    result.get("duration", 10),
+                    rows,
+                ),  # Map Y to frequency bins approximation
+            )
+
         # Update chroma plot
         if "chroma" in result:
             chroma_mean = result["chroma"].mean(axis=1)
@@ -98,6 +120,7 @@ class AudioViewer:
                 "chroma_series",
                 [list(range(12)), chroma_mean.tolist()],
             )
+            # Update ticks to show Note names if possible (hard in simple plot)
 
     def create_window(self, parent: str | None = None):
         """Create the audio viewer window/panel."""
@@ -121,17 +144,37 @@ class AudioViewer:
 
             dpg.add_separator()
 
+            # Spectrogram plot
+            with dpg.plot(label="Spectrogram", height=200, width=-1):
+                dpg.add_plot_axis(dpg.mvXAxis, label="Time", tag="spec_x")
+                with dpg.plot_axis(dpg.mvYAxis, label="Frequency", tag="spec_y"):
+                    # Heatmap series (dynamic)
+                    dpg.add_heat_series(
+                        [[0.0]],
+                        rows=1,
+                        cols=1,
+                        label="Spectrogram",
+                        tag="spectrogram_series",
+                        format="",
+                    )
+
+            dpg.add_separator()
+
             # Chroma plot
-            with dpg.plot(label="Chroma (Key Distribution)", height=150, width=-1):
-                dpg.add_plot_axis(dpg.mvXAxis, label="Note", tag="chroma_x")
-                dpg.add_plot_axis(dpg.mvYAxis, label="Intensity", tag="chroma_y")
-                dpg.add_bar_series(
-                    list(range(12)),
-                    [0] * 12,
-                    label="Chroma",
-                    parent="chroma_y",
-                    tag="chroma_series",
+            with dpg.plot(label="Chroma (Key)", height=150, width=-1):
+                dpg.add_plot_axis(
+                    dpg.mvXAxis,
+                    label="Pitch Class",
+                    tag="chroma_x",
+                    no_tick_labels=True,
                 )
+                with dpg.plot_axis(dpg.mvYAxis, label="Intensity", tag="chroma_y"):
+                    dpg.add_bar_series(
+                        list(range(12)),
+                        [0] * 12,
+                        label="Chroma",
+                        tag="chroma_series",
+                    )
 
 
 def standalone_viewer(filepath: str | None = None):
