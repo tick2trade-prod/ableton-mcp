@@ -23,6 +23,11 @@ dev = [
     "pytest-timeout>=2.0.0",
     "pre-commit>=3.0.0",
 ]
+analysis = [
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+]
 
 [project.scripts]
 ableton-mcp = "MCP_Server.server:main"
