@@ -22,11 +22,11 @@ setup: install ## Setup dev environment (install deps + hooks)
 # === Build & Deploy ===
 deploy-script: ## Deploy Remote Script to Ableton User Library
 	@echo "🚀 Deploying Remote Script via scripts/deploy.py..."
-	@uv run --with pyyaml scripts/deploy.py
+	@.venv/bin/python scripts/deploy.py
 
 clean-tracks: ## Clear all tracks in Ableton
 	@echo "🧹 Cleaning Ableton tracks (via scripts/clear_tracks.py)..."
-	@uv run scripts/clear_tracks.py
+	@.venv/bin/python scripts/clear_tracks.py
 
 build: setup lint test verify ## Run full local build
 	@echo "✅ Build passed!"
@@ -54,10 +54,10 @@ test-device: ## Run device tool tests
 	uv run pytest tests/test_tools.py -v -m device
 
 test-techno: ## Run techno production test suite
-	uv run pytest tests/techno/ -v -s
+	.venv/bin/pytest tests/techno/ -v -s
 
 test-alchemy: ## Run I/O Alchemy arrangement tests
-	uv run pytest tests/techno/test_alchemy_arrangement.py -v -s
+	.venv/bin/pytest tests/techno/test_alchemy_arrangement.py -v -s
 
 test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
