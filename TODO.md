@@ -3,10 +3,17 @@
 ## Planned Features
 
 ### MIDI Editing
-- [ ] **Transpose MIDI notes in clip** - Add ability to transpose all MIDI notes in a clip by a semitone offset. Useful for moving notes to different drum pads or changing key.
+- [ ] **Transpose MIDI notes in clip** - Add ability to transpose all MIDI notes in a clip by a semitone offset
 
-### Master Track
-- [ ] **Master track device parameters** - Add tools to get/set device parameters on the master track (currently only works on regular tracks). Needed for configuring effects like Glue Compressor on master.
+### Clip Operations
+- [ ] **Audio clip support** - Extend clip operations to work with audio clips (currently MIDI only)
 
 ## Completed
-<!-- Move completed items here -->
+
+### v1.1.0 (Rack Chain Tools)
+- [x] **Master track effects** - `load_effect_on_main` adds effects to Master
+- [x] **Rack chain management** - Create racks, add chains, load effects to chains
+- [x] **Device parameters in chains** - Get/set params for devices inside rack chains
+- [x] **Browser navigation** - `get_browser_tree`, `get_browser_items_at_path`
+- [x] **Integration tests** - 38 tests against live Ableton DAW
+

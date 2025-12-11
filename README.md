@@ -156,8 +156,53 @@ The system uses a simple JSON-based protocol over TCP sockets:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these guidelines:
+
+### Development Setup
+
+```bash
+# Clone and install
+git clone https://github.com/ahujasid/ableton-mcp
+cd ableton-mcp
+make install-dev  # Installs dev deps + pre-commit hooks
+
+# Deploy Remote Script to Ableton
+make deploy-script
+
+# Run tests (requires Ableton with AbletonMCP running)
+make test
+```
+
+### Testing
+
+All tests run against a **live Ableton instance** - no mocks.
+
+```bash
+make test-connection  # Verify Ableton connected
+make test             # Run all 38 tests
+make verify           # Run pre-commit + tests (pre-merge)
+```
+
+### Conventional Commits
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add new track creation tool
+fix: resolve connection timeout
+test: add integration tests for rack tools
+docs: update README with testing section
+```
+
+### Branch Naming
+
+```
+feature/<id>-<slug>   # feature/0001-rack-chain-tools
+fix/<id>-<slug>       # fix/0002-connection-timeout
+test/<id>-<slug>      # test/0003-browser-tests
+```
 
 ## Disclaimer
 
 This is a third-party integration and not made by Ableton.
+
