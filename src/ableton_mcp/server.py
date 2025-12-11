@@ -1,11 +1,13 @@
 # ableton_mcp_server.py
-from mcp.server.fastmcp import FastMCP  # type: ignore[import-not-found]
-import socket
 import json
 import logging
-from dataclasses import dataclass, field
+import socket
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Dict, Any, List, Union, Optional
+from dataclasses import dataclass, field
+from typing import Any, Optional, Union
+
+from mcp.server.fastmcp import FastMCP  # type: ignore[import-not-found]
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -90,7 +92,7 @@ class AbletonConnection:
         else:
             raise Exception("No data received")
 
-    def send_command(self, command_type: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def send_command(self, command_type: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """Send a command to Ableton and return the response"""
         if not self.sock and not self.connect():
             raise ConnectionError("Not connected to Ableton")
@@ -169,7 +171,7 @@ class AbletonConnection:
             raise Exception(f"Communication error with Ableton: {e}")
 
 @asynccontextmanager
-async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
+async def server_lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
     """Manage server startup and shutdown lifecycle"""
     try:
         logger.info("AbletonMCP server starting up")
@@ -367,7 +369,7 @@ def create_clip(track_index: int, clip_index: int, length: float = 4.0) -> str:
 def add_notes_to_clip(
     track_index: int,
     clip_index: int,
-    notes: List[Dict[str, Union[int, float, bool]]]
+    notes: list[dict[str, Union[int, float, bool]]]
 ) -> str:
     """
     Add MIDI notes to a clip.

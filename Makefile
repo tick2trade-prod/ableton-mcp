@@ -3,11 +3,12 @@
 
 # Paths
 LOG_FILE := "/Users/$(USER)/Library/Preferences/Ableton/Live 12.3.1/Log.txt"
-REMOTE_SCRIPT_SRC := AbletonMCP_Remote_Script
+REMOTE_SCRIPT_SRC := src/remote_script
 
 .PHONY: help install setup test test-live test-session test-clip test-device \
         test-connection check-port logs logs-mcp run run-dev lint pre-commit \
-        deploy-script clean-tracks build build-clean verify
+        deploy-script clean-tracks build build-clean verify install-analysis \
+        check-ffmpeg test-techno test-one build-docker-local
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -19,10 +20,27 @@ install: ## Sync dependencies
 setup: install ## Setup dev environment (install deps + hooks)
 	uv run pre-commit install
 
+install-analysis: ## Install audio analysis dependencies
+	@echo "📦 Installing analysis dependencies..."
+	uv pip install librosa numpy scipy
+	@echo "✅ Analysis dependencies installed!"
+
+check-ffmpeg: ## Check if ffmpeg is installed
+	@which ffmpeg >/dev/null 2>&1 && echo "✓ ffmpeg installed" || (echo "✗ ffmpeg not found. Install with: brew install ffmpeg" && exit 1)
+
 # === Build & Deploy ===
 deploy-script: ## Deploy Remote Script to Ableton User Library
 	@echo "🚀 Deploying Remote Script via scripts/deploy.py..."
 	@uv run --with pyyaml scripts/deploy.py
+
+build-docker-local: ## Build Docker image with environment args (usage: make build-docker-local OS=MACOS IDE=ANTIGRAVITY MODEL=GEMINI)
+	@echo "🐳 Building Docker image..."
+	docker build \
+		--build-arg OS=$(or $(OS),MACOS) \
+		--build-arg IDE=$(or $(IDE),ANTIGRAVITY) \
+		--build-arg MODEL=$(or $(MODEL),GEMINI) \
+		-t $(DOCKER_IMAGE_NAME):$(DOCKER_TAG) .
+	@echo "✅ Docker image built: $(DOCKER_IMAGE_NAME):$(DOCKER_TAG)"
 
 clean-tracks: ## Clear all tracks in Ableton
 	@echo "🧹 Cleaning Ableton tracks (via scripts/clear_tracks.py)..."
@@ -56,6 +74,9 @@ test-techno: ## Run techno production test suite
 test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
 
+test-analysis: ## Run audio analysis tests
+	uv run pytest tests/test_analysis.py -v
+
 # === Code Quality ===
 lint: ## Run pre-commit checks on all files
 	uv run pre-commit run --all-files
@@ -87,3 +108,12 @@ run: ## Run MCP server (production)
 
 run-dev: ## Run MCP server from local source
 	uv run ableton-mcp
+
+analyze: check-ffmpeg ## Analyze an audio track (usage: make analyze TRACK=path/to/file.mp3)
+	@if [ -z "$(TRACK)" ]; then \
+		echo "❌ Error: TRACK variable not set"; \
+		echo "Usage: make analyze TRACK=assets/audio/reference/ALCHEMY_I_O.mp3"; \
+		exit 1; \
+	fi
+	@echo "🎵 Analyzing $(TRACK)..."
+	@uv run analysis/analyze_track.py "$(TRACK)"

@@ -3,6 +3,7 @@
 Deploy Ableton Remote Script.
 Reads configuration from config.yaml and copies the remote script to the correct location.
 """
+
 import shutil
 import sys
 from pathlib import Path
@@ -11,18 +12,23 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    print("❌ PyYAML not found. Please run 'uv pip install pyyaml' or 'pip install pyyaml'")
+    print(
+        "❌ PyYAML not found. "
+        "Please run 'uv pip install pyyaml' or 'pip install pyyaml'"
+    )
     sys.exit(1)
 
 CONFIG_FILE = Path("config.yaml")
-SOURCE_DIR = Path("AbletonMCP_Remote_Script")
+SOURCE_DIR = Path("src/remote_script")
+
 
 def load_config():
     if not CONFIG_FILE.exists():
         print(f"❌ Config file not found: {CONFIG_FILE.absolute()}")
         return {}
-    with open(CONFIG_FILE, "r") as f:
+    with open(CONFIG_FILE) as f:
         return yaml.safe_load(f)
+
 
 def expand_path(path_str):
     if not path_str:
@@ -32,6 +38,7 @@ def expand_path(path_str):
         # Simple env var expansion if needed, though expanduser handles ~
         pass
     return path
+
 
 def deploy():
     print("🚀 Starting Deployment...")
@@ -64,8 +71,8 @@ def deploy():
         # Check source __init__.py
         src_init = SOURCE_DIR / "__init__.py"
         if not src_init.exists():
-             print(f"❌ Source __init__.py not found at {src_init}")
-             sys.exit(1)
+            print(f"❌ Source __init__.py not found at {src_init}")
+            sys.exit(1)
 
         dest_init = dest_path / "__init__.py"
 
@@ -78,6 +85,7 @@ def deploy():
     except Exception as e:
         print(f"❌ Deployment failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     deploy()
