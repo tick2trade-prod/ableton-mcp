@@ -8,6 +8,22 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 ## [Unreleased]
 
 ### Added
+- **Agentic Workflow System**
+  - Multi-gate autonomous coding workflow with 4 specialized agents:
+    - **Architect**: Generates implementation plans from specs
+    - **Critic**: Audits plans, code, and releases (3-stage review)
+    - **Builder**: Implements code using TDD and AST context splitting
+    - **Sentinel**: Manages QA, release verification, and Git operations
+  - Docker-based Infrastructure:
+    - Redis Stack (persistent memory)
+    - Redis MCP Server (on-demand connectivity via Docker CLI)
+  - Developer Tooling:
+    - `scripts/safe_docker_desktop_install.sh` - Automated setup
+    - `scripts/doctor_docker_desktop.sh` - Diagnostic tool
+    - `scripts/test_mcp_redis.sh` - Connectivity verification
+  - Comprehensive Test Suite:
+    - 30 new tests covering workflow, docker scripts, and config validation
+
 - **Rack Chain Tools**
   - `create_audio_effect_rack` - Create empty Audio Effect Rack on track
   - `create_rack_chain` - Add chain to rack
