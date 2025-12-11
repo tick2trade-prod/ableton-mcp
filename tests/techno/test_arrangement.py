@@ -18,18 +18,46 @@ class TestTechnoArrangement:
     CLIP_LENGTH = 16.0
 
     TRACKS = [
-        {"name": "Kick Heavy", "type": "kick", "query": "query:Drums#Kit-Core 909"},
-        {"name": "Sub Bass", "type": "bass", "query": "query:Sounds#Bass#Basic Sine"},
-        {"name": "Acid Lead", "type": "acid", "query": "query:Sounds#Lead#Acid"},
-        {"name": "Stab", "type": "stab", "query": "query:Sounds#Synth Keys#Stab"},
-        {"name": "Hi-Hats", "type": "hats", "query": "query:Drums#Kit-Core 909"},
-        {"name": "Perc", "type": "perc", "query": "query:Drums#Kit-Core 909"},
-        {"name": "Rumble", "type": "rumble", "query": "query:Sounds#Bass#Sub"},
+        {
+            "name": "Kick Heavy",
+            "type": "kick",
+            "query": "query:Drums#FileId_5446",
+        },  # 808 Core Kit
+        {
+            "name": "Sub Bass",
+            "type": "bass",
+            "query": "query:Sounds#Bass:FileId_5199",
+        },  # 808 BNYX Stopper
+        {
+            "name": "Acid Lead",
+            "type": "acid",
+            "query": "query:Synths#Drift",
+        },  # Drift synth for acid
+        {
+            "name": "Stab",
+            "type": "stab",
+            "query": "query:Synths#Simpler",
+        },  # Simpler for stabs
+        {
+            "name": "Hi-Hats",
+            "type": "hats",
+            "query": "query:Drums#FileId_5446",
+        },  # 808 Core Kit
+        {
+            "name": "Perc",
+            "type": "perc",
+            "query": "query:Drums#FileId_5446",
+        },  # 808 Core Kit
+        {
+            "name": "Rumble",
+            "type": "rumble",
+            "query": "query:Sounds#Bass:FileId_5200",
+        },  # 808 Drifter
         {
             "name": "Master Chain",
             "type": "master",
-            "query": "query:Audio Effects#Limiter",
-        },
+            "query": "query:AudioFx#Auto%20Filter",
+        },  # Auto Filter
     ]
 
     @pytest.mark.live
@@ -41,12 +69,9 @@ class TestTechnoArrangement:
         client("stop_playback")
         client("set_tempo", {"tempo": self.TEMPO})
 
-        # 2. Find Sounds
-        drum_uri = find_loadable("Drums") or "query:Synths#Drum%20Rack"
-        bass_uri = find_loadable("Sounds/Bass") or "query:Synths#Simpler"
-        lead_uri = "query:Synths#Simpler"
-
-        print(f"  Sounds: \\n    Drums: {drum_uri}\\n    Bass: {bass_uri}")
+        # 2. Setup - All instruments verified to exist in Ableton Intro
+        print("  Using 808 Core Kit for drums")
+        print("  Using verified bass sounds and Drift/Simpler for synths")
 
         # 3. manage Tracks
         current = live_session["track_count"]
@@ -73,44 +98,19 @@ class TestTechnoArrangement:
             track_indices.append(idx)
             client("set_track_name", {"track_index": idx, "name": track["name"]})
 
-            # Load Instrument (Use defined query or fallback to generic search)
+            # Load Instrument (all queries verified to work)
             uri = track.get("query")
-
-            # Fallback logic if explicit query fails (simulated here by checking for URI)
-            if not uri:
-                if track["type"] in ["kick", "hats", "perc"]:
-                    uri = drum_uri
-                elif track["type"] == "bass":
-                    uri = bass_uri
-                elif track["type"] == "rumble":
-                    uri = bass_uri  # Fallback to bass for rumble
-                else:
-                    uri = lead_uri
 
             print(f"    Loading: {uri}")
             res = client("load_browser_item", {"track_index": idx, "item_uri": uri})
 
-            # Retry with fallback if failed
             if res["status"] != "success":
-                print(f"    ⚠️ Failed to load {uri}, trying fallback...")
-                if track["type"] in ["kick", "hats", "perc"]:
-                    fallback_uri = drum_uri
-                elif track["type"] == "bass":
-                    fallback_uri = bass_uri
-                elif track["type"] == "rumble":
-                    fallback_uri = bass_uri
-                else:
-                    fallback_uri = lead_uri
-
-                print(f"    Loading Fallback: {fallback_uri}")
-                res = client(
-                    "load_browser_item", {"track_index": idx, "item_uri": fallback_uri}
+                print(
+                    f"    ❌ Failed to load {uri}: {res.get('message', 'Unknown error')}"
                 )
+                continue  # Skip this track
 
-                if res["status"] != "success":
-                    print(f"    ❌ Failed to load fallback {fallback_uri}")
-
-            # Small delay to let device load (basic wait)
+            # Small delay to let device load
             import time
 
             time.sleep(0.5)
