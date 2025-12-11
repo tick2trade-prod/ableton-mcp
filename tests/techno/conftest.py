@@ -4,11 +4,10 @@ import socket
 import json
 import os
 import sys
-import time
-
 # Add tests root to path for config import
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from tests.config import ABLETON_HOST, ABLETON_PORT, SOCKET_TIMEOUT
+
+from tests.config import ABLETON_HOST, ABLETON_PORT, SOCKET_TIMEOUT  # noqa: E402
 
 @pytest.fixture(scope="session")
 def client():
@@ -20,11 +19,12 @@ def client():
             sock.connect((ABLETON_HOST, ABLETON_PORT))
             cmd = {"type": cmd_type, "params": params or {}}
             sock.sendall(json.dumps(cmd).encode())
-            
+
             response = b""
             while True:
                 chunk = sock.recv(32768)
-                if not chunk: break
+                if not chunk:
+                    break
                 response += chunk
                 if response.strip().endswith(b"}") and response.count(b"{") == response.count(b"}"):
                     break

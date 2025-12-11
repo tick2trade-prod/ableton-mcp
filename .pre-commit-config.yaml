@@ -3,15 +3,20 @@
 # Run all: pre-commit run --all-files
 
 repos:
-  # Basic file checks
+  # Basic file chrepos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^external/
       - id: end-of-file-fixer
+        exclude: ^external/
       - id: check-yaml
+        exclude: ^external/
       - id: check-json
       - id: check-added-large-files
+        exclude: ^external/|assets/
+        args: ['--maxkb=20000']
 
   # Python linting with ruff (fast)
   - repo: https://github.com/astral-sh/ruff-pre-commit

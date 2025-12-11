@@ -3,6 +3,7 @@
 Environment-specific settings for Ableton Live integration.
 """
 import os
+import platform
 from pathlib import Path
 
 # === Ableton Live Settings ===
@@ -34,7 +35,6 @@ WINDOWS_LOG_PATH = Path(os.getenv("APPDATA", "")) / "Ableton" / f"Live {ABLETON_
 WINDOWS_REMOTE_SCRIPT_PATH = Path(os.getenv("APPDATA", "")) / "Ableton" / f"Live {ABLETON_VERSION}" / "Preferences" / "User Remote Scripts" / "AbletonMCP"
 
 # Select based on platform
-import platform
 if platform.system() == "Darwin":
     LOG_PATH = MACOS_LOG_PATH
     REMOTE_SCRIPT_PATH = MACOS_REMOTE_SCRIPT_PATH

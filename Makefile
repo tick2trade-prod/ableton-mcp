@@ -4,25 +4,35 @@
 # Paths
 LOG_FILE := "/Users/$(USER)/Library/Preferences/Ableton/Live 12.3.1/Log.txt"
 REMOTE_SCRIPT_SRC := AbletonMCP_Remote_Script
-REMOTE_SCRIPT_DST := "/Users/$(USER)/Music/Ableton/User Library/Remote Scripts/AbletonMCP"
 
-.PHONY: help install install-dev test test-live test-session test-clip test-device \
-        test-connection check-port logs logs-mcp run run-dev lint pre-commit deploy-script
+.PHONY: help install setup test test-live test-session test-clip test-device \
+        test-connection check-port logs logs-mcp run run-dev lint pre-commit \
+        deploy-script clean-tracks build build-clean verify
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # === Setup ===
-install: ## Install dependencies
-	uv sync
+install: ## Sync dependencies
+	uv sync --all-groups --upgrade
 
-install-dev: ## Install with dev dependencies
-	uv sync --extra dev
+setup: install ## Setup dev environment (install deps + hooks)
 	uv run pre-commit install
 
-deploy-script: ## Copy Remote Script to Ableton
-	@mkdir -p $(REMOTE_SCRIPT_DST)
-	cp $(REMOTE_SCRIPT_SRC)/__init__.py $(REMOTE_SCRIPT_DST)/
+# === Build & Deploy ===
+deploy-script: ## Deploy Remote Script to Ableton User Library
+	@echo "🚀 Deploying Remote Script via scripts/deploy.py..."
+	@uv run --with pyyaml scripts/deploy.py
+
+clean-tracks: ## Clear all tracks in Ableton
+	@echo "🧹 Cleaning Ableton tracks (via scripts/clear_tracks.py)..."
+	@uv run scripts/clear_tracks.py
+
+build: setup lint test verify ## Run full local build
+	@echo "✅ Build passed!"
+
+build-techno-clean: deploy-script clean-tracks test-techno ## Run techno tests with clean tracks
+	@echo "✅ Techno workflow complete!"
 
 # === Testing ===
 test: ## Run all tests
@@ -46,43 +56,34 @@ test-techno: ## Run techno production test suite
 test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
 
-# === Connection ===
-test-connection: ## Test socket connection to Ableton
-	@echo "Testing connection to Ableton on port 9877..."
-	@echo '{"type": "get_session_info", "params": {}}' | nc -w 3 localhost 9877 && echo "" || echo "Failed: Is Ableton running with AbletonMCP?"
+# === Code Quality ===
+lint: ## Run pre-commit checks on all files
+	uv run pre-commit run --all-files
 
+format: ## Auto-format code
+	uv run pre-commit run --all-files
+
+# === Pre-Merge Verification ===
+verify: ## Run integrity checks
+	@echo "🔍 Running pre-merge verification..."
+	@echo "1. Tests..."
+	@uv run pytest tests/ -v --tb=short || (echo "❌ Tests failed" && exit 1)
+	@echo "2. Connection check..."
+	@lsof -i :9877 2>/dev/null || echo "⚠️  Ableton not connected (optional)"
+	@echo "✅ All checks passed!"
+
+# === Utils ===
 check-port: ## Check if Ableton Remote Script is listening
 	@lsof -i :9877 2>/dev/null && echo "✓ Port 9877 active" || echo "✗ Port 9877 not in use"
 
-# === Logs ===
 logs: ## Tail Ableton log file
 	@tail -50 $(LOG_FILE)
 
 logs-mcp: ## Show only AbletonMCP log entries
 	@grep -i "AbletonMCP\|RemoteScriptMessage" $(LOG_FILE) | tail -30
 
-# === Run ===
 run: ## Run MCP server (production)
 	uvx ableton-mcp
 
 run-dev: ## Run MCP server from local source
 	uv run ableton-mcp
-
-# === Code Quality ===
-lint: ## Run linter
-	uv run ruff check .
-
-pre-commit: ## Run pre-commit on all files
-	uv run pre-commit run --all-files
-
-# === Pre-Merge Verification ===
-verify: ## Run all pre-merge checks
-	@echo "🔍 Running pre-merge verification..."
-	@echo "1. Pre-commit hooks..."
-	@uv run pre-commit run --all-files || (echo "❌ Pre-commit failed" && exit 1)
-	@echo "2. Tests..."
-	@uv run pytest tests/ -v --tb=short || (echo "❌ Tests failed" && exit 1)
-	@echo "3. Connection check..."
-	@lsof -i :9877 2>/dev/null || echo "⚠️  Ableton not connected (optional)"
-	@echo "✅ All checks passed!"
-
