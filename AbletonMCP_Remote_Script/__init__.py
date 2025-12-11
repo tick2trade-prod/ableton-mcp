@@ -850,17 +850,26 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
             import time
             time.sleep(0.1)
             
-            # If device_index is specified and valid, move the rack to that position
+            # Verify rack was loaded
             devices_after = len(track.devices)
-            if devices_after > devices_before and device_index >= 0:
-                new_rack = track.devices[devices_after - 1]  # The newly loaded rack
-                if device_index < devices_after - 1:  # Only move if not already at desired position
-                    self._song.move_device(new_rack, track, device_index)
-                    self.log_message("Moved rack to device index: " + str(device_index))
+            if devices_after <= devices_before:
+                raise Exception("Audio Effect Rack did not load (devices: {} -> {})".format(
+                    devices_before, devices_after
+                ))
+            
+            # The newly loaded rack is at the end
+            new_rack_index = devices_after - 1
+            new_rack = track.devices[new_rack_index]
+            
+            # If a valid insertion index was requested, move the rack there
+            if 0 <= device_index < new_rack_index:
+                self._song.move_device(new_rack, track, device_index)
+                self.log_message("Moved rack to device index: " + str(device_index))
+                new_rack_index = device_index
             
             result = {
                 "track_index": track_index,
-                "device_index": device_index if device_index >= 0 else len(track.devices) - 1,
+                "device_index": new_rack_index,
                 "device_count": len(track.devices)
             }
             return result
