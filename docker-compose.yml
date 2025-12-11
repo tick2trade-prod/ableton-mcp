@@ -11,10 +11,9 @@ services:
 
   # MCP Bridge - Connects Antigravity IDE to Redis
   mcp-redis:
-    image: ghcr.io/redis/mcp-redis:latest
+    image: mcp/redis:latest
     environment:
       - REDIS_URL=redis://redis-stack:6379
-    network_mode: "host"
     depends_on:
       - redis-stack
     restart: unless-stopped
