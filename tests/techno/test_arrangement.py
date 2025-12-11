@@ -1,4 +1,3 @@
-
 import pytest
 from tests.config import ABLETON_MAX_TRACKS
 from tests.techno.patterns import (
@@ -7,8 +6,10 @@ from tests.techno.patterns import (
     get_lead_pattern,
     get_hihat_pattern,
     get_stab_pattern,
-    get_perc_pattern
+    get_perc_pattern,
+    get_rumble_pattern,
 )
+
 
 class TestTechnoArrangement:
     """i_o style techno track generator."""
@@ -24,7 +25,11 @@ class TestTechnoArrangement:
         {"name": "Hi-Hats", "type": "hats", "query": "query:Drums#Kit-Core 909"},
         {"name": "Perc", "type": "perc", "query": "query:Drums#Kit-Core 909"},
         {"name": "Rumble", "type": "rumble", "query": "query:Sounds#Bass#Sub"},
-        {"name": "Master Chain", "type": "master", "query": "query:Audio Effects#Limiter"},
+        {
+            "name": "Master Chain",
+            "type": "master",
+            "query": "query:Audio Effects#Limiter",
+        },
     ]
 
     @pytest.mark.live
@@ -98,17 +103,23 @@ class TestTechnoArrangement:
                     fallback_uri = lead_uri
 
                 print(f"    Loading Fallback: {fallback_uri}")
-                res = client("load_browser_item", {"track_index": idx, "item_uri": fallback_uri})
+                res = client(
+                    "load_browser_item", {"track_index": idx, "item_uri": fallback_uri}
+                )
 
                 if res["status"] != "success":
-                     print(f"    ❌ Failed to load fallback {fallback_uri}")
+                    print(f"    ❌ Failed to load fallback {fallback_uri}")
 
             # Small delay to let device load (basic wait)
             import time
+
             time.sleep(0.5)
 
             # Create Clip & Notes
-            client("create_clip", {"track_index": idx, "clip_index": 0, "length": self.CLIP_LENGTH})
+            client(
+                "create_clip",
+                {"track_index": idx, "clip_index": 0, "length": self.CLIP_LENGTH},
+            )
 
             # Get patterns from module
             notes = []
@@ -130,14 +141,33 @@ class TestTechnoArrangement:
                 notes = get_perc_pattern(self.CLIP_LENGTH)
 
             if notes:
-                client("add_notes_to_clip", {"track_index": idx, "clip_index": 0, "notes": notes})
+                client(
+                    "add_notes_to_clip",
+                    {"track_index": idx, "clip_index": 0, "notes": notes},
+                )
             elif track["type"] == "rumble":
-                 # Rumble often mirrors the kick pattern
-                 notes = get_kick_pattern(self.CLIP_LENGTH)
-                 client("add_notes_to_clip", {"track_index": idx, "clip_index": 0, "notes": notes})
+                # Rumble uses its own pattern
+                notes = get_rumble_pattern(self.CLIP_LENGTH)
+                client(
+                    "add_notes_to_clip",
+                    {"track_index": idx, "clip_index": 0, "notes": notes},
+                )
             elif track["type"] in ["fx", "master"]:
-                 # Just effect loading, no notes needed
-                 pass
+                # Just effect loading, no notes needed
+                pass
+
+            # Verify instrument loaded
+            import time
+
+            time.sleep(0.3)
+            track_info = client("get_track_info", {"track_index": idx})
+            if track_info.get("status") == "success":
+                devices = track_info["result"].get("devices", [])
+                if devices:
+                    device_names = [d["name"] for d in devices]
+                    print(f"    ✓ Loaded: {', '.join(device_names)}")
+                else:
+                    print(f"    ⚠️  No devices found on track {idx}")
 
         # 4. Play
         client("start_playback")
