@@ -7,7 +7,7 @@ REMOTE_SCRIPT_SRC := AbletonMCP_Remote_Script
 
 .PHONY: help install setup test test-live test-session test-clip test-device \
         test-connection check-port logs logs-mcp run run-dev lint pre-commit \
-        deploy-script clean-tracks build build-clean verify
+        deploy-script clean-tracks build build-clean verify test-alchemy
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -34,6 +34,9 @@ build: setup lint test verify ## Run full local build
 build-techno-clean: deploy-script clean-tracks test-techno ## Run techno tests with clean tracks
 	@echo "✅ Techno workflow complete!"
 
+build-techno-clean-i-o: deploy-script clean-tracks test-alchemy ## Build I/O Alchemy recreation
+	@echo "✅ I/O Alchemy recreation complete!"
+
 # === Testing ===
 test: ## Run all tests
 	uv run pytest tests/ -v
@@ -52,6 +55,9 @@ test-device: ## Run device tool tests
 
 test-techno: ## Run techno production test suite
 	uv run pytest tests/techno/ -v -s
+
+test-alchemy: ## Run I/O Alchemy arrangement tests
+	uv run pytest tests/techno/test_alchemy_arrangement.py -v -s
 
 test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
