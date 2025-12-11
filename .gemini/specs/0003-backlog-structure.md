@@ -45,3 +45,26 @@ Adopt a standard project structure similar to `redis-mcp` to improve maintainabi
 
 ## References
 *   [redis-mcp](https://github.com/redis/mcp-redis) (Structure Reference)
+
+
+ https://antigravity.google/docs/mcp
+
+
+https://antigravity.google/docs/artifacts
+
+
+https://antigravity.google/docs/task-list
+
+
+https://antigravity.google/docs/implementation-plan
+
+
+https://antigravity.google/docs/knowledge
+
+
+https://antigravity.google/docs/agent-manager
+
+
+https://antigravity.google/docs/workspaces
+
+https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-system-instructions.json
