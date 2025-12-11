@@ -71,3 +71,15 @@ lint: ## Run linter
 
 pre-commit: ## Run pre-commit on all files
 	uv run pre-commit run --all-files
+
+# === Pre-Merge Verification ===
+verify: ## Run all pre-merge checks
+	@echo "🔍 Running pre-merge verification..."
+	@echo "1. Pre-commit hooks..."
+	@uv run pre-commit run --all-files || (echo "❌ Pre-commit failed" && exit 1)
+	@echo "2. Tests..."
+	@uv run pytest tests/ -v --tb=short || (echo "❌ Tests failed" && exit 1)
+	@echo "3. Connection check..."
+	@lsof -i :9877 2>/dev/null || echo "⚠️  Ableton not connected (optional)"
+	@echo "✅ All checks passed!"
+
