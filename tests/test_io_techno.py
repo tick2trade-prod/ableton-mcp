@@ -38,7 +38,18 @@ def send_command(cmd_type: str, params: dict = None, timeout: int = SOCKET_TIMEO
         log(f"Sending: {cmd}")
         sock.sendall(json.dumps(cmd).encode())
         
-        response = sock.recv(8192)
+        # Increase buffer for large browser responses
+        response = b""
+        while True:
+            chunk = sock.recv(32768)
+            if not chunk:
+                break
+            response += chunk
+            # Simple check if we have a valid JSON object end
+            # (Works for our known response structure)
+            if response.strip().endswith(b"}") and response.count(b"{") == response.count(b"}"):
+                break
+        
         result = json.loads(response.decode())
         log(f"Received: {result}")
         return result
@@ -76,6 +87,23 @@ class TestIOTechno:
         self.session = response["result"]
         print(f"\n📍 Ableton {ABLETON_VERSION} ({ABLETON_EDITION}) - {self.session['track_count']} tracks")
     
+    def find_first_loadable(self, path: str) -> str:
+        """Find first loadable URI in a browser path."""
+        result = send_command("get_browser_items_at_path", {"path": path})
+        if result.get("status") != "success":
+            return None
+        
+        items = result.get("result", {}).get("items", [])
+        for item in items:
+            if item.get("is_loadable"):
+                return item["uri"]
+            # If it's a folder, basic recursion (depth 1)
+            if item.get("is_folder"):
+                 # Try to enter the folder (e.g. Drums -> some subfolder)
+                 # This is tricky without simple recursion, let's just Stick to root items or specific paths
+                 pass
+        return None
+
     def get_session(self) -> dict:
         """Get current session info."""
         return send_command("get_session_info")["result"]
@@ -121,52 +149,67 @@ class TestIOTechno:
         current_tracks = session["track_count"]
         needed_tracks = len(self.TRACKS)
         
+        # Pre-calculate instruments URIs to ensure sound
+        # Drums: First item in "Drums" category (usually a Kit)
+        # Instruments: Default Simpler (sine wave) or Drift
+        
+        # Fallbacks
+        drum_uri = "query:Synths#Drum%20Rack"  # Empty rack (silent but valid)
+        bass_uri = "query:Synths#Simpler"      # Sine wave (audible)
+        lead_uri = "query:Synths#Simpler"
+        
+        # Try to find better ones
+        print("  Searching for sounds...")
+        
+        # Find a Drum Kit
+        drums_res = send_command("get_browser_items_at_path", {"path": "Drums"})
+        if drums_res.get("status") == "success":
+            for item in drums_res["result"]["items"]:
+                if item["is_loadable"] and "Kit" in item["name"]:
+                    drum_uri = item["uri"]
+                    print(f"  ✓ Found Drum Kit: {item['name']}")
+                    break
+        
+        # Find a Bass
+        bass_res = send_command("get_browser_items_at_path", {"path": "Sounds/Bass"})
+        if bass_res.get("status") == "success":
+            for item in bass_res["result"]["items"]:
+                if item["is_loadable"]:
+                    bass_uri = item["uri"]
+                    print(f"  ✓ Found Bass: {item['name']}")
+                    break
+
         track_indices = []
         
         if current_tracks + needed_tracks <= ABLETON_MAX_TRACKS:
-            # Space available: create new tracks with instruments
-            print(f"  Creating {needed_tracks} new tracks with instruments...")
+            # Space available: create new tracks
+            print(f"  Creating {needed_tracks} tracks...")
             for track in self.TRACKS:
                 result = send_command("create_midi_track", {"index": -1})
                 if result["status"] == "success":
                     idx = result["result"]["index"]
                     track_indices.append(idx)
-                    send_command("set_track_name", {"track_index": idx, "name": track["name"]})
-                    
-                    # Try to load instrument
-                    inst_result = send_command("load_browser_item", {
-                        "track_index": idx,
-                        "item_uri": f"query:{track['instrument']}"
-                    })
-                    inst_status = "✓" if inst_result.get("status") == "success" else "○"
-                    print(f"  {inst_status} {track['name']}")
+                    self._setup_track(idx, track, drum_uri, bass_uri, lead_uri)
                 else:
                     print(f"  ✗ Failed to create: {track['name']}")
+                    
         else:
-            # At limit: reuse last N tracks, load instruments
-            print(f"  ⚠️  At track limit ({ABLETON_MAX_TRACKS}). Reusing tracks...")
+            # At limit: reuse
+            print(f"  ⚠️  At limit ({ABLETON_MAX_TRACKS}). Reusing tracks...")
             start_idx = max(0, current_tracks - needed_tracks)
             for i, track in enumerate(self.TRACKS):
                 idx = start_idx + i
                 if idx < current_tracks:
                     track_indices.append(idx)
-                    send_command("set_track_name", {"track_index": idx, "name": track["name"]})
-                    
-                    # Try to load instrument
-                    inst_result = send_command("load_browser_item", {
-                        "track_index": idx,
-                        "item_uri": f"query:{track['instrument']}"
-                    })
-                    inst_status = "✓" if inst_result.get("status") == "success" else "○"
-                    print(f"  {inst_status} Track {idx} → {track['name']}")
+                    self._setup_track(idx, track, drum_uri, bass_uri, lead_uri)
         
         if not track_indices:
             pytest.skip("Could not get any tracks")
-        
-        # Step 4: Create clips and add patterns
-        print("  Adding MIDI patterns...")
+            
+        # Step 4: Add patterns
+        print("  Adding patterns...")
         for idx, track in zip(track_indices, self.TRACKS):
-            # Create clip
+            # Same clip logic...
             result = send_command("create_clip", {
                 "track_index": idx,
                 "clip_index": 0,
@@ -195,6 +238,22 @@ class TestIOTechno:
         print(f"   Tracks: {len(track_indices)}")
         print("   Playback: Started")
     
+    def _setup_track(self, idx, track, drum_uri, bass_uri, lead_uri):
+        """Configure track name and instrument."""
+        send_command("set_track_name", {"track_index": idx, "name": track["name"]})
+        
+        # Select instrument URI
+        uri = drum_uri  # default to drums
+        if track["type"] == "bass":
+            uri = bass_uri
+        elif track["type"] in ["acid", "stab"]:
+            uri = lead_uri
+            
+        # print(f"  Loading {uri.split('#')[-1]} on {track['name']}...")
+        res = send_command("load_browser_item", {"track_index": idx, "item_uri": uri})
+        status = "✓" if res.get("status") == "success" else "○"
+        print(f"  {status} {track['name']}")
+
     def _generate_pattern(self, pattern_type: str) -> list:
         """Generate MIDI notes for pattern type."""
         notes = []
