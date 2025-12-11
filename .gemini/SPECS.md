@@ -14,6 +14,7 @@ NNNN-<slug>.md
 | ID | Branch | PR | Status |
 |----|--------|----| -------|
 | [0001](specs/0001-rack-chain-tools.md) | `feature/rack-chain-tools` | #50 | ✅ Tests Passing |
+| [0002](specs/0002-io-alchemy-techno.md) | `feature/0001-rack-chain-tools` | - | ✅ macOS Working |
 
 ## Conventions
 
