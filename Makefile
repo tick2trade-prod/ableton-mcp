@@ -7,7 +7,9 @@ REMOTE_SCRIPT_SRC := AbletonMCP_Remote_Script
 
 .PHONY: help install setup test test-live test-session test-clip test-device \
         test-connection check-port logs logs-mcp run run-dev lint pre-commit \
-        deploy-script clean-tracks build build-clean verify test-alchemy
+        deploy-script clean-tracks build build-clean verify install-analysis \
+        check-ffmpeg test-techno test-one build-docker-local \
+        install-gui run-visualizer analyze-asset
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -79,6 +81,23 @@ verify: ## Run integrity checks
 	@echo "✅ All checks passed!"
 
 # === Utils ===
+check-ffmpeg: ## Check if ffmpeg is installed
+	@which ffmpeg >/dev/null 2>&1 && echo "✓ ffmpeg installed" || (echo "✗ ffmpeg not found. Install with: brew install ffmpeg" && exit 1)
+
+# === GUI & Analysis ===
+install-gui: ## Install GUI dependencies
+	@echo "📦 Installing GUI dependencies..."
+	uv pip install ".[gui]"
+	@echo "✅ GUI dependencies installed!"
+
+run-visualizer: ## Launch audio visualizer
+	@echo "🎨 Launching visualizer..."
+	.venv/bin/python -m app.visualizer.main
+
+analyze-asset: ## Analyze audio file (usage: make analyze-asset FILE=path/to/audio.wav)
+	@if [ -z "$(FILE)" ]; then echo "Error: FILE argument required"; exit 1; fi
+	.venv/bin/python -m src.ableton_mcp.analysis.track "$(FILE)"
+
 check-port: ## Check if Ableton Remote Script is listening
 	@lsof -i :9877 2>/dev/null && echo "✓ Port 9877 active" || echo "✗ Port 9877 not in use"
 

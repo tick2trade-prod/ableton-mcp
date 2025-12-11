@@ -9,14 +9,5 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  # MCP Bridge - Connects Antigravity IDE to Redis
-  mcp-redis:
-    image: mcp/redis:latest
-    environment:
-      - REDIS_URL=redis://redis-stack:6379
-    depends_on:
-      - redis-stack
-    restart: unless-stopped
-
 volumes:
   redis_data:
