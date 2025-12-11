@@ -4,7 +4,7 @@
 |-------|-------|
 | Branch | `feature/0004-audio-analysis` (Proposed) |
 | Feature| Audio Signal Analysis Tool |
-| Status | 📝 Planning |
+| Status | ✅ Complete |
 
 ---
 
@@ -13,24 +13,31 @@ Develop a robust CLI tool using `librosa` to analyze reference audio tracks and 
 
 ## Prerequisites
 - [x] Python environment with `uv`
-- [ ] `ffmpeg` installed (for mp3 support)
-- [ ] Dependencies: `librosa`, `numpy`, `scipy`
+- [x] `ffmpeg` installed (for mp3 support)
+- [x] Dependencies: `librosa`, `numpy`, `scipy`
 
 ## Requirements
 
 ### 1. Analysis Script (`analysis/analyze_track.py`)
-- [ ] **Robust Loading**: Handle various formats (mp3, wav, aif).
-- [ ] **Feature Extraction**:
+- [x] **Robust Loading**: Handle various formats (mp3, wav, aif).
+- [x] **Feature Extraction**:
     - **Tempo**: Extract BPM (scalar).
     - **Key**: Detect root note and mode (Major/Minor).
-    - **Structure**: (Optional) Detect drop/breakdown using RMS energy.
-- [ ] **Output**:
+    - **Structure**: Detect drop/breakdown using RMS energy.
+- [x] **Output**:
     - Print human-readable summary.
-    - (Future) Generate JSON for test consumption.
+    - Generate JSON for programmatic consumption.
 
 ### 2. Integration
-- [ ] `install-analysis` Make target.
-- [ ] Error handling for missing backends (`NoBackendError`).
+- [x] `install-analysis` Make target.
+- [x] `check-ffmpeg` Make target.
+- [x] `analyze` Make target.
+- [x] Error handling for missing backends (`NoBackendError`).
+
+### 3. Testing
+- [x] Comprehensive pytest suite (`tests/test_analysis.py`).
+- [x] 8 tests covering all functionality.
+- [x] All tests passing.
 
 ## Workflow
 1. User adds reference track to `assets/audio/reference/`.
