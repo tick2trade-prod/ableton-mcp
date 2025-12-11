@@ -83,7 +83,7 @@ uvx ableton-mcp
 1. Download the `AbletonMCP_Remote_Script/__init__.py` file from this repo
 
 2. Navigate to [Ableton Live's User Library](https://help.ableton.com/hc/en-us/articles/209774085-The-User-Library#h_01HR768DD5721VQ1TNMXTPG64W). If there's no directory called 'Remote Scripts' yet, create one.
-E.g. the path is actually /Users/alexzh/Music/Ableton/User Remote Library/Remote Scripts/AbletonMCP/__init__.py 
+E.g. the path is actually /Users/alexzh/Music/Ableton/User Remote Library/Remote Scripts/AbletonMCP/__init__.py
 
 3. Create a folder called 'AbletonMCP' in the Remote Scripts directory and paste the downloaded '\_\_init\_\_.py' file
 
@@ -205,4 +205,3 @@ test/<id>-<slug>      # test/0003-browser-tests
 ## Disclaimer
 
 This is a third-party integration and not made by Ableton.
-

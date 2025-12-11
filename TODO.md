@@ -17,3 +17,11 @@
 - [x] **Browser navigation** - `get_browser_tree`, `get_browser_items_at_path`
 - [x] **Integration tests** - 38 tests against live Ableton DAW
 
+Focus on updating @0002-io-alchemy-techno.md  with what heckbox items have been completed. Then add new tsks to better implement the tracks to recreate /Users/alexzh/ableton-mcp/assets/audio/reference/ALCHEMY_I_O.mp3 with tests in
+tests/techno
+tests/techno/__pycache__
+tests/techno/conftest.py
+tests/techno/test_arrangement.py
+tests/techno/test_instruments.py
+
+implement all of these successfully as part of this branch for the upcoming PR

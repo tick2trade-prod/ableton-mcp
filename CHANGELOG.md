@@ -34,6 +34,7 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
   - `make verify` target for pre-merge validation
 
 - **Documentation**
+  - [TOOLS.md](./TOOLS.md) - Complete list of 27 available tools
   - `.gemini/` spec-driven development system
   - Conventional commit and branch naming conventions
 

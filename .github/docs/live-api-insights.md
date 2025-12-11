@@ -19,7 +19,7 @@ new_chain.name = "My Chain"
 
 ## Loading Effects into Rack Chains
 
-`browser.load_item()` always loads to the track, ignoring `rack.view.selected_chain`. 
+`browser.load_item()` always loads to the track, ignoring `rack.view.selected_chain`.
 
 **Solution:** Load to track, then use `song.move_device()` to move into the chain:
 

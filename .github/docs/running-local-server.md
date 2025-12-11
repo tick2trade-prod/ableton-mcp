@@ -12,8 +12,8 @@ uv cache clean ableton-mcp
 
 ### 2. Update MCP configuration
 
-**Windows:** `%APPDATA%\Code\User\mcp.json`  
-**macOS:** `~/Library/Application Support/Code/User/mcp.json`  
+**Windows:** `%APPDATA%\Code\User\mcp.json`
+**macOS:** `~/Library/Application Support/Code/User/mcp.json`
 **Linux:** `~/.config/Code/User/mcp.json`
 
 ```json
