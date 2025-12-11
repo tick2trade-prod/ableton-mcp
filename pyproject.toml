@@ -1,0 +1,63 @@
+[project]
+name = "ableton-mcp"
+version = "1.0.0"
+description = "Ableton Live integration through the Model Context Protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Siddharth Ahuja", email = "ahujasid@gmail.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "mcp[cli]>=1.3.0",
+    "pathlib>=1.0.1",
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.2",
+    "pytest-timeout>=2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-timeout>=2.0.0",
+    "pre-commit>=3.0.0",
+]
+analysis = [
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+]
+
+[project.scripts]
+ableton-mcp = "MCP_Server.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["MCP_Server"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+markers = [
+    "live: tests requiring live Ableton connection",
+    "session: session/track related tests",
+    "clip: clip manipulation tests",
+    "device: device/rack tests",
+    "browser: browser navigation tests",
+    "transport: playback control tests",
+]
+norecursedirs = ["external"]
+addopts = "-v --tb=short --timeout=300"
+
+[project.urls]
+"Homepage" = "https://github.com/ahujasid/ableton-mcp"
+"Bug Tracker" = "https://github.com/ahujasid/ableton-mcp/issues"
