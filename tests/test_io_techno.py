@@ -56,14 +56,14 @@ class TestIOTechno:
     TEMPO = 130.0
     CLIP_LENGTH = 16.0  # 4 bars
     
-    # Track configuration
+    # Track configuration with instruments
     TRACKS = [
-        {"name": "Kick Heavy", "type": "kick"},
-        {"name": "Sub Bass", "type": "bass"},
-        {"name": "Acid Lead", "type": "acid"},
-        {"name": "Stab", "type": "stab"},
-        {"name": "Hi-Hats", "type": "hats"},
-        {"name": "Perc", "type": "perc"},
+        {"name": "Kick Heavy", "type": "kick", "instrument": "Drums/Drum Rack"},
+        {"name": "Sub Bass", "type": "bass", "instrument": "Instruments/Analog"},
+        {"name": "Acid Lead", "type": "acid", "instrument": "Instruments/Wavetable"},
+        {"name": "Stab", "type": "stab", "instrument": "Instruments/Wavetable"},
+        {"name": "Hi-Hats", "type": "hats", "instrument": "Drums/Drum Rack"},
+        {"name": "Perc", "type": "perc", "instrument": "Drums/Drum Rack"},
     ]
     
     @pytest.fixture(autouse=True)
@@ -80,17 +80,43 @@ class TestIOTechno:
         """Get current session info."""
         return send_command("get_session_info")["result"]
     
+    def clear_all_tracks(self):
+        """Delete all tracks except the first one (can't delete all)."""
+        session = self.get_session()
+        track_count = session["track_count"]
+        
+        if track_count <= 1:
+            print("  No tracks to clear")
+            return
+        
+        print(f"  Clearing {track_count - 1} tracks...")
+        # Delete from end to beginning to avoid index shifting issues
+        for i in range(track_count - 1, 0, -1):
+            result = send_command("delete_track", {"track_index": i})
+            if result.get("status") == "success":
+                log(f"Deleted track {i}")
+            else:
+                # If delete_track doesn't exist, just rename/reuse
+                log(f"Could not delete track {i}: {result}")
+        
+        time.sleep(0.5)  # Let Ableton catch up
+        new_session = self.get_session()
+        print(f"  Tracks after clear: {new_session['track_count']}")
+    
     @pytest.mark.live
     def test_io_techno_full(self):
         """Full i_o techno track generation test."""
         print("\n🎵 Generating i_o style techno track...")
         
-        # Step 1: Set tempo
+        # Step 1: Stop playback first
+        send_command("stop_playback")
+        
+        # Step 2: Set tempo
         print(f"  Setting tempo to {self.TEMPO} BPM...")
         result = send_command("set_tempo", {"tempo": self.TEMPO})
         assert result["status"] == "success", f"Failed to set tempo: {result}"
         
-        # Step 2: Get current tracks and determine strategy
+        # Step 3: Get current tracks and create/reuse
         session = self.get_session()
         current_tracks = session["track_count"]
         needed_tracks = len(self.TRACKS)
@@ -98,34 +124,48 @@ class TestIOTechno:
         track_indices = []
         
         if current_tracks + needed_tracks <= ABLETON_MAX_TRACKS:
-            # Normal case: create new tracks
-            print(f"  Creating {needed_tracks} new tracks...")
+            # Space available: create new tracks with instruments
+            print(f"  Creating {needed_tracks} new tracks with instruments...")
             for track in self.TRACKS:
                 result = send_command("create_midi_track", {"index": -1})
                 if result["status"] == "success":
                     idx = result["result"]["index"]
                     track_indices.append(idx)
                     send_command("set_track_name", {"track_index": idx, "name": track["name"]})
-                    print(f"  ✓ Created track: {track['name']} (index {idx})")
+                    
+                    # Try to load instrument
+                    inst_result = send_command("load_browser_item", {
+                        "track_index": idx,
+                        "item_uri": f"query:{track['instrument']}"
+                    })
+                    inst_status = "✓" if inst_result.get("status") == "success" else "○"
+                    print(f"  {inst_status} {track['name']}")
                 else:
-                    print(f"  ✗ Failed to create track: {track['name']}")
+                    print(f"  ✗ Failed to create: {track['name']}")
         else:
-            # At limit: reuse last N tracks
-            print(f"  ⚠️  At track limit ({ABLETON_MAX_TRACKS}). Reusing existing tracks...")
-            start_idx = max(2, current_tracks - needed_tracks)  # Keep first 2 tracks
+            # At limit: reuse last N tracks, load instruments
+            print(f"  ⚠️  At track limit ({ABLETON_MAX_TRACKS}). Reusing tracks...")
+            start_idx = max(0, current_tracks - needed_tracks)
             for i, track in enumerate(self.TRACKS):
                 idx = start_idx + i
                 if idx < current_tracks:
                     track_indices.append(idx)
                     send_command("set_track_name", {"track_index": idx, "name": track["name"]})
-                    print(f"  ✓ Reusing track {idx} as: {track['name']}")
+                    
+                    # Try to load instrument
+                    inst_result = send_command("load_browser_item", {
+                        "track_index": idx,
+                        "item_uri": f"query:{track['instrument']}"
+                    })
+                    inst_status = "✓" if inst_result.get("status") == "success" else "○"
+                    print(f"  {inst_status} Track {idx} → {track['name']}")
         
-        if len(track_indices) < len(self.TRACKS):
-            print(f"  ⚠️  Only got {len(track_indices)} tracks (needed {len(self.TRACKS)})")
-            print("  Continuing with available tracks...")
+        if not track_indices:
+            pytest.skip("Could not get any tracks")
         
-        # Step 3: Create clips and add patterns
-        for i, (idx, track) in enumerate(zip(track_indices, self.TRACKS)):
+        # Step 4: Create clips and add patterns
+        print("  Adding MIDI patterns...")
+        for idx, track in zip(track_indices, self.TRACKS):
             # Create clip
             result = send_command("create_clip", {
                 "track_index": idx,
