@@ -15,6 +15,10 @@ classifiers = [
 ]
 dependencies = [
     "mcp[cli]>=1.3.0",
+    "pathlib>=1.0.1",
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.2",
+    "pytest-timeout>=2.4.0",
 ]
 
 [project.optional-dependencies]
@@ -51,8 +55,8 @@ markers = [
     "browser: browser navigation tests",
     "transport: playback control tests",
 ]
-addopts = "-v --tb=short"
-timeout = 30
+norecursedirs = ["external"]
+addopts = "-v --tb=short --timeout=300"
 
 [project.urls]
 "Homepage" = "https://github.com/ahujasid/ableton-mcp"

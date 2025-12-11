@@ -19,8 +19,11 @@ wheels/
 
 # Test
 .pytest_cache/
+.ruff_cache/
 .coverage
 htmlcov/
 
 # Scripts (local)
-scripts/
+# scripts/
+
+external/*
