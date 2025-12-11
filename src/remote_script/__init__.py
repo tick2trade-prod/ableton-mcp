@@ -1,5 +1,6 @@
 # AbletonMCP/init.py
 
+import contextlib
 import json
 import socket
 import threading
@@ -32,9 +33,9 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
         self.log_message("AbletonMCP Remote Script initializing...")
 
         # Socket server for communication
-        self.server: Optional[socket.socket] = None
+        self.server: socket.socket | None = None
         self.client_threads: list[threading.Thread] = []
-        self.server_thread: Optional[threading.Thread] = None
+        self.server_thread: threading.Thread | None = None
         self.running: bool = False
 
         # Cache the song reference for easier access
@@ -55,10 +56,8 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
 
         # Stop the server
         if self.server:
-            try:
+            with contextlib.suppress(Exception):
                 self.server.close()
-            except Exception:
-                pass
 
         # Wait for the server thread to exit
         if self.server_thread and self.server_thread.is_alive():
@@ -124,7 +123,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                     # Clean up finished client threads
                     self.client_threads = [t for t in self.client_threads if t.is_alive()]
 
-                except socket.timeout:
+                except TimeoutError:
                     # No connection yet, just continue
                     continue
                 except Exception as e:
@@ -207,10 +206,8 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
         except Exception as e:
             self.log_message("Error in client handler: " + str(e))
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 client.close()
-            except Exception:
-                pass
             self.log_message("Client handler stopped")
 
     def _process_command(self, command):
@@ -868,9 +865,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
             # Verify rack was loaded
             devices_after = len(track.devices)
             if devices_after <= devices_before:
-                raise Exception("Audio Effect Rack did not load (devices: {} -> {})".format(
-                    devices_before, devices_after
-                ))
+                raise Exception(f"Audio Effect Rack did not load (devices: {devices_before} -> {devices_after})")
 
             # The newly loaded rack is at the end
             new_rack_index = devices_after - 1
@@ -1495,7 +1490,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                     except Exception as e:
                         self.log_message(f"Error processing {attr}: {str(e)}")
 
-            self.log_message("Browser tree generated for {0} with {1} root categories".format(
+            self.log_message("Browser tree generated for {} with {} root categories".format(
                 category_type, len(result['categories'])))
             return result
 
@@ -1580,7 +1575,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                 if not hasattr(current_item, 'children'):
                     return {
                         "path": path,
-                        "error": "Item at '{0}' has no children".format('/'.join(path_parts[:i])),
+                        "error": "Item at '{}' has no children".format('/'.join(path_parts[:i])),
                         "items": []
                     }
 

@@ -1,13 +1,16 @@
 
-import pytest
-import socket
 import json
 import os
+import socket
 import sys
+
+import pytest
+
 # Add tests root to path for config import
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from tests.config import ABLETON_HOST, ABLETON_PORT, SOCKET_TIMEOUT  # noqa: E402
+
 
 @pytest.fixture(scope="session")
 def client():

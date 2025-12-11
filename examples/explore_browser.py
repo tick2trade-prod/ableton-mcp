@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Extended browser exploration to find all available categories."""
 
-import socket
 import json
-import sys
 import os
+import socket
+import sys
 
 # Add tests root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))

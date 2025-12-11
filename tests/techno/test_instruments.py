@@ -1,6 +1,8 @@
 
-import pytest
 import time
+
+import pytest
+
 
 @pytest.mark.live
 def test_load_simpler(client, live_session):

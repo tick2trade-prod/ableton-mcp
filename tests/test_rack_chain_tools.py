@@ -13,7 +13,6 @@ Tests the new rack chain and master track tools:
 """
 import pytest
 
-
 # === Rack Creation Tests ===
 
 @pytest.mark.live

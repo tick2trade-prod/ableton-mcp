@@ -3,7 +3,7 @@ name = "ableton-mcp"
 version = "1.0.0"
 description = "Ableton Live integration through the Model Context Protocol"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 authors = [
     {name = "Siddharth Ahuja", email = "ahujasid@gmail.com"}
 ]
@@ -19,29 +19,40 @@ dependencies = [
     "pre-commit>=4.5.0",
     "pytest>=9.0.2",
     "pytest-timeout>=2.4.0",
+    "pydantic>=2.5",
+    "redis>=5.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
+    "pytest-sugar",
     "pytest-timeout>=2.0.0",
     "pre-commit>=3.0.0",
+    "ruff>=0.3.0",
 ]
 analysis = [
     "librosa>=0.10.0",
     "numpy>=1.24.0",
     "scipy>=1.10.0",
 ]
+gui = [
+    "dearpygui>=1.11.0",
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "pillow>=10.0.0",
+]
 
 [project.scripts]
-ableton-mcp = "MCP_Server.server:main"
+ableton-mcp = "src.ableton_mcp.server:main"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.8.3,<0.10.0"]
+build-backend = "uv_build"
 
-[tool.setuptools]
-packages = ["MCP_Server"]
+[tool.uv.build-backend]
+module-name = "src"
+module-root = "."
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -57,6 +68,10 @@ markers = [
 ]
 norecursedirs = ["external"]
 addopts = "-v --tb=short --timeout=300"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [project.urls]
 "Homepage" = "https://github.com/ahujasid/ableton-mcp"

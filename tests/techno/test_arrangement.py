@@ -1,13 +1,14 @@
 import pytest
+
 from tests.config import ABLETON_MAX_TRACKS
 from tests.techno.patterns import (
-    get_kick_pattern,
     get_bass_pattern,
-    get_lead_pattern,
     get_hihat_pattern,
-    get_stab_pattern,
+    get_kick_pattern,
+    get_lead_pattern,
     get_perc_pattern,
     get_rumble_pattern,
+    get_stab_pattern,
 )
 
 

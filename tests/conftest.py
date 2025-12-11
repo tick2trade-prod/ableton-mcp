@@ -3,10 +3,10 @@
 All tests run against a LIVE Ableton instance - no mocks.
 Requires: Ableton Live running with AbletonMCP control surface enabled.
 """
-import socket
 import json
-import pytest
+import socket
 
+import pytest
 
 # === Fixtures ===
 

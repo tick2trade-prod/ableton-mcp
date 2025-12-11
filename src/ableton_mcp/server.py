@@ -3,9 +3,9 @@ import json
 import logging
 import socket
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP  # type: ignore[import-not-found]
 
@@ -18,7 +18,7 @@ logger = logging.getLogger("AbletonMCPServer")
 class AbletonConnection:
     host: str
     port: int
-    sock: Optional[socket.socket] = field(default=None)
+    sock: socket.socket | None = field(default=None)
 
     def connect(self) -> bool:
         """Connect to the Ableton Remote Script socket server"""
@@ -70,7 +70,7 @@ class AbletonConnection:
                     except json.JSONDecodeError:
                         # Incomplete JSON, continue receiving
                         continue
-                except socket.timeout:
+                except TimeoutError:
                     logger.warning("Socket timeout during chunked receive")
                     break
                 except (ConnectionError, BrokenPipeError, ConnectionResetError) as e:
@@ -92,7 +92,7 @@ class AbletonConnection:
         else:
             raise Exception("No data received")
 
-    def send_command(self, command_type: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def send_command(self, command_type: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Send a command to Ableton and return the response"""
         if not self.sock and not self.connect():
             raise ConnectionError("Not connected to Ableton")
@@ -151,7 +151,7 @@ class AbletonConnection:
                 time.sleep(0.1)  # 100ms delay
 
             return response.get("result", {})
-        except socket.timeout:
+        except TimeoutError:
             logger.error("Socket timeout while waiting for response from Ableton")
             self.sock = None
             raise Exception("Timeout waiting for Ableton response")
@@ -215,10 +215,8 @@ def get_ableton_connection():
             return _ableton_connection
         except Exception as e:
             logger.warning(f"Existing connection is no longer valid: {e}")
-            try:
+            with suppress(Exception):
                 _ableton_connection.disconnect()
-            except Exception:
-                pass
             _ableton_connection = None
 
     # Connection doesn't exist or is invalid, create a new one
@@ -369,7 +367,7 @@ def create_clip(track_index: int, clip_index: int, length: float = 4.0) -> str:
 def add_notes_to_clip(
     track_index: int,
     clip_index: int,
-    notes: list[dict[str, Union[int, float, bool]]]
+    notes: list[dict[str, int | float | bool]]
 ) -> str:
     """
     Add MIDI notes to a clip.

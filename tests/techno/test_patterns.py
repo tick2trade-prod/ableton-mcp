@@ -1,5 +1,6 @@
 
-from tests.techno.patterns import get_kick_pattern, get_bass_pattern, get_lead_pattern
+from tests.techno.patterns import get_bass_pattern, get_kick_pattern, get_lead_pattern
+
 
 def test_kick_pattern():
     notes = get_kick_pattern(4.0)
