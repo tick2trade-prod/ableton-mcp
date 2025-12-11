@@ -95,7 +95,27 @@ E.g. the path is actually /Users/alexzh/Music/Ableton/User Remote Library/Remote
 
 7. Set Input and Output to "None"
 
+## Agentic Workflow
+
+AbletonMCP includes a multi-gate agentic workflow system for autonomous development. This workflow uses four specialized agents (Architect, Critic, Builder, Sentinel) with Redis-backed local memory for zero-token state storage.
+
+### Quick Start
+
+```bash
+# Start local infrastructure (Redis Stack + MCP Redis)
+docker-compose up -d
+
+# Verify services
+docker-compose ps
+
+# Trigger a feature workflow
+gemini run workflow 'Feature: Multi-Gate Agent Loop (v7)' --input "Your feature description"
+```
+
+For detailed documentation, see [docs/agentic-workflow.md](docs/agentic-workflow.md).
+
 ## Usage
+
 
 ### Starting the Connection
 

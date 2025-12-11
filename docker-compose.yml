@@ -1,0 +1,23 @@
+services:
+  # The "Brain" - Stores Specs, Test Logs, and Plans locally
+  redis-stack:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # MCP Bridge - Connects Antigravity IDE to Redis
+  mcp-redis:
+    image: ghcr.io/redis/mcp-redis:latest
+    environment:
+      - REDIS_URL=redis://redis-stack:6379
+    network_mode: "host"
+    depends_on:
+      - redis-stack
+    restart: unless-stopped
+
+volumes:
+  redis_data:
