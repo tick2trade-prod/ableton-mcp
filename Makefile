@@ -37,10 +37,13 @@ test-session: ## Run session/track tests
 test-clip: ## Run clip tests
 	uv run pytest tests/ -v -m clip
 
-test-device: ## Run device/rack tests
-	uv run pytest tests/ -v -m device
+test-device: ## Run device tool tests
+	uv run pytest tests/test_tools.py -v -m device
 
-test-one: ## Run single test (usage: make test-one TEST=test_get_session_info)
+test-techno: ## Run i_o techno and sound verification tests
+	uv run pytest tests/techno/ tests/test_io_techno.py -v -s
+
+test-one: ## Run a specific test file or function (usage: make test-one TEST=test_name)
 	uv run pytest tests/ -v -k "$(TEST)"
 
 # === Connection ===
