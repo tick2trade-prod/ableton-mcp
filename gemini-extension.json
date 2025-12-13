@@ -1,0 +1,15 @@
+{
+    "name": "ableton-mcp",
+    "version": "1.0.0",
+    "description": "Control Ableton Live through MCP within Gemini CLI",
+    "mcpServers": {
+        "ableton": {
+            "command": "uvx",
+            "args": [
+                "--from",
+                "ableton-mcp@latest",
+                "ableton-mcp"
+            ]
+        }
+    }
+}
