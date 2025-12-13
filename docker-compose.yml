@@ -1,0 +1,13 @@
+services:
+  # The "Brain" - Stores Specs, Test Logs, and Plans locally
+  redis-stack:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

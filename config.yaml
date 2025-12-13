@@ -1,0 +1,8 @@
+OS: MACOS
+IDE: ANTIGRAVITY
+MODEL: GEMINI
+REMOTE_SCRIPT_PATH: ~/Music/Ableton/User Library/Remote Scripts/AbletonMCP
+DOCKER_IMAGE_NAME: ableton-mcp
+DOCKER_TAG: latest
+
+# tests/config.py

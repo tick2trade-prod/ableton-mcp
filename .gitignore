@@ -8,5 +8,22 @@ wheels/
 
 # Virtual environments
 .venv
+
+# OS files
 .DS_Store
-scripts/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Test
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Scripts (local)
+# scripts/
+
+external/*

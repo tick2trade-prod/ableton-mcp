@@ -82,34 +82,40 @@ uvx ableton-mcp
 
 1. Download the `AbletonMCP_Remote_Script/__init__.py` file from this repo
 
-2. Copy the folder to Ableton's MIDI Remote Scripts directory. Different OS and versions have different locations. **One of these should work, you might have to look**:
+2. Navigate to [Ableton Live's User Library](https://help.ableton.com/hc/en-us/articles/209774085-The-User-Library#h_01HR768DD5721VQ1TNMXTPG64W). If there's no directory called 'Remote Scripts' yet, create one.
+E.g. the path is actually /Users/alexzh/Music/Ableton/User Remote Library/Remote Scripts/AbletonMCP/__init__.py
 
-   **For macOS:**
-   - Method 1: Go to Applications > Right-click on Ableton Live app → Show Package Contents → Navigate to:
-     `Contents/App-Resources/MIDI Remote Scripts/`
-   - Method 2: If it's not there in the first method, use the direct path (replace XX with your version number):
-     `/Users/[Username]/Library/Preferences/Ableton/Live XX/User Remote Scripts`
-   
-   **For Windows:**
-   - Method 1:
-     C:\Users\[Username]\AppData\Roaming\Ableton\Live x.x.x\Preferences\User Remote Scripts 
-   - Method 2:
-     `C:\ProgramData\Ableton\Live XX\Resources\MIDI Remote Scripts\`
-   - Method 3:
-     `C:\Program Files\Ableton\Live XX\Resources\MIDI Remote Scripts\`
-   *Note: Replace XX with your Ableton version number (e.g., 10, 11, 12)*
+3. Create a folder called 'AbletonMCP' in the Remote Scripts directory and paste the downloaded '\_\_init\_\_.py' file
 
-4. Create a folder called 'AbletonMCP' in the Remote Scripts directory and paste the downloaded '\_\_init\_\_.py' file
+4. Launch Ableton Live
 
-3. Launch Ableton Live
+5. Go to Settings/Preferences → Link, Tempo & MIDI
 
-4. Go to Settings/Preferences → Link, Tempo & MIDI
+6. In the Control Surface dropdown, select "AbletonMCP"
 
-5. In the Control Surface dropdown, select "AbletonMCP"
+7. Set Input and Output to "None"
 
-6. Set Input and Output to "None"
+## Agentic Workflow
+
+AbletonMCP includes a multi-gate agentic workflow system for autonomous development. This workflow uses four specialized agents (Architect, Critic, Builder, Sentinel) with Redis-backed local memory for zero-token state storage.
+
+### Quick Start
+
+```bash
+# Start local infrastructure (Redis Stack + MCP Redis)
+docker-compose up -d
+
+# Verify services
+docker-compose ps
+
+# Trigger a feature workflow
+gemini run workflow 'Feature: Multi-Gate Agent Loop (v7)' --input "Your feature description"
+```
+
+For detailed documentation, see [docs/agentic-workflow.md](docs/agentic-workflow.md).
 
 ## Usage
+
 
 ### Starting the Connection
 
@@ -170,7 +176,51 @@ The system uses a simple JSON-based protocol over TCP sockets:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these guidelines:
+
+### Development Setup
+
+```bash
+# Clone and install
+git clone https://github.com/ahujasid/ableton-mcp
+cd ableton-mcp
+make install-dev  # Installs dev deps + pre-commit hooks
+
+# Deploy Remote Script to Ableton
+make deploy-script
+
+# Run tests (requires Ableton with AbletonMCP running)
+make test
+```
+
+### Testing
+
+All tests run against a **live Ableton instance** - no mocks.
+
+```bash
+make test-connection  # Verify Ableton connected
+make test             # Run all 38 tests
+make verify           # Run pre-commit + tests (pre-merge)
+```
+
+### Conventional Commits
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add new track creation tool
+fix: resolve connection timeout
+test: add integration tests for rack tools
+docs: update README with testing section
+```
+
+### Branch Naming
+
+```
+feature/<id>-<slug>   # feature/0001-rack-chain-tools
+fix/<id>-<slug>       # fix/0002-connection-timeout
+test/<id>-<slug>      # test/0003-browser-tests
+```
 
 ## Disclaimer
 
