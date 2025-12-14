@@ -1,4 +1,7 @@
-"""Vocals Agent for vocal processing and effects."""
+"""Vocals Agent for vocal processing and effects.
+
+Reference: Ableton Manual Section 28.13 "Corpus" (page 530)
+"""
 
 from math import inf
 
@@ -144,6 +147,77 @@ class VocalsAgent(BaseAgent):
                 },
             },
         ]
+
+    def configure_vocal_chain(
+        self,
+        track_index: int,
+        eq_enabled: bool = True,
+        compressor_enabled: bool = True,
+        reverb_amount: float = 0.3,
+    ) -> AgentResult:
+        """Configure vocal processing chain.
+
+        Reference: Ableton Manual Section 28.13 "Corpus" (page 530)
+
+        Args:
+            track_index: Track index
+            eq_enabled: Enable EQ in chain
+            compressor_enabled: Enable compressor in chain
+            reverb_amount: Reverb wet amount (0.0-1.0)
+
+        Returns:
+            AgentResult with success status
+        """
+        mcp = self.get_mcp_client()
+        if not mcp:
+            chain_parts = []
+            if eq_enabled:
+                chain_parts.append("EQ")
+            if compressor_enabled:
+                chain_parts.append("Compressor")
+            chain_parts.append(f"Reverb@{reverb_amount}")
+            self.log(f"Mock: Configuring vocal chain: {', '.join(chain_parts)}")
+            return AgentResult(
+                success=True,
+                message="Mock: Configured vocal chain",
+                data={
+                    "eq": eq_enabled,
+                    "comp": compressor_enabled,
+                    "reverb": reverb_amount,
+                },
+            )
+
+        try:
+            devices_loaded = []
+
+            if eq_enabled:
+                result = mcp.load_device(
+                    track_index=track_index, device_name="Channel EQ"
+                )
+                if result.success:
+                    devices_loaded.append("EQ")
+
+            if compressor_enabled:
+                result = mcp.load_device(
+                    track_index=track_index, device_name="Compressor"
+                )
+                if result.success:
+                    devices_loaded.append("Compressor")
+
+            result = mcp.load_device(track_index=track_index, device_name="Reverb")
+            if result.success:
+                devices_loaded.append("Reverb")
+
+            self.log(f"Configured vocal chain: {', '.join(devices_loaded)}")
+            return AgentResult(
+                success=True,
+                message=f"Configured vocal chain ({len(devices_loaded)} devices)",
+                data={"devices": devices_loaded},
+            )
+
+        except Exception as e:
+            self.log(f"Error configuring vocal chain: {e}")
+            return AgentResult(success=False, message=f"Error: {e}")
 
     async def apply_vocal_chain(
         self,

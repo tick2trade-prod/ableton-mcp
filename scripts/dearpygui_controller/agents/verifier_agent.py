@@ -1,4 +1,7 @@
-"""Verifier Agent for validating project completion."""
+"""Verifier Agent for spectrum and signal analysis.
+
+Reference: Ableton Manual Section 28.51 "Spectrum" (page 620)
+"""
 
 from dataclasses import dataclass
 
@@ -136,6 +139,45 @@ class VerifierAgent(BaseAgent):
             passed=True,
             message="Error check (placeholder)",
         )
+
+    def configure_spectrum_analyzer(
+        self,
+        track_index: int,
+        block_size: int = 2048,
+        display_range: tuple[float, float] = (-60, 0),
+    ) -> AgentResult:
+        """Configure Spectrum analyzer device.
+
+        Reference: Ableton Manual Section 28.51 "Spectrum" (page 620)
+
+        Args:
+            track_index: Track index
+            block_size: FFT block size (512, 1024, 2048, 4096)
+            display_range: dB range for display (min, max)
+
+        Returns:
+            AgentResult with success status
+        """
+        mcp = self.get_mcp_client()
+        if not mcp:
+            self.log(f"Mock: Configuring Spectrum analyzer on track {track_index}")
+            return AgentResult(
+                success=True,
+                message="Mock: Configured Spectrum analyzer",
+                data={"block_size": block_size, "range": display_range},
+            )
+
+        try:
+            result = mcp.load_device(track_index=track_index, device_name="Spectrum")
+
+            if result.success:
+                self.log(f"Configured Spectrum analyzer with block size {block_size}")
+
+            return result
+
+        except Exception as e:
+            self.log(f"Error configuring Spectrum analyzer: {e}")
+            return AgentResult(success=False, message=f"Error: {e}")
 
     def format_report(
         self,

@@ -1,4 +1,7 @@
-"""Sound Design Agent for configuring instrument and effect parameters."""
+"""Sound Design Agent for sound design and synthesis.
+
+Reference: Ableton Manual Section 28.3 "Auto Filter" (page 511)
+"""
 
 from ..config import TRACKS, TrackConfig
 from .base_agent import AgentResult, BaseAgent
@@ -67,6 +70,66 @@ class SoundDesignAgent(BaseAgent):
             errors.append(f"Error configuring {track.name}: {e}")
 
         return len(errors) == 0, errors
+
+    def configure_auto_filter(
+        self,
+        track_index: int,
+        filter_type: str = "lowpass",
+        cutoff_frequency: float = 1000.0,
+        resonance: float = 0.5,
+    ) -> AgentResult:
+        """Configure Auto Filter device.
+
+        Reference: Ableton Manual Section 28.3 "Auto Filter" (page 511)
+
+        Args:
+            track_index: Track index
+            filter_type: Filter type (lowpass, highpass, bandpass)
+            cutoff_frequency: Cutoff frequency in Hz
+            resonance: Filter resonance (0.0-1.0)
+
+        Returns:
+            AgentResult with success status
+        """
+        mcp = self.get_mcp_client()
+        if not mcp:
+            self.log(f"Mock: Configuring Auto Filter on track {track_index}")
+            return AgentResult(
+                success=True,
+                message=f"Mock: Configured Auto Filter ({filter_type})",
+                data={"filter_type": filter_type, "cutoff": cutoff_frequency},
+            )
+
+        try:
+            mcp.set_device_parameter(
+                track_index=track_index,
+                device_index=-1,
+                parameter_name="filter_type",
+                value=filter_type,
+            )
+            mcp.set_device_parameter(
+                track_index=track_index,
+                device_index=-1,
+                parameter_name="frequency",
+                value=cutoff_frequency,
+            )
+            mcp.set_device_parameter(
+                track_index=track_index,
+                device_index=-1,
+                parameter_name="resonance",
+                value=resonance,
+            )
+
+            self.log(f"Configured Auto Filter: {filter_type} @ {cutoff_frequency}Hz")
+            return AgentResult(
+                success=True,
+                message=f"Configured Auto Filter ({filter_type})",
+                data={"filter_type": filter_type, "cutoff": cutoff_frequency},
+            )
+
+        except Exception as e:
+            self.log(f"Error configuring Auto Filter: {e}")
+            return AgentResult(success=False, message=f"Error: {e}")
 
     async def execute(
         self,
