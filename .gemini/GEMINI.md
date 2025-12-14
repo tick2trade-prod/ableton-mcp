@@ -51,3 +51,20 @@ Brief description of changes
 - [ ] All 27 tool tests pass
 - [ ] Tested against live Ableton
 ```
+
+## MCP Research Tools
+
+### SOTA Researcher v2
+- **`/research "topic"`** - Quick research with concise summary
+- **`/deep_plan "topic" "questions"`** - Comprehensive research + plan
+
+### DeepAgents
+- `create_agent(agent_type, config)` - Create specialized agents
+- `run_agent(agent_id, task, context)` - Execute agent tasks
+- `list_agents()` - View active agents
+- `delete_agent(agent_id)` - Cleanup agents
+
+### Token Efficiency Tips
+1. Research BEFORE implementation (avoid back-and-forth)
+2. Use `/research` for external knowledge
+3. Save research results to files for reuse

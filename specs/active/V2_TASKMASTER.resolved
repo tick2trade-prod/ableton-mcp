@@ -1,0 +1,236 @@
+# Proposal: Ollama Task Master for Ableton MCP
+
+## Executive Summary
+A lightweight, **free** task orchestration system for Ableton agents using local Ollama LLMs.
+
+## What is `claude-task-master`?
+An MCP-based task management system with:
+- **36 MCP tools** (PRD parsing, task expansion, dependencies, etc.)
+- **Multi-provider LLM support** via LiteLLM (OpenAI, Anthropic, **Ollama**)
+- **State management** via [.taskmaster/tasks/tasks.json](file:///Users/alexzh/ollama_crewai_lab/.taskmaster/tasks/tasks.json)
+- **CLI + MCP interface** (works in Cursor, VS Code, etc.)
+
+> **Key Finding**: It **already supports Ollama** via `OLLAMA_API_KEY` environment variable.
+
+---
+
+## Our Differentiators
+
+### 1. Test-Driven Development (TDD) First
+
+#### The Red/Green/Refactor Cycle
+The core feedback loop of TDD guides development in small, verifiable steps:
+
+| Phase | Goal | Action |
+|-------|------|--------|
+| 🔴 **Red** | Define new functionality | Write a failing test *before* any production code |
+| 🟢 **Green** | Make it work | Implement *minimum* code to pass the test |
+| 🔄 **Refactor** | Improve the code | Clean up with passing tests as safety net |
+
+For every task requiring code changes:
+- **Requirement**: A failing test must be defined first
+- **Pytest Markers**: Tasks declare required marker (e.g., `@pytest.mark.tools_main`)
+- **Test Package**: Tasks specify test framework/packages needed
+
+```json
+{
+  "id": 5,
+  "title": "Implement SoundDesignAgent",
+  "test_requirement": {
+    "marker": "agents_core",
+    "test_file": "tests/test_agents.py::TestSoundDesignAgent",
+    "packages": ["pytest-asyncio"]
+  }
+}
+```
+
+### 2. Multi-Agent Assignment & GUI Orchestration
+
+Tasks can be assigned to **multiple agents** for parallel execution:
+
+```json
+{
+  "id": 3,
+  "assigned_agents": ["research", "composer", "sound_design"],
+  "agent_statuses": {
+    "research": "done",
+    "composer": "in-progress",
+    "sound_design": "pending"
+  }
+}
+```
+
+#### DearPyGUI Task Panel Design
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Task #3: Create Rumble Kick Pattern                         │
+├─────────────────────────────────────────────────────────────┤
+│ Status: in-progress                                         │
+│ Dependencies: Task #1, Task #2                              │
+├─────────────────────────────────────────────────────────────┤
+│ Assigned Agents:                                            │
+│ ┌──────────────┬──────────────┬──────────────┐              │
+│ │ ☑ Research   │ ☑ Composer   │ ☐ Mixer      │              │
+│ │ ✅ done      │ 🔄 running   │ ⏳ pending   │              │
+│ └──────────────┴──────────────┴──────────────┘              │
+│                                                             │
+│ [ Run Selected ]  [ Stop All ]  [ View Logs ]               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Orchestration Flow:**
+1. User selects task from list
+2. Checkboxes show available agents
+3. "Run Selected" executes checked agents in parallel
+4. Progress bars update per-agent
+5. Status syncs back to `tasks.json`
+
+#### V2 Design Inspirations (DearPyGUI Showcase)
+
+For richer, more compact visual updates, we draw from these showcase projects:
+
+| Project | Category | Link |
+|---------|----------|------|
+| **Flux** | Particle visualization | [GitHub](https://github.com/harshkaso/Flux) |
+| **DearEIS** | Scientific multi-panel UI | [GitHub](https://github.com/vyrjana/DearEIS) |
+| **Image Processing Node Editor** | Node editor | [GitHub](https://github.com/Kazuhito00/Image-Processing-Node-Editor) |
+| **KrxImpExp** | Blender add-on UI | [GitLab](https://gitlab.com/Patrix9999/krximpexp/-/tree/dev) |
+| **contExt** | Image processing | [GitHub](https://github.com/RafaelCasamaximo/contExt) |
+| **Asset Builder** | Image stacking tool | [GitHub](https://github.com/mathgeniuszach/asset-builder) |
+| **YaChiPy** | Chip-8 emulator with debug | [GitHub](https://github.com/harshkaso/YaChiPy) |
+| **Froyo** | Compact download utility | [GitHub](https://github.com/fIux-dev/froyo) |
+| **Raccoon** | Music player with animations | [GitHub](https://github.com/bandit-masked/raccoon) |
+| **RaViewer** | Binary data visualization | [GitHub](https://github.com/antmicro/raviewer) |
+| **DearBagPlayer** | ROS bag player with plots | [GitHub](https://github.com/Magic-wei/DearBagPlayer) |
+| **Pomodoro Timer** | Timer utility | [GitHub](https://github.com/gnikkoch96/Python-Pomodoro-Timer-GUI/) |
+| **Heron** | Node editor for pipelines | [GitHub](https://github.com/Heron-Repositories/Heron) |
+| **CAN Explorer** | Real-time graphs | [GitHub](https://github.com/Tbruno25/can-explorer) |
+| **YouTube to E-book** | Captions extractor | [GitHub](https://github.com/maticahacic/transcript_to_ebook) |
+| **ELPath** | Algorithm visualizer | [GitHub](https://github.com/seesjays/ELPath) |
+| **TAP ADQL Sandbox** | Database query UI | [GitHub](https://github.com/retifrav/tap-adql-sandbox) |
+| **Tetris** | Game with graphics | [GitHub](https://github.com/RahulShagri/OG-Tetris-Game) |
+
+> **Future Enhancement**: Use AST + Tree-sitter to parse these repos and cache UI patterns in Redis for reusable DearPyGUI code generation.
+
+**V2 Design Principles:**
+- 🎨 **Rich color-coded status** (green/yellow/red) instead of ASCII symbols
+- 📊 **Real-time progress plots** per agent (inspired by CAN Explorer)
+- 🔲 **Compact cards** with expandable details (inspired by DearEIS)
+- 🌗 **Light/dark theme toggle** (inspired by TRESMENT)
+- 🔗 **Node-based view** for complex multi-agent dependencies (inspired by Heron)
+
+---
+
+## Full Tool Inventory (36 Tools)
+
+| # | Tool | Category | Priority | Notes |
+|---|------|----------|----------|-------|
+| 1 | `get_tasks` | Info | **P0** | List all tasks |
+| 2 | `get_task` | Info | **P0** | Show task details |
+| 3 | `next_task` | Info | **P0** | Find next work item |
+| 4 | `set_task_status` | Info | **P0** | Update status |
+| 5 | `parse_prd` | Analysis | **P0** | Generate tasks from PRD |
+| 6 | `expand_task` | Analysis | **P0** | Break into subtasks |
+| 7 | `update_subtask` | Management | **P0** | Add implementation notes |
+| 8 | `add_task` | Management | **P1** | Create new task |
+| 9 | `add_subtask` | Management | **P1** | Add subtask manually |
+| 10 | `remove_task` | Management | **P1** | Delete task |
+| 11 | `remove_subtask` | Management | P2 | Delete subtask |
+| 12 | `update_task` | Management | **P1** | Modify task |
+| 13 | [update](file:///Users/alexzh/ableton-mcp/scripts/dearpygui_controller/agents/base_agent.py#61-65) | Management | P2 | Bulk update |
+| 14 | `move_task` | Management | P2 | Reorder tasks |
+| 15 | `clear_subtasks` | Management | P2 | Remove all subtasks |
+| 16 | `expand_all` | Analysis | **P1** | Expand all eligible |
+| 17 | `analyze_project_complexity` | Analysis | **P1** | Complexity scoring |
+| 18 | `complexity_report` | Analysis | P2 | View report |
+| 19 | `add_dependency` | Dependencies | **P1** | Link tasks |
+| 20 | `remove_dependency` | Dependencies | P2 | Unlink tasks |
+| 21 | `validate_dependencies` | Dependencies | P2 | Check validity |
+| 22 | `fix_dependencies` | Dependencies | P2 | Auto-fix issues |
+| 23 | `initialize_project` | Project | **P0** | Setup project |
+| 24 | [generate](file:///Users/alexzh/ableton-mcp/scripts/ableton_cache_ast_codegen_mcp/mcp_server.py#439-462) | Project | **P1** | Create task files |
+| 25 | `models` | Project | P2 | Manage AI models |
+| 26 | [research](file:///Users/alexzh/ableton-mcp/scripts/dearpygui_controller/run_agent.py#29-39) | Project | **P1** | AI-powered research |
+| 27 | `add_tag` | Tags | P2 | Create tag |
+| 28 | `delete_tag` | Tags | P2 | Remove tag |
+| 29 | `list_tags` | Tags | P2 | Show all tags |
+| 30 | `use_tag` | Tags | P2 | Switch context |
+| 31 | `rename_tag` | Tags | P2 | Rename tag |
+| 32 | `copy_tag` | Tags | P2 | Duplicate tag |
+| 33 | `rules add` | Rules | P2 | Add rule profiles |
+| 34 | `rules remove` | Rules | P2 | Remove rules |
+| 35 | `rules setup` | Rules | P2 | Interactive setup |
+| 36 | *(reserved)* | - | - | Future expansion |
+
+### Priority Summary
+| Priority | Count | Effort |
+|----------|-------|--------|
+| **P0** | 8 | 1-2 days |
+| **P1** | 8 | 3-5 days |
+| P2 | 20 | 1-2 weeks |
+
+---
+
+## Effort Analysis
+
+### Option A: Use `claude-task-master` Directly with Ollama
+| Aspect | Effort | Notes |
+|--------|--------|-------|
+| Setup | **Low** | `npx task-master-ai` + set `OLLAMA_API_KEY` |
+| Configuration | **Low** | Point to local Ollama endpoint |
+| Integration | **Medium** | Wire MCP tools to DearPyGUI |
+
+**Total Effort**: ~1-2 days
+
+### Option B: Build Lightweight Python Clone (P0 only)
+| Component | Effort | Notes |
+|-----------|--------|-------|
+| Task Schema (JSON) | Low | Copy their `tasks.json` format |
+| P0 Tools (8) | Medium | Core workflow |
+| MCP Server | Medium | Use `fastmcp` |
+| TDD Integration | Medium | Pytest marker parsing |
+| Multi-Agent GUI | Medium | Agent checkboxes, parallel execution |
+
+**Total Effort**: ~1 week (P0 only)
+
+---
+
+## Recommendation
+1. **Week 1**: Try Option A (direct integration) with Ollama
+2. **If issues**: Build P0 tools in Python with our TDD/multi-agent enhancements
+3. **Week 2-3**: Add P1 tools as needed
+
+---
+
+## Next Steps
+1. [ ] Install `task-master-ai` locally
+2. [ ] Configure with Ollama (`deepseek-r1:8b`)
+3. [ ] Test core workflow: PRD → Tasks → Agent execution
+4. [ ] Design TDD task schema extension
+5. [ ] Create DearPyGUI "Taskmaster" panel with multi-agent support
+
+---
+
+## Appendix: TDD Tooling Backlog
+
+### Core Packages
+| Package | Purpose | Priority |
+|---------|---------|----------|
+| `pytest` | Primary test framework | **P0** |
+| `pytest-asyncio` | Async test support | **P0** |
+| `pytest-mock` | Mocking integration | **P1** |
+
+### Specialized TDD Tools
+| Package | Purpose | Priority |
+|---------|---------|----------|
+| `hypothesis` | Property-based testing, edge case discovery | P2 |
+| `behave` | BDD with Gherkin syntax | P2 |
+| `robot` | Keyword-driven acceptance testing | P2 |
+
+### Supporting Libraries
+| Package | Purpose | Priority |
+|---------|---------|----------|
+| `tox` / `nox` | Multi-environment testing | P2 |
+| `coverage` | Code coverage reporting | **P1** |
+| `pytest-cov` | Coverage plugin for pytest | **P1** |
+| `pytest-timeout` | Test timeout enforcement | **P1** |

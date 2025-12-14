@@ -1,0 +1,38 @@
+{
+  "2025-12-13": {
+    "claude": {
+      "calls": 3,
+      "tokens": 15000,
+      "cost": 0.45,
+      "tasks": [
+        "Workspace configuration",
+        "Multi-agent guide creation",
+        "Context directory setup"
+      ]
+    },
+    "gemini": {
+      "calls": 0,
+      "tokens": 0,
+      "cost": 0.00,
+      "tasks": []
+    },
+    "codex": {
+      "calls": 0,
+      "tokens": 0,
+      "cost": 0.00,
+      "tasks": []
+    },
+    "ollama": {
+      "calls": 0,
+      "tokens": 0,
+      "cost": 0.00,
+      "tasks": []
+    }
+  },
+  "summary": {
+    "total_cost": 0.45,
+    "local_percentage": 0,
+    "most_used_agent": "claude",
+    "optimization_status": "Initial setup - expect higher Ollama usage in normal development"
+  }
+}

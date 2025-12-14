@@ -18,9 +18,13 @@ dependencies = [
     "pathlib>=1.0.1",
     "pre-commit>=4.5.0",
     "pytest>=9.0.2",
+    "pytest-asyncio>=0.23.0",
     "pytest-timeout>=2.4.0",
     "pydantic>=2.5",
     "redis>=5.0",
+    "deepagents>=0.3.0",
+    "langchain-mcp-adapters>=0.1.0",
+    "sympy>=1.14.0",
 ]
 
 [project.optional-dependencies]
@@ -44,6 +48,27 @@ gui = [
     "numpy>=1.24.0",
     "pillow>=10.0.0",
 ]
+research = [
+    "tavily-python>=0.3.0",
+    "httpx>=0.25.0",
+    "diskcache>=5.6.0",
+    "tiktoken>=0.5.0",
+]
+ableton-codegen = [
+    "pymupdf>=1.23.0",
+    "sentence-transformers>=2.2.0",
+    "redis[hiredis]>=5.0.0",
+    "tree-sitter>=0.21.0",
+    "numpy>=1.24.0",
+    "tavily-python>=0.3.0",
+    "httpx>=0.25.0",
+]
+gui-controller = [
+    "dearpygui>=2.0.0",
+    "crewai>=0.51.0",
+    "langchain-community>=0.0.38",
+    "langgraph>=0.2.60",
+]
 
 [project.scripts]
 ableton-mcp = "src.ableton_mcp.server:main"
@@ -63,6 +88,8 @@ packages = ["MCP_Server"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+asyncio_mode = "auto"
+pythonpath = [".", "scripts"]
 markers = [
     "live: tests requiring live Ableton connection",
     "session: session/track related tests",
@@ -70,6 +97,7 @@ markers = [
     "device: device/rack tests",
     "browser: browser navigation tests",
     "transport: playback control tests",
+    "hotpath: hotpath tests for SOTA researcher",
 ]
 norecursedirs = ["external"]
 addopts = "-v --tb=short --timeout=300"

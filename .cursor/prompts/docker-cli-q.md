@@ -1,0 +1,2 @@
+.cursor/commands/app/analysis/debug-assistant.md Complexity in @docker-compose.yml with @Dockerfile has become high. these are just internal project specific makefile commands when using the 3 different cli tools if there's any customizxation needed to avoid conflicting docker scenarios when all 3 -cli tools used.  We
+  want 'make docker-build-codex'  in @Makefile to work, and there's also docker-build-codex and docker-build-gemini  and docker-build-claude. Since this is codex, incrementally validate what's working to avoid changing, and focus on what's the issue

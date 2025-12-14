@@ -1,0 +1,520 @@
+# Phase 1-5: Pydantic Validator Implementation Plan
+
+## Pydantic Modernization Strategy
+
+### Version Control & CHANGELOG
+
+```
+models/
+├── __init__.py
+├── CHANGELOG.md              # Track model changes over time
+├── v1/
+│   ├── __init__.py
+│   ├── base.py              # Base models v1
+│   ├── test_models.py       # Test validation models v1
+│   ├── agent_models.py      # Agent validation models v1
+│   └── track_models.py      # Track structure models v1
+└── current.py               # Symlink or import from latest version
+```
+
+### CHANGELOG Format (`models/CHANGELOG.md`)
+
+```markdown
+# Pydantic Models Changelog
+
+All notable changes to validation models will be documented in this file.
+
+Format: [Semantic Versioning](https://semver.org/)
+- **MAJOR**: Breaking schema changes
+- **MINOR**: New fields/validators (backward compatible)
+- **PATCH**: Bug fixes, documentation
+
+## [Unreleased]
+
+## [1.1.0] - 2025-01-15
+### Added
+- `AgentMethod.async_usage` field to track async/await patterns
+- `TrackConfig.sidechain_routing` for sidechain compression routing
+
+### Changed
+- `AbletonReference.section` now accepts single-digit sections (e.g., "4.7")
+
+### Fixed
+- `MIDINote.duration` validator now correctly handles 16-bar clips
+
+## [1.0.0] - 2025-01-01
+### Added
+- Initial release with test, agent, and track models
+```
+
+---
+
+## Modern Pydantic 2.x Patterns
+
+### BaseModel Configuration
+
+```python
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing_extensions import Annotated  # For Python 3.9+
+
+class ModernBaseModel(BaseModel):
+    \"\"\"Base model with Pydantic 2.x best practices.\"\"\"
+    
+    model_config = ConfigDict(
+        # Pydantic 2.x: use model_config instead of Config class
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        validate_default=True,
+        # Future-proof for Pydantic 3.0
+        use_attribute_docstrings=True,
+        arbitrary_types_allowed=False,
+        # Serialization
+        ser_json_timedelta='float',
+        ser_json_bytes='base64',
+    )
+```
+
+### Field Validators (Pydantic 2.x)
+
+```python
+from pydantic import field_validator, model_validator
+
+class AbletonReference(ModernBaseModel):
+    \"\"\"Ableton Manual reference validation.
+    
+    Version: 1.0.0
+    \"\"\"
+    
+    section: Annotated[str, Field(pattern=r"^\\d+\\.\\d+(\\.\\d+)?$")]
+    title: Annotated[str, Field(min_length=1, max_length=200)]
+    page: Annotated[int, Field(gt=0, lt=1000)]
+    
+    # Pydantic 2.x: @field_validator replaces @validator
+    @field_validator('section')
+    @classmethod
+    def validate_section_format(cls, v: str) -> str:
+        \"\"\"Ensure section follows X.Y or X.Y.Z format.\"\"\"
+        parts = v.split(".")
+        if not (2 <= len(parts) <= 3):
+            raise ValueError(f"Section must be X.Y or X.Y.Z format, got: {v}")
+        return v
+    
+    @property
+    def reference_string(self) -> str:
+        \"\"\"Format as: 'Section 28.9.2 \"Title\" (page 521)'\"\"\"
+        return f'Section {self.section} "{self.title}" (page {self.page})'
+```
+
+### Computed Fields (Pydantic 2.x)
+
+```python
+from pydantic import computed_field
+
+class TrackConfig(ModernBaseModel):
+    \"\"\"Track configuration with computed properties.
+    
+    Version: 1.0.0
+    \"\"\"
+    
+    index: Annotated[int, Field(ge=0, le=15)]
+    name: str
+    volume_db: Annotated[float, Field(ge=-60.0, le=6.0)]
+    
+    # Pydantic 2.x: Use @computed_field for derived properties
+    @computed_field  # type: ignore[misc]
+    @property
+    def volume_linear(self) -> float:
+        \"\"\"Convert dB to linear scale (0.0-1.0).\"\"\"
+        return 10 ** (self.volume_db / 20.0)
+```
+
+---
+
+## Pydantic-Settings Evaluation
+
+### Recommendation: **Use pydantic-settings for configuration only**
+
+**Use Cases**:
+- ✅ Environment variables (MCP URLs, API keys)
+- ✅ Application settings (file paths, defaults)
+- ❌ **Not** for validation models (tests, agents, tracks)
+
+### Structure
+
+```python
+# config/settings.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class AppSettings(BaseSettings):
+    \"\"\"Application configuration using pydantic-settings.
+    
+    Loads from environment variables and .env file.
+    \"\"\"
+    
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        env_prefix='ABLETON_',  # ABLETON_MCP_URL, etc.
+        case_sensitive=False,
+    )
+    
+    # MCP Configuration
+    mcp_url: str = Field(default="http://localhost:8000")
+    mcp_timeout: int = Field(default=30, ge=1, le=300)
+    
+    # Redis Configuration  
+    redis_url: str = Field(default="redis://localhost:6379")
+    redis_db: int = Field(default=0, ge=0, le=15)
+    
+    # Paths
+    live_set_dir: str = Field(default="live_set/lily_palmer/i_am_machine")
+    artifacts_dir: str = Field(default="artifacts")
+    
+    # Validation
+    min_validation_score: float = Field(default=70.0, ge=0.0, le=100.0)
+
+# Usage
+settings = AppSettings()  # Automatically loads from .env
+```
+
+**Verdict**: Use **only for settings**, **not for validation models**.
+
+---
+
+## Phase 1-3: Test Quality Validator
+
+### File: `models/v1/test_models.py`
+
+```python
+\"\"\"Test validation models (Pydantic 2.x).
+
+Version: 1.0.0
+\"\"\"
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from typing import Literal, Optional
+from pathlib import Path
+from typing_extensions import Annotated
+
+class ModernBaseModel(BaseModel):
+    \"\"\"Base model with Pydantic 2.x configuration.\"\"\"
+    
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        validate_default=True,
+        use_attribute_docstrings=True,
+    )
+
+
+class AbletonReference(ModernBaseModel):
+    \"\"\"Ableton Manual reference validation.
+    
+    Validates manual section, title, and page number.
+    
+    Attributes:
+        section: Section number (e.g., "28.9.2")
+        title: Section title
+        page: Page number in manual
+    \"\"\"
+    
+    section: Annotated[str, Field(pattern=r"^\\d+\\.\\d+(\\.\\d+)?$")]
+    title: Annotated[str, Field(min_length=1, max_length=200)]
+    page: Annotated[int, Field(gt=0, lt=1000)]
+    
+    @field_validator('section')
+    @classmethod
+    def validate_section_format(cls, v: str) -> str:
+        parts = v.split(".")
+        if not (2 <= len(parts) <= 3):
+            raise ValueError(f"Section must be X.Y or X.Y.Z, got: {v}")
+        return v
+    
+    @property
+    def reference_string(self) -> str:
+        return f'Section {self.section} "{self.title}" (page {self.page})'
+
+
+class ModuleDocstring(ModernBaseModel):
+    \"\"\"Module-level docstring validation.\"\"\"
+    
+    description: Annotated[str, Field(min_length=10)]
+    references: Annotated[
+        list[AbletonReference], 
+        Field(min_length=1, max_length=3)
+    ]
+    has_tdd_workflow: bool = Field(default=True)
+    tdd_markers: list[Literal["RED", "GREEN", "REFACTOR"]] = Field(
+        default_factory=lambda: ["RED", "GREEN", "REFACTOR"]
+    )
+    
+    @field_validator('has_tdd_workflow')
+    @classmethod
+    def validate_tdd_section(cls, v: bool) -> bool:
+        if not v:
+            raise ValueError("Module docstring must include TDD Workflow section")
+        return v
+
+
+class MethodDocstring(ModernBaseModel):
+    \"\"\"Method-level docstring validation.\"\"\"
+    
+    description: Annotated[str, Field(min_length=10)]
+    references: list[AbletonReference] = Field(default_factory=list, max_length=2)
+    tdd_marker: Optional[Literal["RED", "GREEN", "REFACTOR"]] = None
+
+
+class TestMethod(ModernBaseModel):
+    \"\"\"Individual test method validation.\"\"\"
+    
+    name: Annotated[str, Field(pattern=r"^test_[a-z_]+$")]
+    docstring: MethodDocstring
+    has_arrange: bool = Field(default=True)
+    has_act: bool = Field(default=True)
+    has_assert: bool = Field(default=True)
+    uses_fixtures: list[str] = Field(default_factory=list)
+    
+    @field_validator('uses_fixtures')
+    @classmethod
+    def validate_fixture_names(cls, v: list[str]) -> list[str]:
+        valid = {"mock_mcp_client", "mock_agent_logger"}
+        invalid = set(v) - valid
+        if invalid:
+            raise ValueError(f"Invalid fixtures: {invalid}")
+        return v
+
+
+class ValidationResult(ModernBaseModel):
+    \"\"\"Validation result for a file.\"\"\"
+    
+    filepath: Path
+    passed: bool
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    score: Annotated[float, Field(ge=0.0, le=100.0)]
+    
+    @property
+    def status(self) -> str:
+        return "✅ PASS" if self.passed else "❌ FAIL"
+```
+
+---
+
+## Phase 4: Agent Quality Validator
+
+### File: `models/v1/agent_models.py`
+
+```python
+\"\"\"Agent validation models (Pydantic 2.x).
+
+Version: 1.0.0
+\"\"\"
+
+from pydantic import Field, field_validator
+from typing import Optional
+from typing_extensions import Annotated
+
+from .test_models import ModernBaseModel, AbletonReference
+
+
+class AgentMethod(ModernBaseModel):
+    \"\"\"Agent method validation.\"\"\"
+    
+    name: Annotated[str, Field(pattern=r"^[a-z_][a-z0-9_]*$")]
+    has_docstring: bool
+    has_type_hints: bool
+    returns_agent_result: bool
+    is_async: bool
+    references: list[AbletonReference] = Field(default_factory=list)
+    handles_none_mcp: bool = Field(default=False)
+    
+    @field_validator('name')
+    @classmethod
+    def validate_snake_case(cls, v: str) -> str:
+        if not v.islower() or not v.replace('_', '').isalnum():
+            raise ValueError(f"Method name must be snake_case: {v}")
+        return v
+
+
+class AgentClass(ModernBaseModel):
+    \"\"\"Agent class validation.\"\"\"
+    
+    name: Annotated[str, Field(pattern=r"^[A-Z][a-zA-Z]+Agent$")]
+    inherits_base_agent: bool
+    has_get_role: bool
+    has_get_goal: bool
+    has_execute: bool
+    methods: list[AgentMethod] = Field(default_factory=list)
+    manual_references: list[AbletonReference] = Field(default_factory=list)
+
+
+class AgentValidationResult(ModernBaseModel):
+    \"\"\"Agent file validation result.\"\"\"
+    
+    filepath: Path
+    passed: bool
+    score: Annotated[float, Field(ge=0.0, le=100.0)]
+    documentation_score: float = 0.0
+    type_safety_score: float = 0.0
+    error_handling_score: float = 0.0
+    structure_score: float = 0.0
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+```
+
+---
+
+## Phase 5: Track Structure Models
+
+### File: `models/v1/track_models.py`
+
+```python
+\"\"\"Track structure models (Pydantic 2.x).
+
+Version: 1.0.0
+\"\"\"
+
+from pydantic import Field, field_validator, model_validator
+from enum import Enum
+from typing import Literal, Optional
+from typing_extensions import Annotated, Self
+
+
+class TrackType(str, Enum):
+    \"\"\"Supported track types.\"\"\"
+    KICK = "kick"
+    BASS = "bass"
+    SYNTH = "synth"
+    DRUM = "drum"
+    VOCAL = "vocal"
+    FX = "fx"
+
+
+class MIDINote(ModernBaseModel):
+    \"\"\"MIDI note with validation.\"\"\"
+    
+    pitch: Annotated[int, Field(ge=0, le=127, description="MIDI pitch (0-127)")]
+    start_time: Annotated[float, Field(ge=0.0, description="Start time in beats")]
+    duration: Annotated[float, Field(gt=0.0, le=16.0, description="Duration in beats")]
+    velocity: Annotated[int, Field(ge=0, le=127, description="Note velocity")]
+
+
+class DeviceConfig(ModernBaseModel):
+    \"\"\"Device configuration with parameters.\"\"\"
+    
+    name: str
+    parameters: dict[str, float] = Field(default_factory=dict)
+    fallback: Optional[str] = None
+    
+    @field_validator('parameters')
+    @classmethod
+    def validate_parameter_values(cls, v: dict[str, float]) -> dict[str, float]:
+        # Validate parameter values are in valid range
+        for param, value in v.items():
+            if not (-1000.0 <= value <= 1000.0):
+                raise ValueError(f"Parameter {param} value {value} out of range")
+        return v
+
+
+class TrackConfig(ModernBaseModel):
+    \"\"\"Complete track configuration.\"\"\"
+    
+    index: Annotated[int, Field(ge=0, le=15)]
+    name: Annotated[str, Field(pattern=r"^Track \\d{2} - .+$")]
+    track_type: TrackType
+    color: Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$")]
+    volume_db: Annotated[float, Field(ge=-60.0, le=6.0)]
+    pan: Annotated[float, Field(ge=-1.0, le=1.0)]
+    devices: list[DeviceConfig] = Field(default_factory=list)
+    midi_clips: list[list[MIDINote]] = Field(default_factory=list)
+    audio_routing: Optional[str] = None
+    
+    @field_validator('name')
+    @classmethod
+    def validate_track_name(cls, v: str, info) -> str:
+        # Pydantic 2.x: info.data instead of values
+        index = info.data.get('index')
+        if index is not None:
+            expected_prefix = f"Track {index+1:02d}"
+            if not v.startswith(expected_prefix):
+                raise ValueError(f"Track name must start with '{expected_prefix}'")
+        return v
+
+
+class ProjectConfig(ModernBaseModel):
+    \"\"\"Complete project configuration.\"\"\"
+    
+    name: Literal["I Am Machine"]
+    tempo: Annotated[int, Field(ge=100, le=200, default=136)]
+    time_signature: tuple[int, int] = Field(default=(4, 4))
+    total_bars: Annotated[int, Field(ge=16, le=256, default=64)]
+    tracks: Annotated[list[TrackConfig], Field(min_length=16, max_length=16)]
+    
+    @model_validator(mode='after')  # Pydantic 2.x: mode parameter
+    def validate_track_indices(self) -> Self:
+        indices = [t.index for t in self.tracks]
+        if sorted(indices) != list(range(16)):
+            raise ValueError("Tracks must have indices 0-15")
+        return self
+```
+
+---
+
+## Directory Structure
+
+```
+ableton-mcp/
+├── models/
+│   ├── __init__.py
+│   ├── CHANGELOG.md
+│   ├── v1/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── test_models.py
+│   │   ├── agent_models.py
+│   │   └── track_models.py
+│   └── current.py  # from .v1 import *
+├── config/
+│   └── settings.py  # pydantic-settings for env config
+├── tests/
+│   └── validators/
+│       ├── __init__.py
+│       └── test_quality_validator.py
+├── scripts/
+│   └── validators/
+│       ├── __init__.py
+│       └── agent_quality_validator.py
+└── live_set/
+    └── lily_palmer/
+        └── i_am_machine_v2/
+            ├── configs/
+            │   └── i_am_machine.json
+            ├── models/ -> ../../../../models  # Symlink
+            ├── generators/
+            └── validators/
+```
+
+---
+
+## Success Criteria
+
+### Pydantic Modernization
+✅ All models use Pydantic 2.x syntax  
+✅ `model_config` replaces [Config](file:///Users/alexzh/ableton-mcp/tests/test_agentic_workflow.py#166-197) class  
+✅ `@field_validator` replaces `@validator`  
+✅ `@model_validator(mode='after')` for cross-field validation  
+✅ Version control structure in place  
+✅ CHANGELOG.md created and documented  
+✅ pydantic-settings evaluated and used appropriately
+
+### Phase 1-5 Implementation
+✅ Test validator with modern patterns  
+✅ Agent validator with modern patterns  
+✅ Track models with modern patterns  
+✅ All validators generate reports  
+✅ Migration paths documented
+
+**Total Estimated Time**: 5 days
+- Day 1: Modern Pydantic patterns + versioning setup
+- Days 2-3: Test & Agent validators
+- Days 4-5: Track structure + migration
