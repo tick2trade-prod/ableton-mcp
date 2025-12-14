@@ -1,5 +1,8 @@
 """Tests for AutomationAgent - Parameter automation and envelopes.
 
+Reference: Ableton Manual Section 4.6 "Working with Automation" (page 116)
+
+
 Reference: Ableton Manual Section 40.5.1 "Navigating Breakpoints" (page 927)
 Reference: Ableton Manual Section 6.1 "Arrangement View" (page 145)
 
@@ -18,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from unittest.mock import Mock
 
 import pytest
+
 from scripts.dearpygui_controller.agents.automation_agent import AutomationAgent
 
 

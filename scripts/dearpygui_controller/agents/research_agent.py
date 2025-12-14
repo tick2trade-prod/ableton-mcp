@@ -4,10 +4,11 @@ from .base_agent import AgentResult, BaseAgent
 
 
 class ResearchAgent(BaseAgent):
-    """Agent for researching production techniques.
+    """ResearchAgent - Research production techniques using documentation.
 
-    Uses embedded Ableton documentation and web search to find
-    best practices for Peak Time Techno production.
+    Reference: Ableton Manual Section 1 "General Documentation" (page 1)
+
+    Searches embedded Ableton documentation and web for techniques.
     """
 
     def __init__(self, **kwargs):

@@ -1,5 +1,8 @@
 """Return Track Agent for return track and send management.
 
+Reference: Ableton Manual Section 17.5 "Return Tracks" (page 357)
+
+
 Reference: Ableton Manual Section 18.4 "Return Tracks" (page 381)
 Reference: Ableton Manual Section 18.1 "The Live Mixer - Sends" (page 376)
 """

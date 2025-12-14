@@ -1,5 +1,8 @@
 """Tests for MasteringAgent - Mastering chain and final processing.
 
+Reference: Ableton Manual Section 28.20 "Multiband Dynamics" (page 563)
+
+
 Reference: Ableton Manual Section 28.26.1 "Dynamics Processing Theory" (page 563)
 
 TDD Workflow:

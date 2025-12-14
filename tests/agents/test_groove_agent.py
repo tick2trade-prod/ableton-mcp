@@ -1,5 +1,8 @@
 """Tests for GrooveAgent - Groove templates and quantization.
 
+Reference: Ableton Manual Section 13.1.4 "Groove Pool" (page 326)
+
+
 Reference: Ableton Manual Section 14.1 "Groove Pool" (page 326)
 Reference: Ableton Manual Section 10.5.12 "Editing Velocities" (page 258)
 
@@ -18,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from unittest.mock import Mock
 
 import pytest
+
 from scripts.dearpygui_controller.agents.groove_agent import GrooveAgent
 
 

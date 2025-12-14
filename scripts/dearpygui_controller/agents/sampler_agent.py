@@ -1,5 +1,8 @@
 """Sampler Agent for sample manipulation and granular synthesis.
 
+Reference: Ableton Manual Section 30.10 "Sampler" (page 701)
+
+
 Reference: Ableton Manual Section 30.4.2 "Drum Sampler Playback" (page 660)
 Reference: Ableton Manual Section 28.31 "Granulator III" (page 579)
 """

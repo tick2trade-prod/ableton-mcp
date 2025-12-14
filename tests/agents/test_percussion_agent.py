@@ -1,5 +1,8 @@
 """Tests for PercussionAgent - Drum rack and percussion setup.
 
+Reference: Ableton Manual Section 30.5 "Drum Racks" (page 797)
+
+
 Reference: Ableton Manual Section 34.3.1 "Loop Selector" (page 797)
 Reference: Ableton Manual Section 24.4.1 "Drum Rack Basics" (page 446)
 

@@ -1,5 +1,8 @@
 """Tests for ResearchAgent - Web research and documentation search.
 
+Reference: Ableton Manual Section 1 "General Documentation" (page 1)
+
+
 TDD Workflow:
 - 🔴 RED: Write failing test
 - 🟢 GREEN: Implement minimum code to pass

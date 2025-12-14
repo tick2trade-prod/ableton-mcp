@@ -1,5 +1,8 @@
 """Groove Agent for groove templates and quantization.
 
+Reference: Ableton Manual Section 13.1.4 "Groove Pool" (page 326)
+
+
 Reference: Ableton Manual Section 14.1 "Groove Pool" (page 326)
 Reference: Ableton Manual Section 10.5.12 "Editing Velocities" (page 258)
 """

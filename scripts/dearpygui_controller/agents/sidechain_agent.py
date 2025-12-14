@@ -1,5 +1,8 @@
 """Sidechain Agent for compression routing.
 
+Reference: Ableton Manual Section 28.14 "Sidechain Parameters" (page 535)
+
+
 Reference: Ableton Manual Section 28.9.2 "Compressor Tips" (page 521)
 Reference: Ableton Manual Section 17.5.2 "Internal Routing" (page 363)
 """

@@ -1,5 +1,8 @@
 """Effects Chain Agent for audio effects and rack configuration.
 
+Reference: Ableton Manual Section 18.1 "Audio Effect Racks" (page 445)
+
+
 Reference: Ableton Manual Section 24.4 "Chain List" (page 445)
 Reference: Ableton Manual Section 17.5.2 "Making Use of Internal Routing" (page 363)
 Reference: Ableton Manual Section 24.7.3 "Macro Control Variations" (page 457)

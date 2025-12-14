@@ -1,5 +1,8 @@
 """Automation Agent for parameter automation and envelopes.
 
+Reference: Ableton Manual Section 4.6 "Working with Automation" (page 116)
+
+
 Reference: Ableton Manual Section 40.5.1 "Navigating Breakpoints" (page 927)
 Reference: Ableton Manual Section 6.1 "Arrangement View" (page 145)
 """

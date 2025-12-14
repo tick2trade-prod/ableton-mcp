@@ -1,7 +1,11 @@
-"""Arrangement Agent for clip and scene management in session view.
+"""ArrangementAgent - Manages clip launch settings and arrangement view.
 
-Reference: Ableton Manual Section 16.1 "The Launch Controls" (page 340)
-Reference: Ableton Manual Section 7.4.3 "Editing Scenes" (page 176)
+Reference: Ableton Manual Section 13.8 "Clip Launch Settings" (page 340)
+
+Responsible for:
+- Configuring clip launch settings
+- Managing arrangement view preferences
+- Setting up scene and clip propertieson 7.4.3 "Editing Scenes" (page 176)
 """
 
 from ..config import TRACKS

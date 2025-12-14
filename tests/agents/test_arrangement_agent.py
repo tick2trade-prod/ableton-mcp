@@ -1,5 +1,8 @@
 """Tests for ArrangementAgent - Clip and scene management in session view.
 
+Reference: Ableton Manual Section 13.8 "Clip Launch Settings" (page 340)
+
+
 Reference: Ableton Manual Section 16.1 "The Launch Controls" (page 340)
 
 TDD Workflow:

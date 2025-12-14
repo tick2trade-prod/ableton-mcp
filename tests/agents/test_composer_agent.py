@@ -1,5 +1,8 @@
 """Tests for ComposerAgent - MIDI patterns and note composition.
 
+Reference: Ableton Manual Section 13.1.4 "Groove Pool" (page 326)
+
+
 Reference: Ableton Manual Section 14.1 "Groove Pool" (page 326)
 
 TDD Workflow:

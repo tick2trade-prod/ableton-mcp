@@ -1,5 +1,8 @@
 """Tests for SamplerAgent - Sample manipulation and granular synthesis.
 
+Reference: Ableton Manual Section 30.10 "Sampler" (page 701)
+
+
 Reference: Ableton Manual Section 30.4.2 "Drum Sampler Playback" (page 660)
 Reference: Ableton Manual Section 28.31 "Granulator III" (page 579)
 
@@ -18,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from unittest.mock import Mock
 
 import pytest
+
 from scripts.dearpygui_controller.agents.sampler_agent import SamplerAgent
 
 
