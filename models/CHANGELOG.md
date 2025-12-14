@@ -9,6 +9,14 @@ Format: [Semantic Versioning](https://semver.org/)
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-12-14
+### Added
+- Track validation models in `models/v1/track_models.py`
+- `TrackType`, `MIDINote`, `DeviceConfig`, `TrackConfig`, `ProjectConfig` models
+- Track configuration validator with JSON support
+- Example track configuration and validation
+- Modern Pydantic 2.x patterns throughout
+
 ## [1.0.0] - 2025-12-14
 ### Added
 - Initial release with test validation models
