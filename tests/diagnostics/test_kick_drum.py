@@ -40,61 +40,34 @@ def test_kick_drum_creation():
         return False
     print(f"✅ Track created: {result.message}\n")
 
-    # Step 3: Try loading Drum Rack
-    print("Step 3: Loading Drum Rack...")
-    result = client.load_browser_item(track_index=0, item_uri="query:Drums#Drum%20Rack")
+    # Step 3: Load 909 Core Kit (has kicks, snares, hats pre-loaded!)
+    print("\nStep 3: Loading 909 Core Kit Drum Rack...")
+    result = client.load_browser_item(
+        track_index=0,
+        item_uri="query:Drums#FileId_5447",  # 909 Core Kit.adg
+    )
+
     if not result.success:
-        print(f"❌ Drum Rack failed: {result.message}")
-        print("   Trying alternative URI...")
-        result = client.load_browser_item(track_index=0, item_uri="query:Drums")
+        print(f"❌ 909 Kit failed: {result.message}")
+        print("   Trying generic Drum Rack...")
+        result = client.load_browser_item(
+            track_index=0, item_uri="query:Drums#Drum%20Rack"
+        )
 
     if result.success:
-        print("✅ Drum Rack loaded!")
-        print(f"   Data: {result.data}")
+        print(f"✅ Loaded: {result.data.get('item_name')}")
+        print("   (Should have kick on C1, snare on D1, hats on F#1/G#1)")
     else:
-        print(f"❌ All Drum Rack attempts failed: {result.message}")
+        print(f"❌ Failed: {result.message}")
         return False
 
     print("\n" + "=" * 70)
-    # Step 3.5: Load Kick 909 sample from Core Library
-    print("\nStep 3.5: Loading Kick 909 sample from Core Library...")
 
-    # Exact path from user's recommendation
-    kick_sample_paths = [
-        "Packs/Core Library/Drums/Samples/Kicks/Kick 909.aif",
-        "Core Library/Drums/Samples/Kicks/Kick 909.aif",
-        "Drums/Samples/Kicks/Kick 909",
-    ]
-
-    kick_loaded = False
-    for sample_path in kick_sample_paths:
-        print(f"   Trying: {sample_path}")
-        result = client.send_command("get_browser_items_at_path", {"path": sample_path})
-
-        if result.success:
-            items = result.data.get("items", [])
-            if items:
-                # Try to load the first item
-                uri = items[0].get("uri")
-                print(f"   Found sample, loading with URI: {uri}")
-                load_result = client.load_browser_item(track_index=0, item_uri=uri)
-                if load_result.success:
-                    print("   ✅ Kick 909 loaded!")
-                    kick_loaded = True
-                    break
-
-    if not kick_loaded:
-        print("   ⚠️  Could not auto-load kick - trying direct URI...")
-        # Try direct browser query
-        for uri in ["query:Drums/Samples/Kicks#Kick%20909", "query:Samples#Kick"]:
-            result = client.load_browser_item(track_index=0, item_uri=uri)
-            if result.success:
-                print(f"   ✅ Loaded via URI: {uri}")
-                kick_loaded = True
-                break
-
-    if not kick_loaded:
-        print("   ⚠️  Manual intervention needed: Drag Kick 909.aif onto C1 pad")
+    print("\n✨ 909 Core Kit has samples pre-loaded on pads!")
+    print("   C1 (note 36) = Kick")
+    print("   D1 (note 38) = Snare")
+    print("   F#1 (note 42) = Closed Hi-Hat")
+    print("   G#1 (note 44) = Open Hi-Hat")
 
     print("\n" + "=" * 70)
 
