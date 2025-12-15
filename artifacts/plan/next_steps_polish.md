@@ -12,11 +12,11 @@ All core functionality is complete. These are polish and integration improvement
 
 ---
 
-## Phase 1: Validator Path Updates (30 minutes)
+## Phase 1: Validator Updates & 100% Pass Rates (2-3 hours)
 
-**Objective**: Update validators to use new artifacts directory structure
+**Objective**: Update validator paths AND achieve 100% pass rates for all agents and tests
 
-### Tasks
+### Step 1: Update Validator Output Paths (30 min)
 
 1. **Update Agent Validator Output Path**
    - File: `scripts/validators/agent_quality_validator.py`
@@ -28,17 +28,127 @@ All core functionality is complete. These are polish and integration improvement
    - Change: `artifacts/test_quality_report.md` → `artifacts/report/test_quality_report.md`
    - Estimated: Line ~300
 
-3. **Re-run Validators**
+3. **Re-run Validators to Get Baseline**
    ```bash
    uv run python scripts/validators/agent_quality_validator.py
    uv run python tests/validators/test_quality_validator.py
    ```
 
-4. **Verify Pass Rates**
-   - Expected agents: 17/20 passing (85%)
-   - Expected tests: 14/20 passing (70%)
+### Step 2: Fix Remaining 3 Agents to Reach 20/20 (1 hour)
 
-**Success Metric**: Both validators report to correct paths with improved pass rates
+**Current**: 17/20 agents passing (85%)
+**Target**: 20/20 agents passing (100%)
+
+Based on the agent improvement plan, the remaining 3 agents likely need:
+
+1. **Add TDD Workflow Sections** (if missing)
+   - Pattern:
+   ```python
+   """
+   TDD Workflow:
+   - 🔴 RED: Write failing test
+   - 🟢 GREEN: Implement minimum code to pass
+   - 🔄 REFACTOR: Clean up with tests as safety net
+   """
+   ```
+
+2. **Add Missing Error Handling** (Phase 2 from agent improvement plan)
+   - Add try/except blocks to methods
+   - Priority: verifier_agent (9 methods), modulation_agent (6 methods), composer_agent (6 methods)
+   - Pattern:
+   ```python
+   try:
+       # Method logic
+       return AgentResult(success=True, ...)
+   except Exception as e:
+       self.log(f"Error: {e}")
+       return AgentResult(success=False, message=f"Error: {e}")
+   ```
+
+3. **Add MCP None Handling** (Phase 3 from agent improvement plan)
+   - Add checks for mock scenarios
+   - Pattern:
+   ```python
+   mcp = self.get_mcp_client()
+   if not mcp:
+       self.log("Mock mode: ...")
+       return AgentResult(success=True, message="Mock: ...")
+   ```
+
+**Script Approach**:
+```bash
+# Create automated fix script
+uv run python scripts/auto_add_error_handling.py --agents verifier modulation composer
+```
+
+### Step 3: Fix Remaining 6 Tests to Reach 20/20 (1 hour)
+
+**Current**: 14/20 tests passing (70%)
+**Target**: 20/20 tests passing (100%)
+
+Based on the test improvement plan, the remaining 6 tests need:
+
+1. **Add TDD Workflow Sections** (Phase 1 from test improvement plan)
+   - Add to module docstrings:
+   ```python
+   """
+   TDD Workflow:
+   - 🔴 RED: Write failing test
+   - 🟢 GREEN: Implement minimum code to pass
+   - 🔄 REFACTOR: Clean up with tests as safety net
+   """
+   ```
+
+2. **Add TDD Markers to Method Docstrings** (Phase 2 from test improvement plan)
+   - Pattern for each test method:
+   ```python
+   def test_method(self):
+       """Test description.
+
+       🟢 GREEN: This test should pass with implemented method.
+       """
+   ```
+
+3. **Add AAA Comments** (Phase 3 from test improvement plan - optional but helps)
+   ```python
+   # Arrange
+   agent = Agent()
+
+   # Act
+   result = agent.method()
+
+   # Assert
+   assert result.success is True
+   ```
+
+**Script Approach**:
+```bash
+# Create automated fix script
+uv run python scripts/auto_add_test_tdd_sections.py
+```
+
+### Step 4: Verify 100% Pass Rates (30 min)
+
+1. **Re-run Both Validators**
+   ```bash
+   uv run python scripts/validators/agent_quality_validator.py
+   uv run python tests/validators/test_quality_validator.py
+   ```
+
+2. **Check Reports**
+   - `artifacts/report/agent_quality_report.md` → Expect 20/20 passing
+   - `artifacts/report/test_quality_report.md` → Expect 20/20 passing
+
+3. **Fix Any Remaining Issues**
+   - Review errors/warnings in reports
+   - Address manually if automated scripts missed anything
+
+**Success Metrics**:
+- ✅ Agent pass rate: 20/20 (100%)
+- ✅ Test pass rate: 20/20 (100%)
+- ✅ Average agent score: 90+/100
+- ✅ Average test score: 90+/100
+- ✅ All reports in correct artifact paths
 
 ---
 
@@ -204,41 +314,58 @@ async def method_name(self, track_index: int, **kwargs) -> AgentResult:
 
 | Phase | Task | Time | Running Total |
 |-------|------|------|---------------|
-| 1 | Validator Paths | 30 min | 30 min |
-| 2 | MCP Integration | 2 hours | 2.5 hours |
-| 3 | TDD Markers | 1-2 hours | 4.5 hours |
-| 4 | Error Handling | 1-2 hours | 6.5 hours |
-| 5 | Documentation | 30 min | 7 hours |
+| 1a | Validator Paths | 30 min | 30 min |
+| 1b | Fix 3 Remaining Agents | 1 hour | 1.5 hours |
+| 1c | Fix 6 Remaining Tests | 1 hour | 2.5 hours |
+| 1d | Verify 100% Pass Rates | 30 min | **3 hours** |
+| 2 | MCP Integration | 2 hours | 5 hours |
+| 3 | TDD Markers (Advanced) | 1-2 hours | 7 hours |
+| 4 | Error Handling (Advanced) | 1-2 hours | 9 hours |
+| 5 | Documentation | 30 min | 9.5 hours |
 
-**Realistic Estimate**: 3-5 hours (Phases 1-2 + selective work on 3-5)
-**Complete Polish**: 7 hours (all phases)
+**Phase 1 Only (Recommended)**: 3 hours → 100% pass rates achieved
+**Phase 1-2 (MCP Integration)**: 5 hours → Production ready
+**Complete Polish**: 9.5 hours → All optional improvements
 
 ---
 
 ## Success Criteria
 
-**Minimum (3 hours)**:
+**Phase 1 Complete (3 hours)**:
 - ✅ Validators report to correct paths
-- ✅ Track generator works with live Ableton
-- ✅ Updated pass rates confirmed
+- ✅ 20/20 agents passing (100%)
+- ✅ 20/20 tests passing (100%)
+- ✅ Average scores 90+/100
 
-**Full Polish (7 hours)**:
-- ✅ All of minimum criteria
-- ✅ 20+ tests with TDD markers
-- ✅ 3 agents with improved error handling (90+ scores)
+**Phases 1-2 Complete (5 hours)**:
+- ✅ All Phase 1 criteria
+- ✅ Track generator works with live Ableton
+- ✅ Full 16-track project generated successfully
+
+**Full Polish (9.5 hours)**:
+- ✅ All Phases 1-2 criteria
+- ✅ Advanced TDD markers
+- ✅ Advanced error handling
 - ✅ Complete documentation
 
 ---
 
 ## High-Value Quick Wins
 
-If time is limited, prioritize:
+**Recommended Path**: Complete Phase 1 (3 hours) for maximum value
 
-1. **Validator Path Update** (30 min) - High value, low effort
-2. **MCP Test with 1 Track** (30 min) - Proves the whole system works
-3. **Error Handling for verifier_agent** (30 min) - Biggest impact on scores
+This achieves:
+- 100% validator pass rates (industry standard)
+- Production-ready code quality
+- Clear baseline for future work
 
-**Total**: 90 minutes for maximum ROI
+**If extremely time-limited**, focus on:
+
+1. **Validator Path Update** (30 min) - Must have
+2. **Fix 3 Failing Agents** (1 hour) - High impact
+3. **Fix 6 Failing Tests** (1 hour) - High impact
+
+**Total**: 2.5 hours for 95% of Phase 1 value
 
 ---
 
