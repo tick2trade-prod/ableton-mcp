@@ -8,4 +8,23 @@ wheels/
 
 # Virtual environments
 .venv
+
+# OS files
 .DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Test
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Scripts (local)
+# scripts/
+
+external/*
+docs/live12-manual-en.pdf

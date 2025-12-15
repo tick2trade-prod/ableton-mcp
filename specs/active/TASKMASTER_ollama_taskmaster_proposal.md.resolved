@@ -1,0 +1,143 @@
+# Proposal: Ollama Task Master for Ableton MCP
+
+## Executive Summary
+A lightweight, **free** task orchestration system for Ableton agents using local Ollama LLMs.
+
+## What is `claude-task-master`?
+An MCP-based task management system with:
+- **36 MCP tools** (PRD parsing, task expansion, dependencies, etc.)
+- **Multi-provider LLM support** via LiteLLM (OpenAI, Anthropic, **Ollama**)
+- **State management** via [.taskmaster/tasks/tasks.json](file:///Users/alexzh/ollama_crewai_lab/.taskmaster/tasks/tasks.json)
+- **CLI + MCP interface** (works in Cursor, VS Code, etc.)
+
+> **Key Finding**: It **already supports Ollama** via `OLLAMA_API_KEY` environment variable.
+
+---
+
+## Our Differentiators
+
+### 1. Test-Driven Development (TDD) First
+For every task requiring code changes:
+- **Requirement**: A failing test must be defined first
+- **Pytest Markers**: Tasks declare required marker (e.g., `@pytest.mark.tools_main`)
+- **Test Package**: Tasks specify test framework/packages needed
+
+```json
+{
+  "id": 5,
+  "title": "Implement SoundDesignAgent",
+  "test_requirement": {
+    "marker": "agents_core",
+    "test_file": "tests/test_agents.py::TestSoundDesignAgent",
+    "packages": ["pytest-asyncio"]
+  }
+}
+```
+
+### 2. Multi-Agent Assignment
+Tasks can be assigned to **multiple agents** for parallel execution:
+- GUI shows agent checkboxes per task
+- Enables Research + Composer + Mixer on same task
+- Tracks per-agent progress independently
+
+```json
+{
+  "id": 3,
+  "assigned_agents": ["research", "composer", "sound_design"],
+  "agent_statuses": {
+    "research": "done",
+    "composer": "in-progress",
+    "sound_design": "pending"
+  }
+}
+```
+
+---
+
+## Full Tool Inventory (36 Tools)
+
+| # | Tool | Category | Priority | Notes |
+|---|------|----------|----------|-------|
+| 1 | `get_tasks` | Info | **P0** | List all tasks |
+| 2 | `get_task` | Info | **P0** | Show task details |
+| 3 | `next_task` | Info | **P0** | Find next work item |
+| 4 | `set_task_status` | Info | **P0** | Update status |
+| 5 | `parse_prd` | Analysis | **P0** | Generate tasks from PRD |
+| 6 | `expand_task` | Analysis | **P0** | Break into subtasks |
+| 7 | `update_subtask` | Management | **P0** | Add implementation notes |
+| 8 | `add_task` | Management | **P1** | Create new task |
+| 9 | `add_subtask` | Management | **P1** | Add subtask manually |
+| 10 | `remove_task` | Management | **P1** | Delete task |
+| 11 | `remove_subtask` | Management | P2 | Delete subtask |
+| 12 | `update_task` | Management | **P1** | Modify task |
+| 13 | [update](file:///Users/alexzh/ableton-mcp/scripts/dearpygui_controller/agents/base_agent.py#61-65) | Management | P2 | Bulk update |
+| 14 | `move_task` | Management | P2 | Reorder tasks |
+| 15 | `clear_subtasks` | Management | P2 | Remove all subtasks |
+| 16 | `expand_all` | Analysis | **P1** | Expand all eligible |
+| 17 | `analyze_project_complexity` | Analysis | **P1** | Complexity scoring |
+| 18 | `complexity_report` | Analysis | P2 | View report |
+| 19 | `add_dependency` | Dependencies | **P1** | Link tasks |
+| 20 | `remove_dependency` | Dependencies | P2 | Unlink tasks |
+| 21 | `validate_dependencies` | Dependencies | P2 | Check validity |
+| 22 | `fix_dependencies` | Dependencies | P2 | Auto-fix issues |
+| 23 | `initialize_project` | Project | **P0** | Setup project |
+| 24 | [generate](file:///Users/alexzh/ableton-mcp/scripts/ableton_cache_ast_codegen_mcp/mcp_server.py#439-462) | Project | **P1** | Create task files |
+| 25 | `models` | Project | P2 | Manage AI models |
+| 26 | [research](file:///Users/alexzh/ableton-mcp/scripts/dearpygui_controller/run_agent.py#29-39) | Project | **P1** | AI-powered research |
+| 27 | `add_tag` | Tags | P2 | Create tag |
+| 28 | `delete_tag` | Tags | P2 | Remove tag |
+| 29 | `list_tags` | Tags | P2 | Show all tags |
+| 30 | `use_tag` | Tags | P2 | Switch context |
+| 31 | `rename_tag` | Tags | P2 | Rename tag |
+| 32 | `copy_tag` | Tags | P2 | Duplicate tag |
+| 33 | `rules add` | Rules | P2 | Add rule profiles |
+| 34 | `rules remove` | Rules | P2 | Remove rules |
+| 35 | `rules setup` | Rules | P2 | Interactive setup |
+| 36 | *(reserved)* | - | - | Future expansion |
+
+### Priority Summary
+| Priority | Count | Effort |
+|----------|-------|--------|
+| **P0** | 7 | 1-2 days |
+| **P1** | 8 | 3-5 days |
+| P2 | 21 | 1-2 weeks |
+
+---
+
+## Effort Analysis
+
+### Option A: Use `claude-task-master` Directly with Ollama
+| Aspect | Effort | Notes |
+|--------|--------|-------|
+| Setup | **Low** | `npx task-master-ai` + set `OLLAMA_API_KEY` |
+| Configuration | **Low** | Point to local Ollama endpoint |
+| Integration | **Medium** | Wire MCP tools to DearPyGUI |
+
+**Total Effort**: ~1-2 days
+
+### Option B: Build Lightweight Python Clone (P0 only)
+| Component | Effort | Notes |
+|-----------|--------|-------|
+| Task Schema (JSON) | Low | Copy their `tasks.json` format |
+| P0 Tools (7) | Medium | Core workflow |
+| MCP Server | Medium | Use `fastmcp` |
+| TDD Integration | Medium | Pytest marker parsing |
+| Multi-Agent | Medium | GUI agent assignment |
+
+**Total Effort**: ~1 week (P0 only)
+
+---
+
+## Recommendation
+1. **Week 1**: Try Option A (direct integration) with Ollama
+2. **If issues**: Build P0 tools in Python with our TDD/multi-agent enhancements
+3. **Week 2-3**: Add P1 tools as needed
+
+---
+
+## Next Steps
+1. [ ] Install `task-master-ai` locally
+2. [ ] Configure with Ollama (`deepseek-r1:8b`)
+3. [ ] Test core workflow: PRD → Tasks → Agent execution
+4. [ ] Design TDD task schema extension
+5. [ ] Create DearPyGUI "Taskmaster" panel with multi-agent support

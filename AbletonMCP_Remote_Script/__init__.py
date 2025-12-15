@@ -1,16 +1,17 @@
 # AbletonMCP/init.py
 from __future__ import absolute_import, print_function, unicode_literals
 
-from _Framework.ControlSurface import ControlSurface
+from _Framework.ControlSurface import ControlSurface  # type: ignore[import-not-found]
 import socket
 import json
 import threading
 import time
 import traceback
+from typing import Optional, Any
 
 # Change queue import for Python 2
 try:
-    import Queue as queue  # Python 2
+    import Queue as queue  # type: ignore[import-not-found]  # Python 2
 except ImportError:
     import queue  # Python 3
 
@@ -22,56 +23,56 @@ def create_instance(c_instance):
     """Create and return the AbletonMCP script instance"""
     return AbletonMCP(c_instance)
 
-class AbletonMCP(ControlSurface):
+class AbletonMCP(ControlSurface):  # type: ignore[misc]
     """AbletonMCP Remote Script for Ableton Live"""
-    
-    def __init__(self, c_instance):
+
+    def __init__(self, c_instance: Any) -> None:
         """Initialize the control surface"""
         ControlSurface.__init__(self, c_instance)
         self.log_message("AbletonMCP Remote Script initializing...")
-        
+
         # Socket server for communication
-        self.server = None
-        self.client_threads = []
-        self.server_thread = None
-        self.running = False
-        
+        self.server: Optional[socket.socket] = None
+        self.client_threads: list[threading.Thread] = []
+        self.server_thread: Optional[threading.Thread] = None
+        self.running: bool = False
+
         # Cache the song reference for easier access
         self._song = self.song()
-        
+
         # Start the socket server
         self.start_server()
-        
+
         self.log_message("AbletonMCP initialized")
-        
+
         # Show a message in Ableton
         self.show_message("AbletonMCP: Listening for commands on port " + str(DEFAULT_PORT))
-    
+
     def disconnect(self):
         """Called when Ableton closes or the control surface is removed"""
         self.log_message("AbletonMCP disconnecting...")
         self.running = False
-        
+
         # Stop the server
         if self.server:
             try:
                 self.server.close()
-            except:
+            except Exception:
                 pass
-        
+
         # Wait for the server thread to exit
         if self.server_thread and self.server_thread.is_alive():
             self.server_thread.join(1.0)
-            
+
         # Clean up any client threads
         for client_thread in self.client_threads[:]:
             if client_thread.is_alive():
                 # We don't join them as they might be stuck
                 self.log_message("Client thread still alive during disconnect")
-        
+
         ControlSurface.disconnect(self)
         self.log_message("AbletonMCP disconnected")
-    
+
     def start_server(self):
         """Start the socket server in a separate thread"""
         try:
@@ -79,31 +80,36 @@ class AbletonMCP(ControlSurface):
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server.bind((HOST, DEFAULT_PORT))
             self.server.listen(5)  # Allow up to 5 pending connections
-            
+
             self.running = True
             self.server_thread = threading.Thread(target=self._server_thread)
             self.server_thread.daemon = True
             self.server_thread.start()
-            
+
             self.log_message("Server started on port " + str(DEFAULT_PORT))
         except Exception as e:
             self.log_message("Error starting server: " + str(e))
             self.show_message("AbletonMCP: Error starting server - " + str(e))
-    
+
     def _server_thread(self):
         """Server thread implementation - handles client connections"""
         try:
             self.log_message("Server thread started")
+            # Guard against None server (should never happen in practice)
+            if self.server is None:
+                self.log_message("Server socket is None, cannot start server thread")
+                return
+
             # Set a timeout to allow regular checking of running flag
             self.server.settimeout(1.0)
-            
+
             while self.running:
                 try:
                     # Accept connections with timeout
                     client, address = self.server.accept()
                     self.log_message("Connection accepted from " + str(address))
                     self.show_message("AbletonMCP: Client connected")
-                    
+
                     # Handle client in a separate thread
                     client_thread = threading.Thread(
                         target=self._handle_client,
@@ -111,13 +117,13 @@ class AbletonMCP(ControlSurface):
                     )
                     client_thread.daemon = True
                     client_thread.start()
-                    
+
                     # Keep track of client threads
                     self.client_threads.append(client_thread)
-                    
+
                     # Clean up finished client threads
                     self.client_threads = [t for t in self.client_threads if t.is_alive()]
-                    
+
                 except socket.timeout:
                     # No connection yet, just continue
                     continue
@@ -125,28 +131,28 @@ class AbletonMCP(ControlSurface):
                     if self.running:  # Only log if still running
                         self.log_message("Server accept error: " + str(e))
                     time.sleep(0.5)
-            
+
             self.log_message("Server thread stopped")
         except Exception as e:
             self.log_message("Server thread error: " + str(e))
-    
+
     def _handle_client(self, client):
         """Handle communication with a connected client"""
         self.log_message("Client handler started")
         client.settimeout(None)  # No timeout for client socket
         buffer = ''  # Changed from b'' to '' for Python 2
-        
+
         try:
             while self.running:
                 try:
                     # Receive data
                     data = client.recv(8192)
-                    
+
                     if not data:
                         # Client disconnected
                         self.log_message("Client disconnected")
                         break
-                    
+
                     # Accumulate data in buffer with explicit encoding/decoding
                     try:
                         # Python 3: data is bytes, decode to string
@@ -154,17 +160,17 @@ class AbletonMCP(ControlSurface):
                     except AttributeError:
                         # Python 2: data is already string
                         buffer += data
-                    
+
                     try:
                         # Try to parse command from buffer
                         command = json.loads(buffer)  # Removed decode('utf-8')
                         buffer = ''  # Clear buffer after successful parse
-                        
+
                         self.log_message("Received command: " + str(command.get("type", "unknown")))
-                        
+
                         # Process the command and get response
                         response = self._process_command(command)
-                        
+
                         # Send the response with explicit encoding
                         try:
                             # Python 3: encode string to bytes
@@ -175,11 +181,11 @@ class AbletonMCP(ControlSurface):
                     except ValueError:
                         # Incomplete data, wait for more
                         continue
-                        
+
                 except Exception as e:
                     self.log_message("Error handling client data: " + str(e))
                     self.log_message(traceback.format_exc())
-                    
+
                     # Send error response if possible
                     error_response = {
                         "status": "error",
@@ -191,10 +197,10 @@ class AbletonMCP(ControlSurface):
                     except AttributeError:
                         # Python 2: string is already bytes
                         client.sendall(json.dumps(error_response))
-                    except:
+                    except Exception:
                         # If we can't send the error, the connection is probably dead
                         break
-                    
+
                     # For serious errors, break the loop
                     if not isinstance(e, ValueError):
                         break
@@ -203,21 +209,21 @@ class AbletonMCP(ControlSurface):
         finally:
             try:
                 client.close()
-            except:
+            except Exception:
                 pass
             self.log_message("Client handler stopped")
-    
+
     def _process_command(self, command):
         """Process a command from the client and return a response"""
         command_type = command.get("type", "")
         params = command.get("params", {})
-        
+
         # Initialize response
         response = {
             "status": "success",
             "result": {}
         }
-        
+
         try:
             # Route the command to the appropriate handler
             if command_type == "get_session_info":
@@ -226,13 +232,17 @@ class AbletonMCP(ControlSurface):
                 track_index = params.get("track_index", 0)
                 response["result"] = self._get_track_info(track_index)
             # Commands that modify Live's state should be scheduled on the main thread
-            elif command_type in ["create_midi_track", "set_track_name", 
-                                 "create_clip", "add_notes_to_clip", "set_clip_name", 
+            elif command_type in ["create_midi_track", "create_audio_track", "delete_track", "set_track_name",
+                                 "create_clip", "add_notes_to_clip", "set_clip_name", "duplicate_clip", "remove_clip", "move_clip",
                                  "set_tempo", "fire_clip", "stop_clip",
-                                 "start_playback", "stop_playback", "load_browser_item"]:
+                                 "start_playback", "stop_playback", "load_browser_item",
+                                 "set_track_volume", "set_master_volume",
+                                 "create_audio_effect_rack", "create_rack_chain",
+                                 "get_device_parameters", "set_device_param", "load_effect_to_chain",
+                                 "load_effect_on_master"]:
                 # Use a thread-safe approach with a response queue
                 response_queue = queue.Queue()
-                
+
                 # Define a function to execute on the main thread
                 def main_thread_task():
                     try:
@@ -240,6 +250,9 @@ class AbletonMCP(ControlSurface):
                         if command_type == "create_midi_track":
                             index = params.get("index", -1)
                             result = self._create_midi_track(index)
+                        elif command_type == "delete_track":
+                            track_index = params.get("track_index", 0)
+                            result = self._delete_track(track_index)
                         elif command_type == "set_track_name":
                             track_index = params.get("track_index", 0)
                             name = params.get("name", "")
@@ -259,6 +272,22 @@ class AbletonMCP(ControlSurface):
                             clip_index = params.get("clip_index", 0)
                             name = params.get("name", "")
                             result = self._set_clip_name(track_index, clip_index, name)
+                        elif command_type == "duplicate_clip":
+                            source_track_index = params.get("source_track_index", 0)
+                            source_clip_index = params.get("source_clip_index", 0)
+                            dest_track_index = params.get("dest_track_index", 0)
+                            dest_clip_index = params.get("dest_clip_index", 0)
+                            result = self._duplicate_clip(source_track_index, source_clip_index, dest_track_index, dest_clip_index)
+                        elif command_type == "remove_clip":
+                            track_index = params.get("track_index", 0)
+                            clip_index = params.get("clip_index", 0)
+                            result = self._remove_clip(track_index, clip_index)
+                        elif command_type == "move_clip":
+                            source_track_index = params.get("source_track_index", 0)
+                            source_clip_index = params.get("source_clip_index", 0)
+                            dest_track_index = params.get("dest_track_index", 0)
+                            dest_clip_index = params.get("dest_clip_index", 0)
+                            result = self._move_clip(source_track_index, source_clip_index, dest_track_index, dest_clip_index)
                         elif command_type == "set_tempo":
                             tempo = params.get("tempo", 120.0)
                             result = self._set_tempo(tempo)
@@ -277,26 +306,65 @@ class AbletonMCP(ControlSurface):
                         elif command_type == "load_instrument_or_effect":
                             track_index = params.get("track_index", 0)
                             uri = params.get("uri", "")
-                            result = self._load_instrument_or_effect(track_index, uri)
+                            result = self._load_browser_item(track_index, uri)
+                        elif command_type == "load_effect_on_master":
+                            uri = params.get("uri", "")
+                            result = self._load_effect_on_master(uri)
                         elif command_type == "load_browser_item":
                             track_index = params.get("track_index", 0)
                             item_uri = params.get("item_uri", "")
                             result = self._load_browser_item(track_index, item_uri)
-                        
+                        elif command_type == "set_track_volume":
+                            track_index = params.get("track_index", 0)
+                            volume = params.get("volume", 0.85)
+                            result = self._set_track_volume(track_index, volume)
+                        elif command_type == "set_master_volume":
+                            volume = params.get("volume", 0.85)
+                            result = self._set_master_volume(volume)
+                        elif command_type == "create_audio_effect_rack":
+                            track_index = params.get("track_index", 0)
+                            device_index = params.get("device_index", -1)
+                            result = self._create_audio_effect_rack(track_index, device_index)
+                        elif command_type == "create_rack_chain":
+                            track_index = params.get("track_index", 0)
+                            device_index = params.get("device_index", 0)
+                            chain_name = params.get("chain_name", "")
+                            result = self._create_rack_chain(track_index, device_index, chain_name)
+                        elif command_type == "get_device_parameters":
+                            track_index = params.get("track_index", 0)
+                            device_index = params.get("device_index", 0)
+                            chain_index = params.get("chain_index", -1)
+                            rack_device_index = params.get("rack_device_index", -1)
+                            result = self._get_device_parameters(track_index, device_index, chain_index, rack_device_index)
+                        elif command_type == "set_device_param":
+                            track_index = params.get("track_index", 0)
+                            device_index = params.get("device_index", 0)
+                            parameter_name = params.get("parameter_name", "")
+                            value = params.get("value", 0.0)
+                            chain_index = params.get("chain_index", -1)
+                            rack_device_index = params.get("rack_device_index", -1)
+                            result = self._set_device_param(track_index, device_index, parameter_name, value, chain_index, rack_device_index)
+                        elif command_type == "load_effect_to_chain":
+                            track_index = params.get("track_index", 0)
+                            rack_device_index = params.get("rack_device_index", 0)
+                            chain_index = params.get("chain_index", 0)
+                            effect_uri = params.get("effect_uri", "")
+                            result = self._load_effect_to_chain(track_index, rack_device_index, chain_index, effect_uri)
+
                         # Put the result in the queue
                         response_queue.put({"status": "success", "result": result})
                     except Exception as e:
                         self.log_message("Error in main thread task: " + str(e))
                         self.log_message(traceback.format_exc())
                         response_queue.put({"status": "error", "message": str(e)})
-                
+
                 # Schedule the task to run on the main thread
                 try:
                     self.schedule_message(0, main_thread_task)
                 except AssertionError:
                     # If we're already on the main thread, execute directly
                     main_thread_task()
-                
+
                 # Wait for the response with a timeout
                 try:
                     task_response = response_queue.get(timeout=10.0)
@@ -334,11 +402,11 @@ class AbletonMCP(ControlSurface):
             self.log_message(traceback.format_exc())
             response["status"] = "error"
             response["message"] = str(e)
-        
+
         return response
-    
+
     # Command implementations
-    
+
     def _get_session_info(self):
         """Get information about the current session"""
         try:
@@ -358,15 +426,15 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error getting session info: " + str(e))
             raise
-    
+
     def _get_track_info(self, track_index):
         """Get information about a track"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             # Get clip slots
             clip_slots = []
             for slot_index, slot in enumerate(track.clip_slots):
@@ -379,13 +447,13 @@ class AbletonMCP(ControlSurface):
                         "is_playing": clip.is_playing,
                         "is_recording": clip.is_recording
                     }
-                
+
                 clip_slots.append({
                     "index": slot_index,
                     "has_clip": slot.has_clip,
                     "clip": clip_info
                 })
-            
+
             # Get devices
             devices = []
             for device_index, device in enumerate(track.devices):
@@ -395,7 +463,7 @@ class AbletonMCP(ControlSurface):
                     "class_name": device.class_name,
                     "type": self._get_device_type(device)
                 })
-            
+
             result = {
                 "index": track_index,
                 "name": track.name,
@@ -413,17 +481,29 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error getting track info: " + str(e))
             raise
-    
+
+    def _delete_track(self, index):
+        """Delete a track at the specified index"""
+        try:
+            if index < 0 or index >= len(self._song.tracks):
+                raise ValueError(f"Track index {index} out of range")
+
+            self._song.delete_track(index)
+            return {"status": "success", "message": f"Deleted track {index}"}
+        except Exception as e:
+            self.log_message("Error deleting track: " + str(e))
+            raise
+
     def _create_midi_track(self, index):
         """Create a new MIDI track at the specified index"""
         try:
             # Create the track
             self._song.create_midi_track(index)
-            
+
             # Get the new track
             new_track_index = len(self._song.tracks) - 1 if index == -1 else index
             new_track = self._song.tracks[new_track_index]
-            
+
             result = {
                 "index": new_track_index,
                 "name": new_track.name
@@ -432,18 +512,18 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error creating MIDI track: " + str(e))
             raise
-    
-    
+
+
     def _set_track_name(self, track_index, name):
         """Set the name of a track"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             # Set the name
             track = self._song.tracks[track_index]
             track.name = name
-            
+
             result = {
                 "name": track.name
             }
@@ -451,27 +531,27 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error setting track name: " + str(e))
             raise
-    
+
     def _create_clip(self, track_index, clip_index, length):
         """Create a new MIDI clip in the specified track and clip slot"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             if clip_index < 0 or clip_index >= len(track.clip_slots):
                 raise IndexError("Clip index out of range")
-            
+
             clip_slot = track.clip_slots[clip_index]
-            
+
             # Check if the clip slot already has a clip
             if clip_slot.has_clip:
                 raise Exception("Clip slot already has a clip")
-            
+
             # Create the clip
             clip_slot.create_clip(length)
-            
+
             result = {
                 "name": clip_slot.clip.name,
                 "length": clip_slot.clip.length
@@ -480,25 +560,25 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error creating clip: " + str(e))
             raise
-    
+
     def _add_notes_to_clip(self, track_index, clip_index, notes):
         """Add MIDI notes to a clip"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             if clip_index < 0 or clip_index >= len(track.clip_slots):
                 raise IndexError("Clip index out of range")
-            
+
             clip_slot = track.clip_slots[clip_index]
-            
+
             if not clip_slot.has_clip:
                 raise Exception("No clip in slot")
-            
+
             clip = clip_slot.clip
-            
+
             # Convert note data to Live's format
             live_notes = []
             for note in notes:
@@ -507,12 +587,12 @@ class AbletonMCP(ControlSurface):
                 duration = note.get("duration", 0.25)
                 velocity = note.get("velocity", 100)
                 mute = note.get("mute", False)
-                
+
                 live_notes.append((pitch, start_time, duration, velocity, mute))
-            
+
             # Add the notes
             clip.set_notes(tuple(live_notes))
-            
+
             result = {
                 "note_count": len(notes)
             }
@@ -520,26 +600,26 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error adding notes to clip: " + str(e))
             raise
-    
+
     def _set_clip_name(self, track_index, clip_index, name):
         """Set the name of a clip"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             if clip_index < 0 or clip_index >= len(track.clip_slots):
                 raise IndexError("Clip index out of range")
-            
+
             clip_slot = track.clip_slots[clip_index]
-            
+
             if not clip_slot.has_clip:
                 raise Exception("No clip in slot")
-            
+
             clip = clip_slot.clip
             clip.name = name
-            
+
             result = {
                 "name": clip.name
             }
@@ -547,12 +627,130 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error setting clip name: " + str(e))
             raise
-    
+
+    def _duplicate_clip(self, source_track_index, source_clip_index, dest_track_index, dest_clip_index):
+        """Duplicate a clip from one slot to another"""
+        try:
+            # Validate source track and clip
+            if source_track_index < 0 or source_track_index >= len(self._song.tracks):
+                raise IndexError("Source track index out of range")
+
+            source_track = self._song.tracks[source_track_index]
+
+            if source_clip_index < 0 or source_clip_index >= len(source_track.clip_slots):
+                raise IndexError("Source clip index out of range")
+
+            source_clip_slot = source_track.clip_slots[source_clip_index]
+
+            if not source_clip_slot.has_clip:
+                raise Exception("No clip in source slot")
+
+            source_clip = source_clip_slot.clip
+
+            # Only MIDI clips are supported for duplication
+            if not source_clip.is_midi_clip:
+                raise Exception("duplicate_clip only supports MIDI clips. Audio clip duplication is not yet implemented.")
+
+            # Validate destination track and clip slot
+            if dest_track_index < 0 or dest_track_index >= len(self._song.tracks):
+                raise IndexError("Destination track index out of range")
+
+            dest_track = self._song.tracks[dest_track_index]
+
+            if dest_clip_index < 0 or dest_clip_index >= len(dest_track.clip_slots):
+                raise IndexError("Destination clip index out of range")
+
+            dest_clip_slot = dest_track.clip_slots[dest_clip_index]
+
+            if dest_clip_slot.has_clip:
+                raise Exception("Destination clip slot already has a clip")
+
+            # Get source clip properties
+            clip_length = source_clip.length
+            clip_name = source_clip.name
+
+            # Create a new clip in the destination
+            dest_clip_slot.create_clip(clip_length)
+            dest_clip = dest_clip_slot.clip
+            dest_clip.name = clip_name
+
+            # Copy MIDI notes if it's a MIDI clip
+            if source_clip.is_midi_clip:
+                # Get all notes from source clip
+                notes = source_clip.get_notes(0, 0, clip_length, 128)
+
+                # set_notes expects a tuple of tuples: ((pitch, start_time, duration, velocity, mute), ...)
+                if notes and len(notes) > 0:
+                    dest_clip.set_notes(notes)
+
+            result = {
+                "source_track": source_track_index,
+                "source_clip": source_clip_index,
+                "dest_track": dest_track_index,
+                "dest_clip": dest_clip_index,
+                "clip_name": clip_name,
+                "clip_length": clip_length
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error duplicating clip: " + str(e))
+            raise
+
+    def _remove_clip(self, track_index, clip_index):
+        """Remove a clip from a clip slot"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            if clip_index < 0 or clip_index >= len(track.clip_slots):
+                raise IndexError("Clip index out of range")
+
+            clip_slot = track.clip_slots[clip_index]
+
+            if not clip_slot.has_clip:
+                raise Exception("No clip in slot to delete")
+
+            # Delete the clip
+            clip_slot.delete_clip()
+
+            result = {
+                "track_index": track_index,
+                "clip_index": clip_index,
+                "deleted": True
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error removing clip: " + str(e))
+            raise
+
+    def _move_clip(self, source_track_index, source_clip_index, dest_track_index, dest_clip_index):
+        """Move a clip from one slot to another by duplicating then removing the source"""
+        try:
+            # First duplicate the clip
+            self._duplicate_clip(source_track_index, source_clip_index, dest_track_index, dest_clip_index)
+
+            # Then remove the source clip
+            self._remove_clip(source_track_index, source_clip_index)
+
+            result = {
+                "source_track_index": source_track_index,
+                "source_clip_index": source_clip_index,
+                "dest_track_index": dest_track_index,
+                "dest_clip_index": dest_clip_index,
+                "moved": True
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error moving clip: " + str(e))
+            raise
+
     def _set_tempo(self, tempo):
         """Set the tempo of the session"""
         try:
             self._song.tempo = tempo
-            
+
             result = {
                 "tempo": self._song.tempo
             }
@@ -560,25 +758,395 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error setting tempo: " + str(e))
             raise
-    
+
+    def _set_track_volume(self, track_index, volume):
+        """Set the volume of a track"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+            track.mixer_device.volume.value = volume
+
+            result = {
+                "track_index": track_index,
+                "volume": track.mixer_device.volume.value
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting track volume: " + str(e))
+            raise
+
+    def _set_master_volume(self, volume):
+        """Set the volume of the master track"""
+        try:
+            self._song.master_track.mixer_device.volume.value = volume
+
+            result = {
+                "volume": self._song.master_track.mixer_device.volume.value
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting master volume: " + str(e))
+            raise
+
+    def _load_effect_on_master(self, uri):
+        """Load an audio effect onto the master track by its URI"""
+        try:
+            master_track = self._song.master_track
+
+            # Access the application's browser instance
+            app = self.application()
+
+            # Find the browser item by URI
+            item = self._find_browser_item_by_uri(app.browser, uri)
+
+            if not item:
+                raise ValueError("Browser item with URI '{0}' not found".format(uri))
+
+            # Select the master track
+            self._song.view.selected_track = master_track
+
+            # Load the item
+            app.browser.load_item(item)
+
+            # Brief delay for async load
+            import time
+            time.sleep(0.1)
+
+            result = {
+                "loaded": True,
+                "item_name": item.name,
+                "track_name": "Master",
+                "uri": uri,
+                "device_count": len(master_track.devices)
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error loading effect on master: {0}".format(str(e)))
+            raise
+
+    def _create_audio_effect_rack(self, track_index, device_index=-1):
+        """Create an empty Audio Effect Rack on a track.
+
+        Parameters:
+        - track_index: The track to add the rack to
+        - device_index: Position in device chain to insert the rack (-1 = append to end)
+        """
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+            devices_before = len(track.devices)
+
+            # Select the track first
+            self._song.view.selected_track = track
+
+            # Find Audio Effect Rack in browser
+            app = self.application()
+            browser = app.browser
+
+            # Navigate to Audio Effect Rack
+            rack_item = None
+            for item in browser.audio_effects.children:
+                if item.name == "Audio Effect Rack":
+                    rack_item = item
+                    break
+
+            if not rack_item:
+                raise Exception("Could not find Audio Effect Rack in browser")
+
+            # Load the rack (loads to end of device chain)
+            browser.load_item(rack_item)
+
+            # browser.load_item() is asynchronous - brief delay needed for device to appear
+            # This is a known limitation of the Live API
+            import time
+            time.sleep(0.1)
+
+            # Verify rack was loaded
+            devices_after = len(track.devices)
+            if devices_after <= devices_before:
+                raise Exception("Audio Effect Rack did not load (devices: {} -> {})".format(
+                    devices_before, devices_after
+                ))
+
+            # The newly loaded rack is at the end
+            new_rack_index = devices_after - 1
+            new_rack = track.devices[new_rack_index]
+
+            # If a valid insertion index was requested, move the rack there
+            if 0 <= device_index < new_rack_index:
+                self._song.move_device(new_rack, track, device_index)
+                self.log_message("Moved rack to device index: " + str(device_index))
+                new_rack_index = device_index
+
+            result = {
+                "track_index": track_index,
+                "device_index": new_rack_index,
+                "device_count": len(track.devices)
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error creating audio effect rack: " + str(e))
+            raise
+
+    def _create_rack_chain(self, track_index, device_index, chain_name=""):
+        """Create a new chain in an Audio Effect Rack"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            if device_index < 0 or device_index >= len(track.devices):
+                raise IndexError("Device index out of range")
+
+            device = track.devices[device_index]
+
+            # Check if it's a rack
+            if not device.can_have_chains:
+                raise Exception("Device is not a rack and cannot have chains")
+
+            # Get count before
+            chains_before = len(device.chains)
+            self.log_message("Chains before: " + str(chains_before))
+
+            # Use insert_chain to create a new chain at the end
+            if not hasattr(device, 'insert_chain'):
+                raise Exception("Device does not support insert_chain")
+
+            self.log_message("Creating chain with insert_chain...")
+            device.insert_chain(chains_before)  # Insert at end
+
+            # Check if we succeeded
+            chains_after = len(device.chains)
+            self.log_message("Chains after: " + str(chains_after))
+
+            if chains_after <= chains_before:
+                raise Exception("insert_chain did not create a new chain. Chains: " + str(chains_before) + " -> " + str(chains_after))
+
+            # Get the new chain
+            new_chain_index = len(device.chains) - 1
+            new_chain = device.chains[new_chain_index]
+
+            # Set the name if provided
+            if chain_name:
+                new_chain.name = chain_name
+
+            result = {
+                "chain_index": new_chain_index,
+                "chain_name": new_chain.name,
+                "total_chains": len(device.chains)
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error creating rack chain: " + str(e))
+            raise
+
+    def _get_device_parameters(self, track_index, device_index, chain_index=-1, rack_device_index=-1):
+        """Get all parameters of a device"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            # Get the device (either from track or from a chain)
+            if chain_index >= 0 and rack_device_index >= 0:
+                # Device is inside a rack chain
+                rack = track.devices[rack_device_index]
+                if not rack.can_have_chains:
+                    raise Exception("Device is not a rack")
+                if chain_index >= len(rack.chains):
+                    raise IndexError("Chain index out of range")
+                chain = rack.chains[chain_index]
+                if device_index < 0 or device_index >= len(chain.devices):
+                    raise IndexError("Device index out of range in chain (have {}, requested {})".format(len(chain.devices), device_index))
+                device = chain.devices[device_index]
+            else:
+                if device_index < 0 or device_index >= len(track.devices):
+                    raise IndexError("Device index out of range")
+                device = track.devices[device_index]
+
+            # Get all parameters
+            params = []
+            for i, param in enumerate(device.parameters):
+                param_info = {
+                    "index": i,
+                    "name": param.name,
+                    "value": param.value,
+                    "min": param.min,
+                    "max": param.max,
+                    "is_quantized": param.is_quantized
+                }
+                params.append(param_info)
+
+            result = {
+                "device_name": device.name,
+                "device_class": device.class_name,
+                "parameters": params
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error getting device parameters: " + str(e))
+            raise
+
+    def _set_device_param(self, track_index, device_index, parameter_name, value, chain_index=-1, rack_device_index=-1):
+        """Set a parameter value on a device"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            # Get the device
+            if chain_index >= 0 and rack_device_index >= 0:
+                rack = track.devices[rack_device_index]
+                if not rack.can_have_chains:
+                    raise Exception("Device is not a rack")
+                if chain_index >= len(rack.chains):
+                    raise IndexError("Chain index out of range")
+                chain = rack.chains[chain_index]
+                if device_index < 0 or device_index >= len(chain.devices):
+                    raise IndexError("Device index out of range in chain")
+                device = chain.devices[device_index]
+            else:
+                if device_index < 0 or device_index >= len(track.devices):
+                    raise IndexError("Device index out of range")
+                device = track.devices[device_index]
+
+            # Find the parameter by name
+            target_param = None
+            for param in device.parameters:
+                if param.name.lower() == parameter_name.lower():
+                    target_param = param
+                    break
+
+            if not target_param:
+                raise Exception("Parameter '{}' not found on device".format(parameter_name))
+
+            # Set the value
+            target_param.value = value
+
+            result = {
+                "parameter_name": target_param.name,
+                "new_value": target_param.value
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting device parameter: " + str(e))
+            raise
+
+    def _load_effect_to_chain(self, track_index, rack_device_index, chain_index, effect_uri):
+        """Load an effect into a specific chain of a rack using move_device"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            if rack_device_index >= len(track.devices):
+                raise IndexError("Rack device index out of range")
+
+            rack = track.devices[rack_device_index]
+            self.log_message("Rack name: " + rack.name)
+
+            if not rack.can_have_chains:
+                raise Exception("Device is not a rack")
+
+            if chain_index >= len(rack.chains):
+                raise IndexError("Chain index out of range (have {}, requested {})".format(len(rack.chains), chain_index))
+
+            chain = rack.chains[chain_index]
+            self.log_message("Chain name: " + chain.name)
+            devices_before = len(chain.devices)
+            self.log_message("Devices in chain before: " + str(devices_before))
+
+            # Find the browser item first
+            app = self.application()
+            browser = app.browser
+
+            effect_item = self._find_browser_item_by_uri(browser, effect_uri)
+            if not effect_item:
+                raise Exception("Could not find effect with URI: {}".format(effect_uri))
+            self.log_message("Found effect: " + effect_item.name)
+
+            # Count track devices before loading
+            track_devices_before = len(track.devices)
+            self.log_message("Track devices before: " + str(track_devices_before))
+
+            # Select the track and load the effect (it will go to the end of the track)
+            self._song.view.selected_track = track
+            browser.load_item(effect_item)
+
+            # browser.load_item() is asynchronous - delay needed for device to appear
+            # This is a known limitation of the Live API
+            import time
+            time.sleep(0.3)
+
+            # Check if a new device was added to the track
+            track_devices_after = len(track.devices)
+            self.log_message("Track devices after: " + str(track_devices_after))
+
+            if track_devices_after > track_devices_before:
+                # The effect was loaded to the track, now move it into the chain
+                new_device = track.devices[track_devices_after - 1]
+                self.log_message("New device loaded: " + new_device.name)
+
+                # Use move_device to move it into the chain
+                # The chain is a valid target (it's a DeviceContainer)
+                target_position = len(chain.devices)  # Add to end of chain
+                self.log_message("Moving device to chain at position: " + str(target_position))
+
+                result_position = self._song.move_device(new_device, chain, target_position)
+                self.log_message("Device moved to position: " + str(result_position))
+
+                time.sleep(0.2)
+
+            # Check result
+            devices_after = len(chain.devices)
+            self.log_message("Devices in chain after: " + str(devices_after))
+
+            # Verify the effect is now in the chain
+            if devices_after <= devices_before:
+                self.log_message("Effect failed to load into chain. Track devices: " + str(len(track.devices)))
+                for i, d in enumerate(track.devices):
+                    self.log_message("  Device {}: {}".format(i, d.name))
+                raise Exception("Failed to load effect into chain. The effect may have loaded to the track instead.")
+
+            result = {
+                "track_index": track_index,
+                "rack_device_index": rack_device_index,
+                "chain_index": chain_index,
+                "chain_name": chain.name,
+                "devices_in_chain": devices_after,
+                "effect_loaded": effect_item.name
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error loading effect to chain: " + str(e))
+            raise
+
     def _fire_clip(self, track_index, clip_index):
         """Fire a clip"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             if clip_index < 0 or clip_index >= len(track.clip_slots):
                 raise IndexError("Clip index out of range")
-            
+
             clip_slot = track.clip_slots[clip_index]
-            
+
             if not clip_slot.has_clip:
                 raise Exception("No clip in slot")
-            
+
             clip_slot.fire()
-            
+
             result = {
                 "fired": True
             }
@@ -586,22 +1154,22 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error firing clip: " + str(e))
             raise
-    
+
     def _stop_clip(self, track_index, clip_index):
         """Stop a clip"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             if clip_index < 0 or clip_index >= len(track.clip_slots):
                 raise IndexError("Clip index out of range")
-            
+
             clip_slot = track.clip_slots[clip_index]
-            
+
             clip_slot.stop()
-            
+
             result = {
                 "stopped": True
             }
@@ -609,13 +1177,13 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error stopping clip: " + str(e))
             raise
-    
-    
+
+
     def _start_playback(self):
         """Start playing the session"""
         try:
             self._song.start_playing()
-            
+
             result = {
                 "playing": self._song.is_playing
             }
@@ -623,12 +1191,12 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error starting playback: " + str(e))
             raise
-    
+
     def _stop_playback(self):
         """Stop playing the session"""
         try:
             self._song.stop_playing()
-            
+
             result = {
                 "playing": self._song.is_playing
             }
@@ -636,7 +1204,7 @@ class AbletonMCP(ControlSurface):
         except Exception as e:
             self.log_message("Error stopping playback: " + str(e))
             raise
-    
+
     def _get_browser_item(self, uri, path):
         """Get a browser item by URI or path"""
         try:
@@ -644,13 +1212,13 @@ class AbletonMCP(ControlSurface):
             app = self.application()
             if not app:
                 raise RuntimeError("Could not access Live application")
-                
+
             result = {
                 "uri": uri,
                 "path": path,
                 "found": False
             }
-            
+
             # Try to find by URI first if provided
             if uri:
                 item = self._find_browser_item_by_uri(app.browser, uri)
@@ -664,12 +1232,12 @@ class AbletonMCP(ControlSurface):
                         "uri": item.uri
                     }
                     return result
-            
+
             # If URI not provided or not found, try by path
             if path:
                 # Parse the path and navigate to the specified item
                 path_parts = path.split("/")
-                
+
                 # Determine the root based on the first part
                 current_item = None
                 if path_parts[0].lower() == "nstruments":
@@ -687,24 +1255,24 @@ class AbletonMCP(ControlSurface):
                     current_item = app.browser.instruments
                     # Don't skip the first part in this case
                     path_parts = ["instruments"] + path_parts
-                
+
                 # Navigate through the path
                 for i in range(1, len(path_parts)):
                     part = path_parts[i]
                     if not part:  # Skip empty parts
                         continue
-                    
+
                     found = False
                     for child in current_item.children:
                         if child.name.lower() == part.lower():
                             current_item = child
                             found = True
                             break
-                    
+
                     if not found:
                         result["error"] = "Path part '{0}' not found".format(part)
                         return result
-                
+
                 # Found the item
                 result["found"] = True
                 result["item"] = {
@@ -714,38 +1282,38 @@ class AbletonMCP(ControlSurface):
                     "is_loadable": current_item.is_loadable,
                     "uri": current_item.uri
                 }
-            
+
             return result
         except Exception as e:
             self.log_message("Error getting browser item: " + str(e))
             self.log_message(traceback.format_exc())
-            raise   
-    
-    
-    
+            raise
+
+
+
     def _load_browser_item(self, track_index, item_uri):
         """Load a browser item onto a track by its URI"""
         try:
             if track_index < 0 or track_index >= len(self._song.tracks):
                 raise IndexError("Track index out of range")
-            
+
             track = self._song.tracks[track_index]
-            
+
             # Access the application's browser instance instead of creating a new one
             app = self.application()
-            
+
             # Find the browser item by URI
             item = self._find_browser_item_by_uri(app.browser, item_uri)
-            
+
             if not item:
                 raise ValueError("Browser item with URI '{0}' not found".format(item_uri))
-            
+
             # Select the track
             self._song.view.selected_track = track
-            
+
             # Load the item
             app.browser.load_item(item)
-            
+
             result = {
                 "loaded": True,
                 "item_name": item.name,
@@ -757,18 +1325,18 @@ class AbletonMCP(ControlSurface):
             self.log_message("Error loading browser item: {0}".format(str(e)))
             self.log_message(traceback.format_exc())
             raise
-    
+
     def _find_browser_item_by_uri(self, browser_or_item, uri, max_depth=10, current_depth=0):
         """Find a browser item by its URI"""
         try:
             # Check if this is the item we're looking for
             if hasattr(browser_or_item, 'uri') and browser_or_item.uri == uri:
                 return browser_or_item
-            
+
             # Stop recursion if we've reached max depth
             if current_depth >= max_depth:
                 return None
-            
+
             # Check if this is a browser with root categories
             if hasattr(browser_or_item, 'instruments'):
                 # Check all main categories
@@ -779,28 +1347,28 @@ class AbletonMCP(ControlSurface):
                     browser_or_item.audio_effects,
                     browser_or_item.midi_effects
                 ]
-                
+
                 for category in categories:
                     item = self._find_browser_item_by_uri(category, uri, max_depth, current_depth + 1)
                     if item:
                         return item
-                
+
                 return None
-            
+
             # Check if this item has children
             if hasattr(browser_or_item, 'children') and browser_or_item.children:
                 for child in browser_or_item.children:
                     item = self._find_browser_item_by_uri(child, uri, max_depth, current_depth + 1)
                     if item:
                         return item
-            
+
             return None
         except Exception as e:
             self.log_message("Error finding browser item by URI: {0}".format(str(e)))
             return None
-    
+
     # Helper methods
-    
+
     def _get_device_type(self, device):
         """Get the type of a device"""
         try:
@@ -817,16 +1385,16 @@ class AbletonMCP(ControlSurface):
                 return "midi_effect"
             else:
                 return "unknown"
-        except:
+        except Exception:
             return "unknown"
-    
+
     def get_browser_tree(self, category_type="all"):
         """
         Get a simplified tree of browser categories.
-        
+
         Args:
             category_type: Type of categories to get ('all', 'instruments', 'sounds', etc.)
-            
+
         Returns:
             Dictionary with the browser tree structure
         """
@@ -835,26 +1403,26 @@ class AbletonMCP(ControlSurface):
             app = self.application()
             if not app:
                 raise RuntimeError("Could not access Live application")
-                
+
             # Check if browser is available
             if not hasattr(app, 'browser') or app.browser is None:
                 raise RuntimeError("Browser is not available in the Live application")
-            
+
             # Log available browser attributes to help diagnose issues
             browser_attrs = [attr for attr in dir(app.browser) if not attr.startswith('_')]
             self.log_message("Available browser attributes: {0}".format(browser_attrs))
-            
+
             result = {
                 "type": category_type,
                 "categories": [],
                 "available_categories": browser_attrs
             }
-            
+
             # Helper function to process a browser item and its children
             def process_item(item, depth=0):
                 if not item:
                     return None
-                
+
                 result = {
                     "name": item.name if hasattr(item, 'name') else "Unknown",
                     "is_folder": hasattr(item, 'children') and bool(item.children),
@@ -863,10 +1431,10 @@ class AbletonMCP(ControlSurface):
                     "uri": item.uri if hasattr(item, 'uri') else None,
                     "children": []
                 }
-                
-                
+
+
                 return result
-            
+
             # Process based on category type and available attributes
             if (category_type == "all" or category_type == "instruments") and hasattr(app.browser, 'instruments'):
                 try:
@@ -876,7 +1444,7 @@ class AbletonMCP(ControlSurface):
                         result["categories"].append(instruments)
                 except Exception as e:
                     self.log_message("Error processing instruments: {0}".format(str(e)))
-            
+
             if (category_type == "all" or category_type == "sounds") and hasattr(app.browser, 'sounds'):
                 try:
                     sounds = process_item(app.browser.sounds)
@@ -885,7 +1453,7 @@ class AbletonMCP(ControlSurface):
                         result["categories"].append(sounds)
                 except Exception as e:
                     self.log_message("Error processing sounds: {0}".format(str(e)))
-            
+
             if (category_type == "all" or category_type == "drums") and hasattr(app.browser, 'drums'):
                 try:
                     drums = process_item(app.browser.drums)
@@ -894,7 +1462,7 @@ class AbletonMCP(ControlSurface):
                         result["categories"].append(drums)
                 except Exception as e:
                     self.log_message("Error processing drums: {0}".format(str(e)))
-            
+
             if (category_type == "all" or category_type == "audio_effects") and hasattr(app.browser, 'audio_effects'):
                 try:
                     audio_effects = process_item(app.browser.audio_effects)
@@ -903,7 +1471,7 @@ class AbletonMCP(ControlSurface):
                         result["categories"].append(audio_effects)
                 except Exception as e:
                     self.log_message("Error processing audio_effects: {0}".format(str(e)))
-            
+
             if (category_type == "all" or category_type == "midi_effects") and hasattr(app.browser, 'midi_effects'):
                 try:
                     midi_effects = process_item(app.browser.midi_effects)
@@ -912,7 +1480,7 @@ class AbletonMCP(ControlSurface):
                         result["categories"].append(midi_effects)
                 except Exception as e:
                     self.log_message("Error processing midi_effects: {0}".format(str(e)))
-            
+
             # Try to process other potentially available categories
             for attr in browser_attrs:
                 if attr not in ['instruments', 'sounds', 'drums', 'audio_effects', 'midi_effects'] and \
@@ -926,25 +1494,25 @@ class AbletonMCP(ControlSurface):
                                 result["categories"].append(category)
                     except Exception as e:
                         self.log_message("Error processing {0}: {1}".format(attr, str(e)))
-            
+
             self.log_message("Browser tree generated for {0} with {1} root categories".format(
                 category_type, len(result['categories'])))
             return result
-            
+
         except Exception as e:
             self.log_message("Error getting browser tree: {0}".format(str(e)))
             self.log_message(traceback.format_exc())
             raise
-    
+
     def get_browser_items_at_path(self, path):
         """
         Get browser items at a specific path.
-        
+
         Args:
             path: Path in the format "category/folder/subfolder"
                  where category is one of: instruments, sounds, drums, audio_effects, midi_effects
                  or any other available browser category
-                 
+
         Returns:
             Dictionary with items at the specified path
         """
@@ -953,24 +1521,24 @@ class AbletonMCP(ControlSurface):
             app = self.application()
             if not app:
                 raise RuntimeError("Could not access Live application")
-                
+
             # Check if browser is available
             if not hasattr(app, 'browser') or app.browser is None:
                 raise RuntimeError("Browser is not available in the Live application")
-            
+
             # Log available browser attributes to help diagnose issues
             browser_attrs = [attr for attr in dir(app.browser) if not attr.startswith('_')]
             self.log_message("Available browser attributes: {0}".format(browser_attrs))
-                
+
             # Parse the path
             path_parts = path.split("/")
             if not path_parts:
                 raise ValueError("Invalid path")
-            
+
             # Determine the root category
             root_category = path_parts[0].lower()
             current_item = None
-            
+
             # Check standard categories first
             if root_category == "instruments" and hasattr(app.browser, 'instruments'):
                 current_item = app.browser.instruments
@@ -993,7 +1561,7 @@ class AbletonMCP(ControlSurface):
                             break
                         except Exception as e:
                             self.log_message("Error accessing browser attribute {0}: {1}".format(attr, str(e)))
-                
+
                 if not found:
                     # If we still haven't found the category, return available categories
                     return {
@@ -1002,34 +1570,34 @@ class AbletonMCP(ControlSurface):
                         "available_categories": browser_attrs,
                         "items": []
                     }
-            
+
             # Navigate through the path
             for i in range(1, len(path_parts)):
                 part = path_parts[i]
                 if not part:  # Skip empty parts
                     continue
-                
+
                 if not hasattr(current_item, 'children'):
                     return {
                         "path": path,
                         "error": "Item at '{0}' has no children".format('/'.join(path_parts[:i])),
                         "items": []
                     }
-                
+
                 found = False
                 for child in current_item.children:
                     if hasattr(child, 'name') and child.name.lower() == part.lower():
                         current_item = child
                         found = True
                         break
-                
+
                 if not found:
                     return {
                         "path": path,
                         "error": "Path part '{0}' not found".format(part),
                         "items": []
                     }
-            
+
             # Get items at the current path
             items = []
             if hasattr(current_item, 'children'):
@@ -1042,20 +1610,20 @@ class AbletonMCP(ControlSurface):
                         "uri": child.uri if hasattr(child, 'uri') else None
                     }
                     items.append(item_info)
-            
+
             result = {
                 "path": path,
-                "name": current_item.name if hasattr(current_item, 'name') else "Unknown",
-                "uri": current_item.uri if hasattr(current_item, 'uri') else None,
-                "is_folder": hasattr(current_item, 'children') and bool(current_item.children),
-                "is_device": hasattr(current_item, 'is_device') and current_item.is_device,
-                "is_loadable": hasattr(current_item, 'is_loadable') and current_item.is_loadable,
+                "name": getattr(current_item, 'name', "Unknown"),
+                "uri": getattr(current_item, 'uri', None),
+                "is_folder": hasattr(current_item, 'children') and bool(getattr(current_item, 'children', None)),
+                "is_device": hasattr(current_item, 'is_device') and getattr(current_item, 'is_device', False),
+                "is_loadable": hasattr(current_item, 'is_loadable') and getattr(current_item, 'is_loadable', False),
                 "items": items
             }
-            
+
             self.log_message("Retrieved {0} items at path: {1}".format(len(items), path))
             return result
-            
+
         except Exception as e:
             self.log_message("Error getting browser items at path: {0}".format(str(e)))
             self.log_message(traceback.format_exc())

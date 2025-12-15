@@ -1,0 +1,642 @@
+{
+    "name": "I Am Machine",
+    "tempo": 136,
+    "time_signature": [
+        4,
+        4
+    ],
+    "total_bars": 64,
+    "tracks": [
+        {
+            "index": 0,
+            "name": "Track 01 - Kick",
+            "track_type": "kick",
+            "color": "#FF0000",
+            "volume_db": -6.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {
+                        "pitch": 0.0
+                    }
+                },
+                {
+                    "name": "EQ Three",
+                    "parameters": {
+                        "1 Gain A": 3.0
+                    },
+                    "fallback": "EQ Eight"
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 36,
+                        "start_time": 0.0,
+                        "duration": 0.25,
+                        "velocity": 100
+                    },
+                    {
+                        "pitch": 36,
+                        "start_time": 1.0,
+                        "duration": 0.25,
+                        "velocity": 100
+                    },
+                    {
+                        "pitch": 36,
+                        "start_time": 2.0,
+                        "duration": 0.25,
+                        "velocity": 100
+                    },
+                    {
+                        "pitch": 36,
+                        "start_time": 3.0,
+                        "duration": 0.25,
+                        "velocity": 100
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 1,
+            "name": "Track 02 - Snare",
+            "track_type": "drum",
+            "color": "#FF4400",
+            "volume_db": -8.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {}
+                },
+                {
+                    "name": "Compressor",
+                    "parameters": {
+                        "Ratio": 4.0
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 38,
+                        "start_time": 1.0,
+                        "duration": 0.125,
+                        "velocity": 90
+                    },
+                    {
+                        "pitch": 38,
+                        "start_time": 3.0,
+                        "duration": 0.125,
+                        "velocity": 90
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 2,
+            "name": "Track 03 - Hi-Hat",
+            "track_type": "drum",
+            "color": "#FF8800",
+            "volume_db": -12.0,
+            "pan": 0.1,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {}
+                },
+                {
+                    "name": "Chorus",
+                    "parameters": {
+                        "Rate": 2.0
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 42,
+                        "start_time": 0.0,
+                        "duration": 0.125,
+                        "velocity": 70
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 0.25,
+                        "duration": 0.125,
+                        "velocity": 60
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 0.5,
+                        "duration": 0.125,
+                        "velocity": 70
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 0.75,
+                        "duration": 0.125,
+                        "velocity": 60
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 1.0,
+                        "duration": 0.125,
+                        "velocity": 70
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 1.25,
+                        "duration": 0.125,
+                        "velocity": 60
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 1.5,
+                        "duration": 0.125,
+                        "velocity": 70
+                    },
+                    {
+                        "pitch": 42,
+                        "start_time": 1.75,
+                        "duration": 0.125,
+                        "velocity": 60
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 3,
+            "name": "Track 04 - Bass",
+            "track_type": "bass",
+            "color": "#00FF00",
+            "volume_db": -10.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {
+                        "Osc 1 Pitch": -12.0
+                    },
+                    "fallback": "Wavetable"
+                },
+                {
+                    "name": "Auto Filter",
+                    "parameters": {
+                        "Frequency": 800.0
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 40,
+                        "start_time": 0.0,
+                        "duration": 0.5,
+                        "velocity": 80
+                    },
+                    {
+                        "pitch": 43,
+                        "start_time": 0.5,
+                        "duration": 0.5,
+                        "velocity": 75
+                    },
+                    {
+                        "pitch": 40,
+                        "start_time": 1.0,
+                        "duration": 0.5,
+                        "velocity": 80
+                    },
+                    {
+                        "pitch": 47,
+                        "start_time": 1.5,
+                        "duration": 0.5,
+                        "velocity": 75
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 4,
+            "name": "Track 05 - Lead",
+            "track_type": "synth",
+            "color": "#00FFFF",
+            "volume_db": -14.0,
+            "pan": -0.2,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {
+                        "Voice 1 Pitch": 0.0
+                    },
+                    "fallback": "Drift"
+                },
+                {
+                    "name": "Reverb",
+                    "parameters": {
+                        "Decay Time": 2.5
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 64,
+                        "start_time": 0.0,
+                        "duration": 0.25,
+                        "velocity": 85
+                    },
+                    {
+                        "pitch": 67,
+                        "start_time": 0.5,
+                        "duration": 0.25,
+                        "velocity": 80
+                    },
+                    {
+                        "pitch": 71,
+                        "start_time": 1.0,
+                        "duration": 0.5,
+                        "velocity": 90
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 5,
+            "name": "Track 06 - Pad",
+            "track_type": "synth",
+            "color": "#0088FF",
+            "volume_db": -18.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Wavetable"
+                },
+                {
+                    "name": "Chorus",
+                    "parameters": {
+                        "Rate": 0.5
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 52,
+                        "start_time": 0.0,
+                        "duration": 4.0,
+                        "velocity": 60
+                    },
+                    {
+                        "pitch": 55,
+                        "start_time": 0.0,
+                        "duration": 4.0,
+                        "velocity": 55
+                    },
+                    {
+                        "pitch": 59,
+                        "start_time": 0.0,
+                        "duration": 4.0,
+                        "velocity": 58
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 6,
+            "name": "Track 07 - Arp",
+            "track_type": "synth",
+            "color": "#0044FF",
+            "volume_db": -16.0,
+            "pan": 0.3,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Operator"
+                },
+                {
+                    "name": "Delay",
+                    "parameters": {
+                        "Time": 0.25
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 64,
+                        "start_time": 0.0,
+                        "duration": 0.125,
+                        "velocity": 75
+                    },
+                    {
+                        "pitch": 67,
+                        "start_time": 0.125,
+                        "duration": 0.125,
+                        "velocity": 70
+                    },
+                    {
+                        "pitch": 71,
+                        "start_time": 0.25,
+                        "duration": 0.125,
+                        "velocity": 75
+                    },
+                    {
+                        "pitch": 64,
+                        "start_time": 0.375,
+                        "duration": 0.125,
+                        "velocity": 70
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 7,
+            "name": "Track 08 - FX",
+            "track_type": "fx",
+            "color": "#8800FF",
+            "volume_db": -20.0,
+            "pan": -0.4,
+            "devices": [
+                {
+                    "name": "Grain Delay",
+                    "parameters": {
+                        "Spray": 0.3
+                    }
+                },
+                {
+                    "name": "Reverb",
+                    "parameters": {
+                        "Decay Time": 5.0
+                    }
+                }
+            ],
+            "midi_clips": []
+        },
+        {
+            "index": 8,
+            "name": "Track 09 - Perc 1",
+            "track_type": "drum",
+            "color": "#FF00FF",
+            "volume_db": -14.0,
+            "pan": -0.3,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {}
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 50,
+                        "start_time": 0.5,
+                        "duration": 0.125,
+                        "velocity": 65
+                    },
+                    {
+                        "pitch": 50,
+                        "start_time": 1.75,
+                        "duration": 0.125,
+                        "velocity": 60
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 9,
+            "name": "Track 10 - Perc 2",
+            "track_type": "drum",
+            "color": "#FFFF00",
+            "volume_db": -15.0,
+            "pan": 0.4,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {}
+                },
+                {
+                    "name": "Delay",
+                    "parameters": {
+                        "Time": 0.375
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 48,
+                        "start_time": 0.75,
+                        "duration": 0.125,
+                        "velocity": 68
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 10,
+            "name": "Track 11 - Sub Bass",
+            "track_type": "bass",
+            "color": "#004400",
+            "volume_db": -8.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {
+                        "Osc 1 Pitch": -24.0
+                    },
+                    "fallback": "Wavetable"
+                },
+                {
+                    "name": "EQ Three",
+                    "parameters": {
+                        "1 Gain A": 6.0
+                    },
+                    "fallback": "EQ Eight"
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 28,
+                        "start_time": 0.0,
+                        "duration": 1.0,
+                        "velocity": 90
+                    },
+                    {
+                        "pitch": 28,
+                        "start_time": 1.0,
+                        "duration": 1.0,
+                        "velocity": 90
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 11,
+            "name": "Track 12 - Stab",
+            "track_type": "synth",
+            "color": "#FF0088",
+            "volume_db": -12.0,
+            "pan": -0.1,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Drift"
+                },
+                {
+                    "name": "Compressor",
+                    "parameters": {
+                        "Ratio": 2.5
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 64,
+                        "start_time": 0.0,
+                        "duration": 0.125,
+                        "velocity": 95
+                    },
+                    {
+                        "pitch": 67,
+                        "start_time": 0.0,
+                        "duration": 0.125,
+                        "velocity": 90
+                    },
+                    {
+                        "pitch": 71,
+                        "start_time": 0.0,
+                        "duration": 0.125,
+                        "velocity": 92
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 12,
+            "name": "Track 13 - Texture",
+            "track_type": "synth",
+            "color": "#888888",
+            "volume_db": -22.0,
+            "pan": 0.2,
+            "devices": [
+                {
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Wavetable"
+                },
+                {
+                    "name": "Reverb",
+                    "parameters": {
+                        "Decay Time": 8.0
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 76,
+                        "start_time": 0.0,
+                        "duration": 2.0,
+                        "velocity": 50
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 13,
+            "name": "Track 14 - Vocal",
+            "track_type": "vocal",
+            "color": "#FFAAAA",
+            "volume_db": -10.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "EQ Three",
+                    "parameters": {},
+                    "fallback": "EQ Eight"
+                },
+                {
+                    "name": "Compressor",
+                    "parameters": {
+                        "Ratio": 3.0
+                    }
+                },
+                {
+                    "name": "Reverb",
+                    "parameters": {
+                        "Decay Time": 2.0
+                    }
+                }
+            ],
+            "midi_clips": []
+        },
+        {
+            "index": 14,
+            "name": "Track 15 - Clap",
+            "track_type": "drum",
+            "color": "#FF6600",
+            "volume_db": -10.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Drum Sampler",
+                    "parameters": {}
+                },
+                {
+                    "name": "Reverb",
+                    "parameters": {
+                        "Decay Time": 1.5
+                    }
+                }
+            ],
+            "midi_clips": [
+                [
+                    {
+                        "pitch": 39,
+                        "start_time": 1.0,
+                        "duration": 0.125,
+                        "velocity": 85
+                    },
+                    {
+                        "pitch": 39,
+                        "start_time": 3.0,
+                        "duration": 0.125,
+                        "velocity": 85
+                    }
+                ]
+            ]
+        },
+        {
+            "index": 15,
+            "name": "Track 16 - Master FX",
+            "track_type": "fx",
+            "color": "#CCCCCC",
+            "volume_db": 0.0,
+            "pan": 0.0,
+            "devices": [
+                {
+                    "name": "Compressor",
+                    "parameters": {
+                        "Ratio": 1.5
+                    }
+                },
+                {
+                    "name": "Limiter",
+                    "parameters": {
+                        "Ceiling": -0.3
+                    }
+                }
+            ],
+            "midi_clips": []
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+.git
+.gitignore
+.gitlab
+.github
+__pycache__
+.venv
+.DS_Store
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.ruff_cache
+.gemini
+.antigravity

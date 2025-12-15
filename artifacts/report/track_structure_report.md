@@ -1,0 +1,1 @@
+# Track Configuration Validation Report\n\n**Configuration**: example.json\n**Score**: 95.0/100\n\n## Warnings\n\n- ⚠️ Only 1 tracks - consider adding more\n

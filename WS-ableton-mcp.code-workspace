@@ -1,0 +1,81 @@
+{
+	"folders": [
+		{
+			"name": "ableton-mcp",
+			"path": "."
+		},
+		{
+			"name": "defi-dev-tools",
+			"path": "../defi-dev-tools"
+		},
+		{
+			"name": "gam-deepagents",
+			"path": "../gam-deepagents"
+		},
+		{
+			"name": "ableton-midi-mcp",
+			"path": "../ableton-midi-mcp"
+		},
+		{
+			"name": "ollama_crewai_lab",
+			"path": "../ollama_crewai_lab"
+		},
+		{
+			"name": "expert-deepagents-stg",
+			"path": "../expert-deepagents-stg"
+		},
+		{
+			"name": ".gemini",
+			"path": "../.gemini"
+		}
+	],
+	"settings": {
+		// Full filesystem access for AI coding assistants (Claude, Gemini, Cursor, Codex)
+		"security.workspace.trust.enabled": false,
+		"security.workspace.trust.untrustedFiles": "open",
+		// Claude Code CLI settings
+		"claude.allowedDirectories": [
+			"/Users/alexzh/ableton-mcp",
+			"/Users/alexzh/defi-dev-tools",
+			"/Users/alexzh/gam-deepagents",
+			"/Users/alexzh/ableton-midi-mcp",
+			"/Users/alexzh/ollama_crewai_lab",
+			"/Users/alexzh/ubuntu-2404-fresh-setup",
+			"/Users/alexzh/expert-deepagents-stg",
+			"/Users/alexzh/.gemini"
+		],
+		// File access settings - no restrictions
+		"files.exclude": {},
+		"search.exclude": {},
+		// Performance optimization - exclude common build/cache directories
+		"files.watcherExclude": {
+			"**/node_modules/**": true,
+			"**/.git/objects/**": true,
+			"**/.git/subtree-cache/**": true,
+			"**/dist/**": true,
+			"**/build/**": true,
+			"**/__pycache__/**": true,
+			"**/.venv/**": true,
+			"**/venv/**": true,
+			"**/.pytest_cache/**": true,
+			"**/.mypy_cache/**": true,
+			"**/*.pyc": true
+		},
+		// Enable AI features
+		"editor.inlineSuggest.enabled": true,
+		"github.copilot.enable": {
+			"*": true
+		},
+		// Cursor AI settings
+		"cursor.aiEnabled": true,
+		"cursor.aiPrivacy": false,
+		// General workspace settings for better AI integration
+		"files.autoSave": "afterDelay",
+		"files.autoSaveDelay": 1000,
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		}
+	}
+}

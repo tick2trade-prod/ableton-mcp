@@ -3,7 +3,7 @@ name = "ableton-mcp"
 version = "1.0.0"
 description = "Ableton Live integration through the Model Context Protocol"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 authors = [
     {name = "Siddharth Ahuja", email = "ahujasid@gmail.com"}
 ]
@@ -15,17 +15,96 @@ classifiers = [
 ]
 dependencies = [
     "mcp[cli]>=1.3.0",
+    "pathlib>=1.0.1",
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=0.23.0",
+    "pytest-timeout>=2.4.0",
+    "pydantic>=2.5",
+    "redis>=5.0",
+    "deepagents>=0.3.0",
+    "langchain-mcp-adapters>=0.1.0",
+    "sympy>=1.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-sugar",
+    "pytest-timeout>=2.0.0",
+    "pre-commit>=3.0.0",
+    "ruff>=0.3.0",
+]
+analysis = [
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "demucs>=4.0.0",
+    "torchcodec>=0.1.0; sys_platform != 'win32'",
+]
+gui = [
+    "dearpygui>=1.11.0",
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "pillow>=10.0.0",
+]
+research = [
+    "tavily-python>=0.3.0",
+    "httpx>=0.25.0",
+    "diskcache>=5.6.0",
+    "tiktoken>=0.5.0",
+]
+ableton-codegen = [
+    "pymupdf>=1.23.0",
+    "sentence-transformers>=2.2.0",
+    "redis[hiredis]>=5.0.0",
+    "tree-sitter>=0.21.0",
+    "numpy>=1.24.0",
+    "tavily-python>=0.3.0",
+    "httpx>=0.25.0",
+]
+gui-controller = [
+    "dearpygui>=2.0.0",
+    "crewai>=0.51.0",
+    "langchain-community>=0.0.38",
+    "langgraph>=0.2.60",
 ]
 
 [project.scripts]
-ableton-mcp = "MCP_Server.server:main"
+ableton-mcp = "src.ableton_mcp.server:main"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.8.3,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "src"
+module-root = "."
 
 [tool.setuptools]
 packages = ["MCP_Server"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+pythonpath = [".", "scripts"]
+markers = [
+    "live: tests requiring live Ableton connection",
+    "session: session/track related tests",
+    "clip: clip manipulation tests",
+    "device: device/rack tests",
+    "browser: browser navigation tests",
+    "transport: playback control tests",
+    "hotpath: hotpath tests for SOTA researcher",
+]
+norecursedirs = ["external"]
+addopts = "-v --tb=short --timeout=300"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [project.urls]
 "Homepage" = "https://github.com/ahujasid/ableton-mcp"

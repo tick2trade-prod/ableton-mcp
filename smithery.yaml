@@ -1,16 +1,69 @@
-# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+To use Docker Desktop MCP Toolkit with the redis-mcp server in Antigravity IDE, follow these steps:
 
-startCommand:
-  type: stdio
-  configSchema:
-    # JSON Schema defining the configuration options for the MCP.
-    type: object
-    properties: {}
-  commandFunction:
-    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
-    |-
-    (config) => ({
-      command: 'python',
-      args: ['-m', 'MCP_Server.server']
-    })
-  exampleConfig: {}
+1. Enable MCP Toolkit in Docker Desktop
+Open Docker Desktop.
+Go to Settings > Beta features.
+Enable Docker MCP Toolkit and apply changes.
+2. Add the Redis MCP Server
+In Docker Desktop, navigate to MCP Toolkit > Catalog.
+Search for redis-mcp (or similar Redis server).
+Click the plus icon to add it.
+3. Connect Antigravity IDE as a Client
+Go to MCP Toolkit > Clients tab.
+Find Antigravity IDE in the list.
+Click Connect.
+Docker Desktop will automatically configure the MCP Gateway connection, allowing Antigravity IDE to access the Redis MCP server.
+4. Use Redis MCP in Antigravity IDE
+In Antigravity IDE, you can now interact with Redis via the MCP server.
+For example, you might run queries, set/get keys, or automate workflows using Redis—all requests will be routed securely through Docker MCP Toolkit.
+Notes
+No manual dependency or runtime setup is needed; everything runs in isolated containers.
+If Antigravity IDE is not listed, you can manually configure the MCP Gateway using the command:
+docker mcp gateway run
+and set up your IDE to communicate over stdio with the MCP server.
+Summary:
+Enable MCP Toolkit, add the Redis MCP server, connect Antigravity IDE as a client, and start using Redis securely and seamlessly in your development workflow.
+
+Sources:
+
+https://docs.docker.com/ai/mcp-catalog-and-toolkit/get-started/⁠
+https://docs.docker.com/ai/mcp-catalog-and-toolkit/toolkit/⁠
+https://www.docker.com/blog/mcp-toolkit-mcp-servers-that-just-work/⁠
+rewrite this from perspective of spec orienteid development and test driven development. also address what user manually has to do vs what agent can do . To use Docker Desktop MCP Toolkit with the **redis-mcp** server in **Antigravity IDE**, follow these steps: ### 1. Enable MCP Toolkit in Docker...Show more
+
+Certainly! Here’s a concise rewrite focused on spec-oriented development and test-driven development (TDD), clearly separating manual user actions from agent-automated steps:
+
+Spec-Oriented & Test-Driven Workflow with Docker MCP Toolkit and Redis MCP in Antigravity IDE
+1. Manual Setup (User Actions)
+Enable MCP Toolkit:
+Open Docker Desktop, go to Settings > Beta features, and enable Docker MCP Toolkit.
+Add Redis MCP Server:
+In Docker Desktop’s MCP Toolkit > Catalog, search for redis-mcp and add it.
+Connect Antigravity IDE:
+In MCP Toolkit > Clients, select and connect Antigravity IDE.
+If not listed, manually run:
+docker mcp gateway run
+and configure the IDE to use the MCP Gateway.
+2. Agent-Driven Automation (Spec/TDD)
+Spec Definition:
+Define Redis-related specs (e.g., expected key-value operations, data integrity, error handling) in your test suite within Antigravity IDE.
+Test Execution:
+The agent (AI assistant or IDE automation) can:
+Discover the Redis MCP server via the MCP Gateway.
+Run integration and unit tests against Redis MCP, validating specs (e.g., “SET key, GET key, assert value”).
+Automate workflows: populate test data, simulate edge cases, and verify outcomes.
+Report results and suggest fixes if specs fail.
+Continuous Feedback:
+The agent can re-run tests after code changes, ensuring spec compliance and regression safety.
+3. What’s Manual vs. Automated?
+Manual:
+Initial Docker Desktop configuration, MCP server addition, and IDE connection.
+Agent/Automated:
+All Redis interactions, test execution, spec validation, and reporting—once the environment is set up, the agent can handle the rest.
+Summary:
+You manually set up the MCP environment and connect your IDE. From there, your agent can automate Redis MCP server interactions, run spec-driven tests, and validate outcomes—enabling a robust TDD workflow with minimal manual intervention.
+
+Sources:
+
+https://docs.docker.com/ai/mcp-catalog-and-toolkit/toolkit/⁠
+https://www.docker.com/blog/mcp-toolkit-mcp-servers-that-just-work/⁠

@@ -1,0 +1,20 @@
+{
+    "extensions": {
+        "googleWorkspace": {
+            "enabled": true,
+            "capabilities": [
+                "read_docs",
+                "read_drive"
+            ],
+            "context": "focused"
+        },
+        "github": {
+            "enabled": true,
+            "auth_mode": "oauth_user",
+            "capabilities": [
+                "create_pr",
+                "read_issues"
+            ]
+        }
+    }
+}

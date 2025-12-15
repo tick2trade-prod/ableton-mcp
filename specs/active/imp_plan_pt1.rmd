@@ -1,0 +1,129 @@
+# Implementation Plan (PT1): DearPyGUI Control Plane Foundations + Ableton Handshake
+
+**Status**: Active
+**Version**: 2.0.0
+**Last Updated**: 2025-12-14
+**Depends On**: `specs/active/005.md`, `specs/active/006.md`
+**Parent Spec**: `specs/active/007_mvp_master_spec.md`
+
+## 1. Outcome (What PT1 Delivers)
+
+By the end of PT1, a developer can launch a **DearPyGUI controller** that:
+
+1. Verifies Ableton is reachable via Ableton-MCP (Remote Script + MCP Server).
+2. Creates the **16-track scaffold** and sets session defaults (tempo/key metadata).
+3. Persists a project workspace under `live_set/lily_palmer/i_am_machine/workspace/` (spec + state + logs).
+
+PT1 explicitly does **not** attempt to nail sound design; it builds the *reliable control loop*.
+
+## 2. Preflight (One-Time Setup)
+
+### 2.1 Ableton Side
+
+- Ensure `AbletonMCP_Remote_Script` is installed and enabled as a Control Surface in Ableton Live 12.3.1.
+- Confirm port `9877` is listening (see `make check-port`).
+
+### 2.2 Repo Side
+
+- Install dependencies:
+  - `uv sync --extra gui --extra gui-controller`
+- Deploy the Remote Script:
+  - `make deploy-script`
+- Start the MCP server:
+  - `make run-dev` (preferred for local development)
+
+## 3. Implementation Steps (Builder)
+
+### 3.1 Create Project Workspace Layout
+
+Create the on-disk workspace (see PRD §8.2):
+
+- `live_set/lily_palmer/i_am_machine/workspace/project_spec.json`
+- `live_set/lily_palmer/i_am_machine/workspace/state.json`
+- `live_set/lily_palmer/i_am_machine/workspace/events.jsonl`
+
+**Definition**:
+
+- `project_spec.json` is immutable “desired state” (derived from PRD §5).
+- `state.json` is mutable “applied state” (what’s already done).
+- `events.jsonl` is append-only, machine-readable tool call history.
+
+### 3.2 Build an Ableton Adapter Layer (No GUI Yet)
+
+Goal: one Python interface used by:
+
+- the GUI
+- deepagents/CrewAI tools
+- verification scripts
+
+Implementation note:
+
+- The repo already contains a direct-socket client at `live_set/lily_palmer/i_am_machine/ableton_client.py`. PT1 may reuse it as the initial adapter, but long-term the adapter should become the shared “single source of truth” for both the FastMCP server and agent orchestration.
+
+**Design rule**: do not call `MCP_Server/server.py` tool functions directly from the UI; wrap them behind an adapter that can be swapped (MCP → direct socket) without rewriting higher layers.
+
+Minimum adapter capabilities for PT1:
+
+- `get_session_info()`
+- `get_track_info(track_index)`
+- `set_tempo(tempo_bpm)`
+- `create_midi_track(index=-1)`
+- `create_audio_track(index=-1)` (if not available, document and stub)
+- `set_track_name(track_index, name)`
+
+### 3.3 DearPyGUI Skeleton (MVP Console)
+
+Create a minimal GUI with:
+
+- Connection panel:
+  - host/port readouts (defaults: localhost/9877)
+  - “Connect” / “Disconnect”
+- Project actions:
+  - “Initialize Project”
+  - “Verify (basic)”
+- Track list:
+  - 16 rows with progress bars (0.0–1.0)
+- Log panel:
+  - tails `events.jsonl`
+
+**Concurrency requirement**:
+
+- UI must remain responsive during long operations. Orchestration runs in a background thread/async loop; UI receives progress events.
+
+### 3.4 Implement “Initialize Project” (Idempotent Bootstrap)
+
+Action must:
+
+1. Set tempo to 136.0 BPM.
+2. Ensure 16 tracks exist (creating missing tracks only).
+3. Ensure canonical names from PRD §5.
+4. Write `state.json` updates and append events to `events.jsonl`.
+
+**Idempotency rule**: running “Initialize Project” twice should not create extra tracks.
+
+## 4. Tests & Gates (Critic + Sentinel)
+
+### 4.1 Unit Tests (Fast)
+
+- Validate `project_spec.json` against the Pydantic schema (PRD §8.1).
+- Validate that the “ensure tracks” logic computes the same desired plan from the same inputs.
+
+### 4.2 Integration Tests (Requires Ableton Running)
+
+- **Gate PT1-G1**: `get_session_info` succeeds.
+- **Gate PT1-G2**: initializing a blank set results in 16 tracks with correct names.
+
+Recommended markers:
+
+- `@pytest.mark.live` for tests requiring Ableton.
+
+## 5. Acceptance Criteria (PT1 Done)
+
+- **PT1-AC1**: GUI connects and shows session info without freezing.
+- **PT1-AC2**: “Initialize Project” yields 16 tracks with canonical names and tempo 136.0 ± 0.1.
+- **PT1-AC3**: `live_set/lily_palmer/i_am_machine/workspace/` contains spec/state/events with meaningful content.
+
+## 6. Rollback / Safety
+
+- Provide a GUI “Stop” that halts orchestration after the current tool call completes.
+- No destructive operations (track deletion) in PT1.

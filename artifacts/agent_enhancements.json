@@ -1,0 +1,403 @@
+{
+  "mixer_agent.py": {
+    "purpose": "Mixer routing and level management",
+    "total_docs_found": 4,
+    "recommendations": [
+      {
+        "query": "track volume panning",
+        "relevance": 0.6641668677330017,
+        "page": 816,
+        "section": "34.10 Mixing with Push 1",
+        "excerpt": "Volume and Pan & Send Buttons.\nIn Volume Mode, the encoders control track volume.\nPressing the Pan & Send button repeatedly will cycle between controlling pans and however many\nsends are available in your Live Set.\nPress Push 1\u2019s Track button to enable Track Mode.\nTrack Button.\nIn Track Mode, the en...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '34.10 Mixing with Push 1' (page 816) for additional context on track volume panning"
+      },
+      {
+        "query": "group tracks submixing",
+        "relevance": 0.6629209518432617,
+        "page": 380,
+        "section": "18.3 Group Tracks",
+        "excerpt": "Group Tracks themselves cannot contain clips, but they are similar to audio tracks in that they have\nmixer controls and can host audio effects.\nGroup Tracks also provide a quick way to create submixes. When tracks are placed into a group,\ntheir Audio To routing choosers are automatically assigned to...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '18.3 Group Tracks' (page 380) for additional context on group tracks submixing"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "arranger_agent.py": {
+    "purpose": "Arranging clips on timeline, creating song structure",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "arrangement view automation timeline",
+        "relevance": 0.5872659087181091,
+        "page": 145,
+        "section": "6.1 Layout",
+        "excerpt": "6. Arrangement View\nThe Arrangement View is one of Live\u2019s two main views for song structuring and composition. In\ncontrast to Session View, which centers around improvisation, looping, and clip launching, the\nArrangement View lets you combine and arrange different elements of a song on a linear time...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '6.1 Layout' (page 145) for additional context on arrangement view automation timeline"
+      },
+      {
+        "query": "song structure intro verse chorus",
+        "relevance": 0.4087256193161011,
+        "page": 906,
+        "section": "38.2.3 Unstretched Beats/Tones/Texture/Re-Pitch Warping",
+        "excerpt": "ow the tempo down to record a particularly difficult solo passage, the original\n\u2022 \n\u2022 \n\u2022 \n\u2022 \n\u2022 \n906...",
+        "suggestion": "LOW RELEVANCE: '38.2.3 Unstretched Beats/Tones/Texture/Re-Pitch Warping' (page 906) may provide background information"
+      },
+      {
+        "query": "automation envelopes breakpoints",
+        "relevance": 0.6053836345672607,
+        "page": 927,
+        "section": "40.5.1 Navigating Between Breakpoints",
+        "excerpt": "the\ncurrent location on the grid. Use the left and right arrow keys to move the insert marker. As you move\nacross the envelope, the automation or modulation value at the current location is displayed.\nThe Automation Value is Shown at the Insert Marker Location.\nTo create a breakpoint at the insert m...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '40.5.1 Navigating Between Breakpoints' (page 927) for additional context on automation envelopes breakpoints"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "composer_agent.py": {
+    "purpose": "Creating MIDI patterns and note composition",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "MIDI note composition piano roll",
+        "relevance": 0.5695706605911255,
+        "page": 233,
+        "section": "10.1 The MIDI Note Editor Layout",
+        "excerpt": "The MIDI Note Editor Layout.\nUse the tabs in the Clip View header to access different editor view modes. Make sure that the\nNotes tab is selected to add and manipulate MIDI notes.\nYou can add MIDI notes directly in the MIDI Note Editor\u2019s grid.\nThe MIDI Note Editor has both vertical and horizontal na...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '10.1 The MIDI Note Editor Layout' (page 233) for additional context on MIDI note composition piano roll"
+      },
+      {
+        "query": "velocity duration note editing",
+        "relevance": 0.6296461820602417,
+        "page": 258,
+        "section": "10.5.12 Editing Velocities",
+        "excerpt": "Note Velocity Marker.\nYou can select multiple velocity markers to change by clicking with the Shift  modifier held down.\nTo set a group of notes so that they all have the same velocity, select their markers in the Velocity\nEditor, drag them up or down to either maximum or minimum velocity, and then ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '10.5.12 Editing Velocities' (page 258) for additional context on velocity duration note editing"
+      },
+      {
+        "query": "MIDI clip quantization groove",
+        "relevance": 0.6924754977226257,
+        "page": 326,
+        "section": "14.1 Groove Pool",
+        "excerpt": "The Hot-Swap Groove Button.\nGrooves can be applied to both audio and MIDI clips. In audio clips, grooves work by adjusting the\nclip\u2019s warping behavior, and thus only work on clips with Warp enabled.\n14.1 Groove Pool\nOnce you\u2019ve applied a groove file, you can modify its behavior by adjusting its para...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '14.1 Groove Pool' (page 326) for additional context on MIDI clip quantization groove"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "arrangement_agent.py": {
+    "purpose": "Clip and scene management in session view",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "session view clip launching",
+        "relevance": 0.746934711933136,
+        "page": 340,
+        "section": "16.1 The Launch Controls",
+        "excerpt": "nch settings, open the Clip View of a Session View clip by double-clicking the clip,\nthen click on the clip tab/panel with the Clip Launch button icon.\nThe Clip Launch Settings in a Clip Tab.\n340...",
+        "suggestion": "HIGH RELEVANCE: Review '16.1 The Launch Controls' (page 340) for detailed implementation guidance on session view clip launching"
+      },
+      {
+        "query": "scene management follow actions",
+        "relevance": 0.545297384262085,
+        "page": 176,
+        "section": "7.4.3 Editing Scenes",
+        "excerpt": "s Add/Remove Stop\nButton command. This is useful for pre-configuring the scene launch behavior: If, for instance, you\ndon\u2019t want scene 3 to affect track 4, remove the scene 3/track 4 Stop button.\n7.4.3 Editing Scenes\nIn addition to the standard Edit menu commands such as cut, copy, paste and duplica...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '7.4.3 Editing Scenes' (page 176) for additional context on scene management follow actions"
+      },
+      {
+        "query": "clip properties loop settings",
+        "relevance": 0.630794882774353,
+        "page": 212,
+        "section": "8.14 Clip Defaults and Update Rate",
+        "excerpt": "d. If the\nclips in the selection have differing values for any particular parameter (clip transposition, for\nexample), the range of these values will be displayed and can be adjusted with the control. Dragging\nthe knob or slider to its absolute maximum or minimum value will make the clips\u2019 settings ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '8.14 Clip Defaults and Update Rate' (page 212) for additional context on clip properties loop settings"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "synthesizer_agent.py": {
+    "purpose": "Synthesizer device configuration",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "synthesizer devices Wavetable",
+        "relevance": 0.6986686587333679,
+        "page": 742,
+        "section": "30.13.2 Oscillators",
+        "excerpt": "30.13 Wavetable\nThe Wavetable Instrument.\nWavetable is a synthesizer that combines two wavetable-based oscillators, two analog-modelled\nfilters, and a powerful but intuitive modulation system. It\u2019s designed to be usable by musicians and\nsound designers with any amount of synthesis experience; it\u2019s s...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.13.2 Oscillators' (page 742) for additional context on synthesizer devices Wavetable"
+      },
+      {
+        "query": "Operator FM synthesis",
+        "relevance": 0.674013078212738,
+        "page": 684,
+        "section": "30.9.1 General Overview",
+        "excerpt": "oller, automated, or modulated in real time, just like any other parameter.\nOperator\u2019s Algorithms.\nTypically, FM synthesis makes use of pure sine waves, creating more complex waveforms via\nmodulation. However, in order to simplify sound design and to create a wider range of possible\nsounds, we desig...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.9.1 General Overview' (page 684) for additional context on Operator FM synthesis"
+      },
+      {
+        "query": "Drift Meld synthesis parameters",
+        "relevance": 0.5496785044670105,
+        "page": 650,
+        "section": "30.3.1 Subtractive Synthesis",
+        "excerpt": "o keep output levels low when experimenting with new sounds.\n30.3 Drift\nThe Drift Instrument.\nDrift is a versatile synthesizer with intuitive controls and a simple interface that is fully MPE-capable.\nBased on subtractive synthesis, Drift has been carefully built for quick and easy sound design whil...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.3.1 Subtractive Synthesis' (page 650) for additional context on Drift Meld synthesis parameters"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "sound_design_agent.py": {
+    "purpose": "Synthesis and device parameter configuration",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "synthesis oscillator filter",
+        "relevance": 0.5555868148803711,
+        "page": 715,
+        "section": "30.10.8 The Filter/Global Tab",
+        "excerpt": "30.10.8 The Filter/Global Tab\nThe Filter/Global Tab.\n30.10.8.1 The Filter\nSampler features a polyphonic filter with an optional integrated waveshaper. The filter section offers a\nvariety of filter types including low-pass, high-pass, band-pass, notch, and a special Morph filter.\nEach filter can be s...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.10.8 The Filter/Global Tab' (page 715) for additional context on synthesis oscillator filter"
+      },
+      {
+        "query": "device parameter automation",
+        "relevance": 0.5152584314346313,
+        "page": 815,
+        "section": "34.10 Mixing with Push 1",
+        "excerpt": "Device Button.\nIn Device Mode, the Selection Control buttons select devices in the currently selected track, while the\nState Control buttons turn the selected device on or off. The currently selected device is marked with\nan arrow in the display.\nDevice Mode Settings.\nThe In and Out buttons allow yo...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '34.10 Mixing with Push 1' (page 815) for additional context on device parameter automation"
+      },
+      {
+        "query": "Wavetable Operator Drift synthesis",
+        "relevance": 0.5490450859069824,
+        "page": 650,
+        "section": "30.3.1 Subtractive Synthesis",
+        "excerpt": "o keep output levels low when experimenting with new sounds.\n30.3 Drift\nThe Drift Instrument.\nDrift is a versatile synthesizer with intuitive controls and a simple interface that is fully MPE-capable.\nBased on subtractive synthesis, Drift has been carefully built for quick and easy sound design whil...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.3.1 Subtractive Synthesis' (page 650) for additional context on Wavetable Operator Drift synthesis"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "transition_agent.py": {
+    "purpose": "Crossfades and transition effects",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "crossfade automation transitions",
+        "relevance": 0.5000890493392944,
+        "page": 386,
+        "section": "18.6 Soloing and Cueing",
+        "excerpt": "at each track\u2019s gain stage. The track can be routed to\nan individual output bus regardless of its crossfade assignment. In studio parlance, you can think of\nthe crossfader as an on-the-fly VCA group.\nAs with almost everything in Live, your crossfading maneuvers can be recorded into the Arrangement\nf...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '18.6 Soloing and Cueing' (page 386) for additional context on crossfade automation transitions"
+      },
+      {
+        "query": "fade in fade out curves",
+        "relevance": 0.6631711721420288,
+        "page": 157,
+        "section": "6.8 Audio Clip Fades and Crossfades",
+        "excerpt": "an automation lane.\nThe Fade In Start and Fade Out End handles let you change the duration of a fade in or fade out\nwithout affecting the fade peaks. However, fade edges cannot move beyond fade peaks. You can\nselect one of the handles and drag it out across the clip to change the length of the fade....",
+        "suggestion": "MEDIUM RELEVANCE: Consider '6.8 Audio Clip Fades and Crossfades' (page 157) for additional context on fade in fade out curves"
+      },
+      {
+        "query": "transition effects risers",
+        "relevance": 0.40922313928604126,
+        "page": 564,
+        "section": "28.26.1 Dynamics Processing Theory",
+        "excerpt": "Downward and Upward Compression.\nThe opposite of compression is expansion. A typical expander lowers the levels of signals that are\nbelow a threshold. This is how Live\u2019s Gate works, and is more accurately called downward expansion\nbecause it pushes quiet signals down, thus increasing the dynamic ran...",
+        "suggestion": "LOW RELEVANCE: '28.26.1 Dynamics Processing Theory' (page 564) may provide background information"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "percussion_agent.py": {
+    "purpose": "Drum rack and percussion setup",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "drum rack pad configuration",
+        "relevance": 0.6955739855766296,
+        "page": 797,
+        "section": "34.3.1 Loop Selector",
+        "excerpt": "The Pad Grid When Working With Drums\nThe 16 Drum Rack pads are laid out, like Live\u2019s Drum Rack, in the classic 4x4 arrangement, allowing\nfor real-time playing. The Drum Rack pad colors indicate the following:\nBright yellow \u2014 this pad contains a sound.\nDull yellow \u2014 this pad is empty.\nGreen \u2014 this pa...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '34.3.1 Loop Selector' (page 797) for additional context on drum rack pad configuration"
+      },
+      {
+        "query": "drum sampler trigger mode",
+        "relevance": 0.678396463394165,
+        "page": 660,
+        "section": "30.4.2 Playback Effects Section",
+        "excerpt": "ample with a\ndifferent one. To replace Drum Sampler with another instrument, use the hot-swap button in the\ndevice\u2019s title bar.\n30.4.2 Playback Effects Section\nDrum Sampler\u2019s Playback Effects Section.\nYou can apply one of nine playback effects to further sculpt a sample\u2019s sound: Stretch, Loop, Pitch...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.4.2 Playback Effects Section' (page 660) for additional context on drum sampler trigger mode"
+      },
+      {
+        "query": "percussion MIDI mapping",
+        "relevance": 0.6806577444076538,
+        "page": 774,
+        "section": "32.3.3 Expression Control Legacy",
+        "excerpt": "modulation device that allows for a wide variety of internal\nMIDI mappings. The MIDI controller\u2019s Velocity, Modulation Wheel, Pitch Bend, Aftertouch and\nKeytrack can each be mapped to one destination.\nActivate a Map switch and click on a parameter in Live to assign that parameter as a mapping target...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '32.3.3 Expression Control Legacy' (page 774) for additional context on percussion MIDI mapping"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "verifier_agent.py": {
+    "purpose": "Quality metrics and validation",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "spectrum analyzer metering",
+        "relevance": 0.5509567260742188,
+        "page": 605,
+        "section": "28.38 Spectrum",
+        "excerpt": "28.38 Spectrum\nThe Spectrum Device.\nSpectrum performs real-time frequency analysis of incoming audio signals. The results are represented\nin a graph, with dB along the vertical axis and frequency/pitch along the horizontal. The peak levels\nare retained on the graph until the song is restarted. Note ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '28.38 Spectrum' (page 605) for additional context on spectrum analyzer metering"
+      },
+      {
+        "query": "loudness LUFS measurement",
+        "relevance": 0.4012906849384308,
+        "page": 376,
+        "section": "18.1 The Live Mixer",
+        "excerpt": "The Mixer View Control\u2019s Options Menu.\nLet\u2019s look at the mixer controls:\nThe Mixer Controls.\nThe Meter shows both peak and RMS output levels for the track. While monitoring, however, it\nshows peak and RMS input levels. Peak meters show sudden changes in level, while RMS\nmeters give a better impressi...",
+        "suggestion": "LOW RELEVANCE: '18.1 The Live Mixer' (page 376) may provide background information"
+      },
+      {
+        "query": "audio quality analysis",
+        "relevance": 0.5794594287872314,
+        "page": 905,
+        "section": "38.2 Neutral Operations",
+        "excerpt": "38. Audio Fact Sheet\nMuch of Ableton\u2018s development effort has been focused on carefully and objectively testing Live\u2018s\nfundamental audio performance. As a result of this testing, we have regularly implemented a number\nof low-level improvements to the audio engine. We have written this fact sheet to ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '38.2 Neutral Operations' (page 905) for additional context on audio quality analysis"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "modulation_agent.py": {
+    "purpose": "LFO and modulation configuration",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "LFO modulation envelope",
+        "relevance": 0.6615141034126282,
+        "page": 284,
+        "section": "11.2.5 LFO",
+        "excerpt": "11.2.5 LFO\nLFO is an MPE Transformation that uses a low-frequency oscillator to set the value of one of three\nMPE parameters: pitch bend, slide, or pressure. The oscillator\u2019s shape, rate, and global amplitude can\nall be customized using the Transformation\u2019s parameters.\nThe LFO MIDI Tool.\nThe Target ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '11.2.5 LFO' (page 284) for additional context on LFO modulation envelope"
+      },
+      {
+        "query": "parameter modulation mapping",
+        "relevance": 0.5711373090744019,
+        "page": 774,
+        "section": "32.3.3 Expression Control Legacy",
+        "excerpt": "modulation device that allows for a wide variety of internal\nMIDI mappings. The MIDI controller\u2019s Velocity, Modulation Wheel, Pitch Bend, Aftertouch and\nKeytrack can each be mapped to one destination.\nActivate a Map switch and click on a parameter in Live to assign that parameter as a mapping target...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '32.3.3 Expression Control Legacy' (page 774) for additional context on parameter modulation mapping"
+      },
+      {
+        "query": "modulation sources destinations",
+        "relevance": 0.5231938362121582,
+        "page": 746,
+        "section": "30.13.5 Matrix Tab",
+        "excerpt": "ion sources run horizontally, while the modulation targets run vertically. Click and drag\nwithin the grid to change the amount of modulation that the selected source applies to the selected\nparameter.\nNote that certain parameters are additive modulation targets, while others are multiplicative\nmodul...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '30.13.5 Matrix Tab' (page 746) for additional context on modulation sources destinations"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "research_agent.py": {
+    "purpose": "Unknown",
+    "total_docs_found": 0,
+    "recommendations": [],
+    "priority": "LOW"
+  },
+  "effects_chain_agent.py": {
+    "purpose": "Audio effects and rack configuration",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "audio effects racks chains",
+        "relevance": 0.7328124642372131,
+        "page": 445,
+        "section": "24.4 Chain List",
+        "excerpt": "Navigate Racks Quickly Via a Context Menu.\n24.4 Chain List\nThe Chain List in an Audio Effect Rack.\nAs signals enter a Rack, they are first greeted by the Chain List. We will therefore also choose this\npoint for our own introduction.\nThe Chain List represents the branching point for incoming signals:...",
+        "suggestion": "HIGH RELEVANCE: Review '24.4 Chain List' (page 445) for detailed implementation guidance on audio effects racks chains"
+      },
+      {
+        "query": "parallel processing macro controls",
+        "relevance": 0.5236166715621948,
+        "page": 457,
+        "section": "24.7.3 Macro Control Variations",
+        "excerpt": "24.7.3 Macro Control Variations\nMacro Control Variations.\nYou can store different states of Macro Controls as individual presets (or \u201cvariations\u201d). This is useful\nwhen, for example, you want to capture the state of a Rack as a \u201csnapshot\u201d during a sound design\nsession, or audition different settings ...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '24.7.3 Macro Control Variations' (page 457) for additional context on parallel processing macro controls"
+      },
+      {
+        "query": "effect rack routing signal flow",
+        "relevance": 0.6284853219985962,
+        "page": 363,
+        "section": "17.5.2 Making Use of Internal Routing",
+        "excerpt": "17.5.1.1 Routing Points in Racks\nTap Points for Every Chain in a Track.\nIf a track has one or more Instrument or Effect Racks in its device chain, internal routing points (Pre FX,\nPost FX and Post Mixer) will also be available for every chain within the Rack. If a track contains one\nor more Drum Rac...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '17.5.2 Making Use of Internal Routing' (page 363) for additional context on effect rack routing signal flow"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "mastering_agent.py": {
+    "purpose": "Mastering chain and final processing",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "mastering chain limiter",
+        "relevance": 0.4879656434059143,
+        "page": 557,
+        "section": "28.24 Limiter",
+        "excerpt": "ing Hybrid Reverb in a return track.\n28.24 Limiter\nThe Limiter Effect.\nThe Limiter effect is a mastering-quality dynamic range processor that ensures that the output does not\nexceed a specified level. Limiter is ideal for use on the Main track, to prevent clipping in digital-to-\nanalog converters. A...",
+        "suggestion": "LOW RELEVANCE: '28.24 Limiter' (page 557) may provide background information"
+      },
+      {
+        "query": "multiband compression dynamics",
+        "relevance": 0.6773446202278137,
+        "page": 563,
+        "section": "28.26.1 Dynamics Processing Theory",
+        "excerpt": "processor, Multiband Dynamics allows for upward and downward\ncompression and expansion of up to three independent frequency bands, with adjustable crossover\npoints and envelope controls for each band. Each frequency range has both an upper and lower\nthreshold, allowing for two types of dynamics proc...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '28.26.1 Dynamics Processing Theory' (page 563) for additional context on multiband compression dynamics"
+      },
+      {
+        "query": "master track processing EQ",
+        "relevance": 0.49258163571357727,
+        "page": 381,
+        "section": "18.4 Return Tracks and the Main track",
+        "excerpt": "in that track, return tracks can process audio sent to them from numerous\ntracks.\n381...",
+        "suggestion": "LOW RELEVANCE: '18.4 Return Tracks and the Main track' (page 381) may provide background information"
+      }
+    ],
+    "priority": "MEDIUM"
+  },
+  "vocals_agent.py": {
+    "purpose": "Vocal processing and effects",
+    "total_docs_found": 6,
+    "recommendations": [
+      {
+        "query": "vocal processing effects chain",
+        "relevance": 0.45385923981666565,
+        "page": 503,
+        "section": "28.4.1 Input Section",
+        "excerpt": "e in the source track\u2019s device chain. Select Pre FX to bypass the effects on the track,\nor select Post FX or Post Mixer to include them.\nThere are two voice mode toggles to choose from: Mono and Poly. Mono uses a single voice,\nmeaning that only one note can be used for the pitch correction at a time...",
+        "suggestion": "LOW RELEVANCE: '28.4.1 Input Section' (page 503) may provide background information"
+      },
+      {
+        "query": "vocal EQ compression",
+        "relevance": 0.5547177195549011,
+        "page": 521,
+        "section": "28.9.2 Compressor Tips",
+        "excerpt": "frequencies, instead of a complete signal. These\ncan either be frequencies in the compressed signal or, by using the EQ in conjunction with an external\nsidechain, frequencies in another track\u2019s audio.\nThe headphones button between the external and EQ sections allows you to listen to only the\nsidecha...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '28.9.2 Compressor Tips' (page 521) for additional context on vocal EQ compression"
+      },
+      {
+        "query": "vocal reverb delay effects",
+        "relevance": 0.6907737851142883,
+        "page": 601,
+        "section": "28.37 Spectral Time",
+        "excerpt": "\u201creverb\u201d decay longer or\nshorter.\nVocal processing - Spectral Resonator can be used like a vocoder by simply using your voice\nas the audio to be processed in combination with the MIDI sidechain input.\nUse two Spectral Resonators in series to create overlapping harmonics by sending different\nMIDI sig...",
+        "suggestion": "MEDIUM RELEVANCE: Consider '28.37 Spectral Time' (page 601) for additional context on vocal reverb delay effects"
+      }
+    ],
+    "priority": "MEDIUM"
+  }
+}

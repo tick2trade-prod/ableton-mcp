@@ -1,0 +1,4 @@
+[submodule "external/redis-mcp"]
+	path = external/redis-mcp
+	url = https://github.com/redis/mcp-redis.git
+	ignore = dirty

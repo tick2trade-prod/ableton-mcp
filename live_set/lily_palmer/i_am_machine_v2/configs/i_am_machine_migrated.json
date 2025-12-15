@@ -1,0 +1,171 @@
+{
+  "name": "I Am Machine (Migrated)",
+  "tempo": 136,
+  "time_signature": [
+    4,
+    4
+  ],
+  "total_bars": 64,
+  "tracks": [
+    {
+      "index": 0,
+      "name": "Track 01 - Kick",
+      "track_type": "kick",
+      "color": "#FF0000",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 1,
+      "name": "Track 02 - Rumble",
+      "track_type": "kick",
+      "color": "#FF0000",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 2,
+      "name": "Track 03 - Rolling Bass",
+      "track_type": "bass",
+      "color": "#00FF00",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 3,
+      "name": "Track 04 - Acid",
+      "track_type": "bass",
+      "color": "#00FF00",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 4,
+      "name": "Track 05 - Closed Hats",
+      "track_type": "drum",
+      "color": "#FF8800",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 5,
+      "name": "Track 06 - Open Hats",
+      "track_type": "drum",
+      "color": "#FF8800",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 6,
+      "name": "Track 07 - Clap",
+      "track_type": "drum",
+      "color": "#FF8800",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 7,
+      "name": "Track 08 - Low Tom",
+      "track_type": "drum",
+      "color": "#FF8800",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 8,
+      "name": "Track 09 - Glitch",
+      "track_type": "synth",
+      "color": "#00FFFF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 9,
+      "name": "Track 10 - Ride",
+      "track_type": "synth",
+      "color": "#00FFFF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 10,
+      "name": "Track 11 - Synth Stab",
+      "track_type": "synth",
+      "color": "#00FFFF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 11,
+      "name": "Track 12 - Drone",
+      "track_type": "synth",
+      "color": "#00FFFF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 12,
+      "name": "Track 13 - Vocal",
+      "track_type": "vocal",
+      "color": "#FFAAAA",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 13,
+      "name": "Track 14 - Vocal Fx",
+      "track_type": "vocal",
+      "color": "#FFAAAA",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 14,
+      "name": "Track 15 - Riser",
+      "track_type": "fx",
+      "color": "#8800FF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    },
+    {
+      "index": 15,
+      "name": "Track 16 - Impact",
+      "track_type": "fx",
+      "color": "#8800FF",
+      "volume_db": -10.0,
+      "pan": 0.0,
+      "devices": [],
+      "midi_clips": []
+    }
+  ]
+}

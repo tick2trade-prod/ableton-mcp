@@ -1,0 +1,25 @@
+services:
+  ableton-mcp:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    network_mode: host
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    # Disable RDB snapshots and use AOF for persistence
+    # This prevents "MISCONF" errors when disk writes fail
+    command: redis-server --appendonly yes --appendfsync everysec --loglevel warning
+
+volumes:
+  redis_data:
