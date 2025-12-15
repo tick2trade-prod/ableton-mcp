@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track14UvocalUfx(BaseTrack):
+class Track14VocalFx(BaseTrack):
     """Track 14 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 13):

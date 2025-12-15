@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track12Udrone(BaseTrack):
+class Track12Drone(BaseTrack):
     """Track 12 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 11):

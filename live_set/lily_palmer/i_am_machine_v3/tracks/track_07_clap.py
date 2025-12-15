@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track07Uclap(BaseTrack):
+class Track07Clap(BaseTrack):
     """Track 07 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 6):

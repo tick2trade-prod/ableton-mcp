@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track10Uride(BaseTrack):
+class Track10Ride(BaseTrack):
     """Track 10 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 9):

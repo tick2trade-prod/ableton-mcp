@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track09Uglitch(BaseTrack):
+class Track09Glitch(BaseTrack):
     """Track 09 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 8):

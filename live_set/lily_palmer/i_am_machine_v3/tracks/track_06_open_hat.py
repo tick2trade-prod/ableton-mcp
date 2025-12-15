@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track06UopenUhat(BaseTrack):
+class Track06OpenHat(BaseTrack):
     """Track 06 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 5):

@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track08Utom(BaseTrack):
+class Track08Tom(BaseTrack):
     """Track 08 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 7):

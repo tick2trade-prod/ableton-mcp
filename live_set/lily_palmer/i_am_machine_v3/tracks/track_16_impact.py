@@ -3,7 +3,7 @@
 from .base_track import BaseTrack
 
 
-class Track16Uimpact(BaseTrack):
+class Track16Impact(BaseTrack):
     """Track 16 implementation."""
     
     def __init__(self, mcp_client, track_index: int = 15):
