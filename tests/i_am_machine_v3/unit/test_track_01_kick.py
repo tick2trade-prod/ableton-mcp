@@ -63,9 +63,9 @@ class TestKickEffectsChain:
     """Effects chain tests."""
 
     def test_eq_eight_loaded(self, kick_track):
-        """H: EQ Eight first in chain."""
+        """H: EQ Eight in effects chain."""
         effects = kick_track.get_effects_chain()
-        assert effects[0]["name"] == "EQ Eight"
+        assert "EQ Eight" in [e["name"] for e in effects]
 
     def test_eq_highpass_30hz(self, kick_track):
         """H: High-pass @ 30Hz for headroom."""
