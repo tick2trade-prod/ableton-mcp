@@ -56,6 +56,47 @@ def test_kick_drum_creation():
         return False
 
     print("\n" + "=" * 70)
+    # Step 3.5: Load Kick 909 sample from Core Library
+    print("\nStep 3.5: Loading Kick 909 sample from Core Library...")
+
+    # Exact path from user's recommendation
+    kick_sample_paths = [
+        "Packs/Core Library/Drums/Samples/Kicks/Kick 909.aif",
+        "Core Library/Drums/Samples/Kicks/Kick 909.aif",
+        "Drums/Samples/Kicks/Kick 909",
+    ]
+
+    kick_loaded = False
+    for sample_path in kick_sample_paths:
+        print(f"   Trying: {sample_path}")
+        result = client.send_command("get_browser_items_at_path", {"path": sample_path})
+
+        if result.success:
+            items = result.data.get("items", [])
+            if items:
+                # Try to load the first item
+                uri = items[0].get("uri")
+                print(f"   Found sample, loading with URI: {uri}")
+                load_result = client.load_browser_item(track_index=0, item_uri=uri)
+                if load_result.success:
+                    print("   ✅ Kick 909 loaded!")
+                    kick_loaded = True
+                    break
+
+    if not kick_loaded:
+        print("   ⚠️  Could not auto-load kick - trying direct URI...")
+        # Try direct browser query
+        for uri in ["query:Drums/Samples/Kicks#Kick%20909", "query:Samples#Kick"]:
+            result = client.load_browser_item(track_index=0, item_uri=uri)
+            if result.success:
+                print(f"   ✅ Loaded via URI: {uri}")
+                kick_loaded = True
+                break
+
+    if not kick_loaded:
+        print("   ⚠️  Manual intervention needed: Drag Kick 909.aif onto C1 pad")
+
+    print("\n" + "=" * 70)
 
     # Step 4: Clear any existing clips
     print("\nStep 4: Clearing existing clips...")
