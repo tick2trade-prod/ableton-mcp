@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track07Clap(mcp_client, track_index=6)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for clap."""
     
     def test_placeholder_clap(self, track):

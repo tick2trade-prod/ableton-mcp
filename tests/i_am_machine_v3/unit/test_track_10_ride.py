@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track10Ride(mcp_client, track_index=9)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for ride."""
     
     def test_placeholder_ride(self, track):

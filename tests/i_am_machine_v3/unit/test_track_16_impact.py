@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track16Impact(mcp_client, track_index=15)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for impact."""
     
     def test_placeholder_impact(self, track):

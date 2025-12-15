@@ -211,6 +211,23 @@ class AbletonMCPClient:
 
         return self.set_track_name(target_index, name)
 
+    def set_track_output(
+        self, track_index: int, output_target: str = "Main"
+    ) -> CommandResult:
+        """Set the output routing of a track.
+
+        Args:
+            track_index: Track index to modify
+            output_target: Target output ('Main' for master output)
+
+        Returns:
+            CommandResult with success status
+        """
+        return self.send_command(
+            "set_track_output",
+            {"track_index": track_index, "output_target": output_target},
+        )
+
     # =========================================================================
     # Device Commands
     # =========================================================================

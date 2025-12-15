@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track04Acid(mcp_client, track_index=3)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for acid."""
     
     def test_placeholder_acid(self, track):

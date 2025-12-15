@@ -1,0 +1,18 @@
+"""Track 10: ride."""
+
+from .base_track import BaseTrack
+
+
+class Track10Uride(BaseTrack):
+    """Track 10 implementation."""
+    
+    def __init__(self, mcp_client, track_index: int = 9):
+        super().__init__(mcp_client, track_index)
+        self.track_name = "10 - ride"
+    
+    def create(self) -> "Track10Uride":
+        """Create track."""
+        self.mcp.ensure_track(self.track_index, self.track_name, "midi")
+        self.route_to_main()
+        self._created = True
+        return self

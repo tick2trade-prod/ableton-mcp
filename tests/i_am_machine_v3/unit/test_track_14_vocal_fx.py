@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track14VocalFx(mcp_client, track_index=13)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for vocal_fx."""
     
     def test_placeholder_vocal_fx(self, track):

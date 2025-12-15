@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track11Stab(mcp_client, track_index=10)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for stab."""
     
     def test_placeholder_stab(self, track):

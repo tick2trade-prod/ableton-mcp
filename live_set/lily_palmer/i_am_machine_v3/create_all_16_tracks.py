@@ -69,6 +69,19 @@ def main():
 
     print(f"\n✅ Successfully ensured {created_count}/16 tracks!")
 
+    # Route all tracks to Main output (CRITICAL for audibility)
+    print("\n3. Routing all tracks to Main output...")
+    routed_count = 0
+    for index, name, track_type in TRACKS:
+        result = client.set_track_output(index, "Main")
+        if result.success:
+            routed_count += 1
+            print(f"   ✓ [{index:02d}] {name} → Main")
+        else:
+            print(f"   ✗ [{index:02d}] {name} - routing failed")
+
+    print(f"\n✅ Routed {routed_count}/16 tracks to Main!")
+
     # Summary
     print("\n" + "=" * 60)
     print("📋 16-Track Layout Created:")

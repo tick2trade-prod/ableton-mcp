@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track05ClosedHat(mcp_client, track_index=4)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for closed_hat."""
     
     def test_placeholder_closed_hat(self, track):

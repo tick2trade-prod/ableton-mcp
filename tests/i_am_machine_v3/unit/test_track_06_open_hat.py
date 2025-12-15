@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track06OpenHat(mcp_client, track_index=5)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for open_hat."""
     
     def test_placeholder_open_hat(self, track):

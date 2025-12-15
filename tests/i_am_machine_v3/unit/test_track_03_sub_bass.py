@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track03SubBass(mcp_client, track_index=2)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for sub_bass."""
     
     def test_placeholder_sub_bass(self, track):

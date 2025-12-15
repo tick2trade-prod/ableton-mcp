@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track15Riser(mcp_client, track_index=14)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for riser."""
     
     def test_placeholder_riser(self, track):

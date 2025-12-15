@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track09Glitch(mcp_client, track_index=8)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for glitch."""
     
     def test_placeholder_glitch(self, track):

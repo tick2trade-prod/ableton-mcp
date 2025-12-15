@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track12Drone(mcp_client, track_index=11)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for drone."""
     
     def test_placeholder_drone(self, track):

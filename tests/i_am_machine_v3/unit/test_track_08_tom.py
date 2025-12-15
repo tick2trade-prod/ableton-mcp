@@ -14,7 +14,7 @@ def track(mcp_client):
     return Track08Tom(mcp_client, track_index=7)
 
 
-class TestSound Design:
+class TestSoundDesign:
     """Sound design tests for tom."""
     
     def test_placeholder_tom(self, track):
