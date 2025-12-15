@@ -52,16 +52,24 @@ def main():
     print(f"   Current tracks: {info.data.get('track_count', 0)}")
 
     # Create all tracks
-    print("\n2. Creating 16 tracks...")
+    print("\n2. Creating 16 tracks (safe overwrite enabled)...")
+    print("   Note: Existing tracks at each index will be replaced")
     created_count = 0
 
     for index, name, track_type in TRACKS:
+        # First, try to delete existing track at this index (if any)
+        print(f"\n   [{index:02d}] {name} ({track_type})")
+        delete_result = client.delete_track(index)
+        if delete_result.success:
+            print(f"        ✓ Removed existing track at index {index}")
+
+        # Now create the new track
         result = client.ensure_track(index, name, track_type)
         if result.success:
-            print(f"   ✅ [{index:02d}] {name} ({track_type})")
+            print("        ✓ Created successfully")
             created_count += 1
         else:
-            print(f"   ⚠️  [{index:02d}] {name} failed: {result.message}")
+            print(f"        ✗ Failed: {result.message}")
 
     print(f"\n✅ Created {created_count}/16 tracks!")
 
