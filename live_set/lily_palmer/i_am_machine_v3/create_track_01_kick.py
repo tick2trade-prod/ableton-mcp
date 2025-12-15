@@ -49,20 +49,20 @@ def create_kick_track():
     # 3. Load 909 Core Kit (contains Kick 909 on C1)
     print("\n3. Loading 909 Core Kit...")
     result = client.load_browser_item(
-        track_name=track_name,
-        uri="query:Drums#FileId_5447",  # 909 Core Kit
+        track_index=0,
+        item_uri="query:Drums#FileId_5447",  # 909 Core Kit
     )
     if result.success:
         print("   ✅ 909 Core Kit loaded (Kick 909 on C1/MIDI 36)")
     else:
         print(f"   ⚠️  Could not load 909 Core Kit: {result.message}")
-        print("   → Will create pattern anyway")
+        print("   → Manual: Load 909 Core Kit from Packs > Core Library > Drums")
 
     # 4. Add effects chain
     print("\n4. Adding effects chain...")
     devices = ["EQ Eight", "Saturator", "Utility"]
     for device in devices:
-        result = client.load_device(track_name=track_name, device_name=device)
+        result = client.load_device(track_index=0, device_name=device)
         if result.success:
             print(f"   ✅ {device} loaded")
         else:
@@ -96,10 +96,10 @@ def create_kick_track():
         print(f"   ❌ Pattern failed: {result.message}")
         return False
 
-    # 6. Set volume
-    print("\n6. Setting mix levels...")
-    client.set_track_volume(track_name=track_name, volume_db=-12.0)
-    print("   ✅ Volume: -12dB")
+    # 6. Set volume (manual for now)
+    print("\n6. Mix levels...")
+    # client.set_track_volume(track_index=0, volume_db=-12.0)  # TODO: API not available
+    print("   Manual: Set volume to -12dB in Ableton")
 
     # Summary
     print("\n" + "=" * 50)
