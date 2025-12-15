@@ -5,6 +5,7 @@ Spec Reference: Section 3, Track 1 - The Anchor Kick
 """
 
 import pytest
+
 from live_set.lily_palmer.i_am_machine_v3.tracks.low_end.kick_track import KickTrack
 
 
@@ -19,7 +20,9 @@ def mcp_client():
 @pytest.fixture
 def kick_track(mcp_client):
     """Create kick track instance."""
-    return KickTrack(mcp_client, track_index=0)
+    track = KickTrack(mcp_client, track_index=0)
+    track.create()  # Initialize track
+    return track
 
 
 # =============================================================================
