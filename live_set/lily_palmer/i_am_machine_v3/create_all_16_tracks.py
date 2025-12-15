@@ -51,27 +51,23 @@ def main():
     print(f"   ✅ Connected! Tempo: {info.data.get('tempo')} BPM")
     print(f"   Current tracks: {info.data.get('track_count', 0)}")
 
-    # Create all tracks
-    print("\n2. Creating 16 tracks (safe overwrite enabled)...")
-    print("   Note: Existing tracks at each index will be replaced")
+    # Create all tracks (overwrites existing)
+    print("\n2. Creating 16 tracks...")
+    print("   Note: ensure_track will reuse existing tracks at each index")
     created_count = 0
 
     for index, name, track_type in TRACKS:
-        # First, try to delete existing track at this index (if any)
-        print(f"\n   [{index:02d}] {name} ({track_type})")
-        delete_result = client.delete_track(index)
-        if delete_result.success:
-            print(f"        ✓ Removed existing track at index {index}")
+        print(f"   [{index:02d}] {name} ({track_type})...", end=" ")
 
-        # Now create the new track
+        # ensure_track will create or reuse track at this index
         result = client.ensure_track(index, name, track_type)
         if result.success:
-            print("        ✓ Created successfully")
+            print("✓")
             created_count += 1
         else:
-            print(f"        ✗ Failed: {result.message}")
+            print(f"✗ {result.message}")
 
-    print(f"\n✅ Created {created_count}/16 tracks!")
+    print(f"\n✅ Successfully ensured {created_count}/16 tracks!")
 
     # Summary
     print("\n" + "=" * 60)
