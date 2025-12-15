@@ -6,7 +6,8 @@ Critical: Roar multiband + infinite sidechain to kick
 """
 
 import pytest
-from live_set.lily_palmer.i_am_machine_v3.tracks.low_end.rumble_track import RumbleTrack
+
+from live_set.lily_palmer.i_am_machine_v3.tracks import Track02Rumble as RumbleTrack
 
 
 @pytest.fixture

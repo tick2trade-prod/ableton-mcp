@@ -1,13 +1,11 @@
 """Track implementations for I Am Machine V3.
 
-This module exports all track classes used in the 16-bar intro loop.
+All 16 track classes for the 16-bar intro loop.
 """
 
-# Low-end tracks from subdirectory
-# Remaining tracks in main directory
 from .base_track import BaseTrack
-from .low_end.kick_track import KickTrack as Track01Kick
-from .low_end.rumble_track import RumbleTrack as Track02Rumble
+from .track_01_kick import KickTrack as Track01Kick
+from .track_02_rumble import RumbleTrack as Track02Rumble
 from .track_03_sub_bass import Track03SubBass
 from .track_04_acid import Track04Acid
 from .track_05_closed_hat import Track05ClosedHat

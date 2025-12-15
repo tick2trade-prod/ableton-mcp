@@ -6,7 +6,7 @@ Spec Reference: Section 3, Track 1 - The Anchor Kick
 
 import pytest
 
-from live_set.lily_palmer.i_am_machine_v3.tracks.low_end.kick_track import KickTrack
+from live_set.lily_palmer.i_am_machine_v3.tracks import Track01Kick as KickTrack
 
 
 @pytest.fixture
