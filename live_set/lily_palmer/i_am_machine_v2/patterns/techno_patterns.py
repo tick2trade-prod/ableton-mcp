@@ -14,12 +14,10 @@ class TechnoPatterns:
     # KICK PATTERNS
     @staticmethod
     def kick_4_on_floor() -> MIDIPattern:
-        """4-on-the-floor kick pattern (every quarter note)."""
+        """4-on-the-floor kick pattern (every quarter note) - 4 bars."""
         return [
-            {"pitch": 36, "start_time": 0.0, "duration": 0.25, "velocity": 100},
-            {"pitch": 36, "start_time": 1.0, "duration": 0.25, "velocity": 100},
-            {"pitch": 36, "start_time": 2.0, "duration": 0.25, "velocity": 100},
-            {"pitch": 36, "start_time": 3.0, "duration": 0.25, "velocity": 100},
+            {"pitch": 36, "start_time": float(i), "duration": 0.25, "velocity": 100}
+            for i in range(16)  # 16 beats = 4 bars
         ]
 
     @staticmethod
@@ -35,10 +33,25 @@ class TechnoPatterns:
     # SNARE/CLAP PATTERNS
     @staticmethod
     def snare_backbeat() -> MIDIPattern:
-        """Snare on beats 2 and 4."""
+        """Snare on beats 2 and 4 - 4 bars."""
         return [
-            {"pitch": 38, "start_time": 1.0, "duration": 0.125, "velocity": 90},
-            {"pitch": 38, "start_time": 3.0, "duration": 0.125, "velocity": 90},
+            {
+                "pitch": 38,
+                "start_time": float(i * 4 + 1),
+                "duration": 0.125,
+                "velocity": 90,
+            }
+            for bar in range(4)
+            for i in [bar]
+        ] + [
+            {
+                "pitch": 38,
+                "start_time": float(i * 4 + 3),
+                "duration": 0.125,
+                "velocity": 90,
+            }
+            for bar in range(4)
+            for i in [bar]
         ]
 
     @staticmethod
@@ -60,9 +73,9 @@ class TechnoPatterns:
 
     @staticmethod
     def hihat_16th_notes() -> MIDIPattern:
-        """16th note hi-hat pattern with velocity variation."""
+        """16th note hi-hat pattern with velocity variation - 4 bars."""
         pattern = []
-        for i in range(16):
+        for i in range(64):  # 64 16th notes = 4 bars
             velocity = 70 if i % 2 == 0 else 60  # Accent on beat
             pattern.append(
                 {
