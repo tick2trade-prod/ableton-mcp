@@ -27,9 +27,12 @@ except ImportError:
 
 # Device name to Ableton browser URI mapping
 DEVICE_URI_MAP = {
-    # Drums
-    "Drum Sampler": "query:Drums#Drum%20Rack",
-    "Drum Rack": "query:Drums#Drum%20Rack",
+    # Drums - Use pre-loaded kits with samples!
+    "Drum Sampler": "query:Drums#FileId_5447",  # 909 Core Kit (kick, snare, hats)
+    "Drum Rack": "query:Drums#FileId_5447",  # 909 Core Kit
+    "808 Kit": "query:Drums#FileId_5446",  # 808 Core Kit
+    "707 Kit": "query:Drums#FileId_5445",  # 707 Core Kit
+    "606 Kit": "query:Drums#FileId_5444",  # 606 Core Kit
     "Impulse": "query:Drums#Impulse",
     # Instruments (Suite)
     "Wavetable": "query:Instruments#Wavetable",
