@@ -9,24 +9,87 @@ import sys
 from pathlib import Path
 from typing import Any
 
-# Add parent directory to path
+# Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "i_am_machine"))
 
 from models.v1.track_models import ProjectConfig, TrackConfig  # noqa: E402
+
+# Import the existing MCP client
+try:
+    from live_set.lily_palmer.i_am_machine.ableton_client import AbletonMCPClient
+
+    MCP_AVAILABLE = True
+except ImportError:
+    MCP_AVAILABLE = False
+    print("Warning: AbletonMCPClient not available, dry-run mode only")
+
+
+# Device name to Ableton browser URI mapping
+DEVICE_URI_MAP = {
+    # Drums
+    "Drum Sampler": "query:Drums#Drum%20Rack",
+    "Drum Rack": "query:Drums#Drum%20Rack",
+    "Impulse": "query:Drums#Impulse",
+    # Instruments (Suite)
+    "Wavetable": "query:Instruments#Wavetable",
+    "Operator": "query:Instruments#Operator",
+    "Drift": "query:Instruments#Drift",
+    # Instruments (All Editions) - Use as fallbacks
+    "Simpler": "query:Instruments#Simpler",
+    "Sampler": "query:Instruments#Sampler",
+    # Audio Effects
+    "Auto Filter": "query:AudioFx#Auto%20Filter",
+    "Channel EQ": "query:AudioFx#Channel%20EQ",
+    "EQ Eight": "query:AudioFx#EQ%20Eight",
+    "EQ Three": "query:AudioFx#EQ%20Three",
+    "Compressor": "query:AudioFx#Compressor",
+    "Reverb": "query:AudioFx#Reverb",
+    "Delay": "query:AudioFx#Delay",
+    "Chorus": "query:AudioFx#Chorus",
+    "Grain Delay": "query:AudioFx#Grain%20Delay",
+    "Limiter": "query:AudioFx#Limiter",
+    "Saturator": "query:AudioFx#Saturator",
+}
 
 
 class ValidatedTrackGenerator:
     """Generate Ableton tracks from validated JSON configurations."""
 
-    def __init__(self, mcp_client=None):
+    def __init__(self, mcp_client: AbletonMCPClient | None = None):
         """Initialize track generator.
 
         Args:
             mcp_client: Optional MCP client for Ableton communication.
-                       If None, runs in dry-run mode.
+                       If None and MCP available, creates new client.
+                       If MCP not available, runs in dry-run mode.
         """
-        self.mcp_client = mcp_client
-        self.dry_run = mcp_client is None
+        if mcp_client:
+            self.mcp_client = mcp_client
+            self.dry_run = False
+        elif MCP_AVAILABLE:
+            try:
+                self.mcp_client = AbletonMCPClient()
+                # Test connection
+                result = self.mcp_client.get_session_info()
+                if result.success:
+                    print(
+                        f"✅ Connected to Ableton (Tempo: {result.data.get('tempo')} BPM)"
+                    )
+                    self.dry_run = False
+                else:
+                    print(f"⚠️  MCP connection failed: {result.message}")
+                    print("   Running in dry-run mode")
+                    self.mcp_client = None
+                    self.dry_run = True
+            except Exception as e:
+                print(f"⚠️  Could not connect to Ableton: {e}")
+                print("   Running in dry-run mode")
+                self.mcp_client = None
+                self.dry_run = True
+        else:
+            self.mcp_client = None
+            self.dry_run = True
 
     def load_config(self, config_path: str | Path) -> ProjectConfig:
         """Load and validate configuration from JSON file.
@@ -54,7 +117,7 @@ class ValidatedTrackGenerator:
         except Exception as e:
             raise ValueError(f"Config validation failed: {e}") from e
 
-    async def create_track(self, track: TrackConfig) -> dict[str, Any]:
+    def create_track(self, track: TrackConfig) -> dict[str, Any]:
         """Create a single track in Ableton.
 
         Args:
@@ -74,52 +137,120 @@ class ValidatedTrackGenerator:
 
         try:
             # Create track via MCP
-            result = await self.mcp_client.create_track(
-                name=track.name, index=track.index
+            result = self.mcp_client.ensure_track(
+                target_index=track.index,
+                name=track.name,
+                track_type="midi",  # Default to MIDI for now
             )
 
-            if not result.get("success"):
-                return {"success": False, "error": "Failed to create track"}
+            if not result.success:
+                return {
+                    "success": False,
+                    "error": f"Failed to create track: {result.message}",
+                    "track_name": track.name,
+                }
 
-            # Set track properties
-            await self.mcp_client.set_track_color(track.index, track.color)
-            await self.mcp_client.set_track_volume(track.index, track.volume_db)
-            await self.mcp_client.set_track_pan(track.index, track.pan)
+            print(f"  ✓ Track {track.index}: {track.name}")
 
             # Load devices
+            device_count = 0
             for device in track.devices:
-                device_result = await self.mcp_client.load_device(
+                # Get browser URI for device
+                device_uri = DEVICE_URI_MAP.get(device.name)
+
+                if not device_uri:
+                    # Try fallback
+                    if device.fallback:
+                        device_uri = DEVICE_URI_MAP.get(device.fallback)
+
+                if not device_uri:
+                    print(f"    ✗ {device.name} (no URI mapping)")
+                    continue
+
+                # Load via browser URI
+                device_result = self.mcp_client.load_browser_item(
                     track_index=track.index,
-                    device_name=device.name,
-                    parameters=device.parameters,
+                    item_uri=device_uri,
                 )
 
-                if not device_result.get("success") and device.fallback:
-                    # Try fallback device
-                    await self.mcp_client.load_device(
-                        track_index=track.index,
-                        device_name=device.fallback,
-                        parameters=device.parameters,
-                    )
+                if device_result.success:
+                    device_count += 1
+                    print(f"    ✓ {device.name}")
+                else:
+                    # Try fallback if available
+                    if device.fallback and device.fallback != device.name:
+                        fallback_uri = DEVICE_URI_MAP.get(device.fallback)
+                        if fallback_uri:
+                            device_result = self.mcp_client.load_browser_item(
+                                track_index=track.index,
+                                item_uri=fallback_uri,
+                            )
+                            if device_result.success:
+                                device_count += 1
+                                print(f"    ✓ {device.fallback} (fallback)")
+                            else:
+                                print(f"    ✗ {device.name} (failed)")
+                        else:
+                            print(f"    ✗ {device.name} (failed)")
+                    else:
+                        print(f"    ✗ {device.name} (failed)")
 
             # Add MIDI clips
+            clip_count = 0
             for clip_index, notes in enumerate(track.midi_clips):
-                await self.mcp_client.create_midi_clip(
-                    track_index=track.index, clip_index=clip_index, notes=notes
+                # Clear any existing clip first
+                try:
+                    clear_result = self.mcp_client.send_command(
+                        "remove_clip",
+                        {"track_index": track.index, "clip_index": clip_index},
+                    )
+                except Exception:
+                    pass  # Ignore if clip doesn't exist
+
+                # Convert Pydantic MIDINote objects to dicts
+                note_dicts = [
+                    {
+                        "pitch": note.pitch,
+                        "start_time": note.start_time,
+                        "duration": note.duration,
+                        "velocity": note.velocity,
+                        "mute": False,
+                    }
+                    for note in notes
+                ]
+
+                clip_result = self.mcp_client.create_pattern(
+                    track_index=track.index,
+                    clip_index=clip_index,
+                    clip_name=f"{track.name} Pattern {clip_index + 1}",
+                    notes=note_dicts,
+                    length=16.0,
+                    fire=False,
                 )
+
+                if clip_result.success:
+                    clip_count += 1
+
+            if clip_count > 0:
+                print(f"    ✓ {clip_count} MIDI clip(s)")
 
             return {
                 "success": True,
                 "track_name": track.name,
                 "track_index": track.index,
-                "devices_loaded": len(track.devices),
-                "clips_created": len(track.midi_clips),
+                "devices_loaded": device_count,
+                "clips_created": clip_count,
             }
 
         except Exception as e:
-            return {"success": False, "error": str(e), "track_name": track.name}
+            print(f"  ✗ Error: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "track_name": track.name,
+            }
 
-    async def generate_from_config(self, config_path: str | Path) -> dict[str, Any]:
+    def generate_from_config(self, config_path: str | Path) -> dict[str, Any]:
         """Generate full project from configuration file.
 
         Args:
@@ -128,7 +259,10 @@ class ValidatedTrackGenerator:
         Returns:
             Result dict with generation summary
         """
+        print(f"\n{'=' * 60}")
         print(f"Loading configuration: {config_path}")
+        print(f"{'=' * 60}\n")
+
         project = self.load_config(config_path)
 
         print("✅ Configuration validated:")
@@ -141,31 +275,32 @@ class ValidatedTrackGenerator:
 
         if self.dry_run:
             print("\n⚠️  DRY RUN MODE (no MCP client)")
+        else:
+            # Set tempo
+            tempo_result = self.mcp_client.set_tempo(project.tempo)
+            if tempo_result.success:
+                print(f"\n✅ Set tempo to {project.tempo} BPM")
 
         results = []
         successful = 0
         failed = 0
 
-        print(f"\nGenerating {len(project.tracks)} tracks...")
+        print(f"\nGenerating {len(project.tracks)} tracks...\n")
 
         for track in project.tracks:
-            result = await self.create_track(track)
+            result = self.create_track(track)
             results.append(result)
 
             if result["success"]:
                 successful += 1
-                status = "✅"
             else:
                 failed += 1
-                status = "❌"
-
-            print(f"{status} Track {track.index + 1:02d}: {track.name}")
 
         print(f"\n{'=' * 60}")
         print("Generation Complete!")
         print(f"Successful: {successful}/{len(project.tracks)}")
         print(f"Failed: {failed}/{len(project.tracks)}")
-        print(f"{'=' * 60}")
+        print(f"{'=' * 60}\n")
 
         return {
             "success": failed == 0,
@@ -178,17 +313,12 @@ class ValidatedTrackGenerator:
 
 # Example usage
 if __name__ == "__main__":
-    import asyncio
+    # Try with MCP client
+    generator = ValidatedTrackGenerator()
 
-    async def main():
-        # Dry run mode (no MCP client)
-        generator = ValidatedTrackGenerator()
+    # Test with example config
+    result = generator.generate_from_config(
+        "live_set/lily_palmer/i_am_machine_v2/configs/example.json"
+    )
 
-        # Test with example config
-        result = await generator.generate_from_config(
-            "live_set/lily_palmer/i_am_machine_v2/configs/example.json"
-        )
-
-        print(f"\nResult: {'Success' if result['success'] else 'Failed'}")
-
-    asyncio.run(main())
+    print(f"\nResult: {'✅ Success' if result['success'] else '❌ Failed'}")

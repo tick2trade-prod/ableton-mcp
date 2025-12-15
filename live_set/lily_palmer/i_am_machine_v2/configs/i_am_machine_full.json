@@ -22,10 +22,11 @@
                     }
                 },
                 {
-                    "name": "EQ Eight",
+                    "name": "EQ Three",
                     "parameters": {
                         "1 Gain A": 3.0
-                    }
+                    },
+                    "fallback": "EQ Eight"
                 }
             ],
             "midi_clips": [
@@ -174,10 +175,11 @@
             "pan": 0.0,
             "devices": [
                 {
-                    "name": "Wavetable",
+                    "name": "Impulse",
                     "parameters": {
                         "Osc 1 Pitch": -12.0
-                    }
+                    },
+                    "fallback": "Wavetable"
                 },
                 {
                     "name": "Auto Filter",
@@ -224,10 +226,11 @@
             "pan": -0.2,
             "devices": [
                 {
-                    "name": "Drift",
+                    "name": "Impulse",
                     "parameters": {
                         "Voice 1 Pitch": 0.0
-                    }
+                    },
+                    "fallback": "Drift"
                 },
                 {
                     "name": "Reverb",
@@ -268,8 +271,9 @@
             "pan": 0.0,
             "devices": [
                 {
-                    "name": "Wavetable",
-                    "parameters": {}
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Wavetable"
                 },
                 {
                     "name": "Chorus",
@@ -310,8 +314,9 @@
             "pan": 0.3,
             "devices": [
                 {
-                    "name": "Operator",
-                    "parameters": {}
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Operator"
                 },
                 {
                     "name": "Delay",
@@ -441,16 +446,18 @@
             "pan": 0.0,
             "devices": [
                 {
-                    "name": "Wavetable",
+                    "name": "Impulse",
                     "parameters": {
                         "Osc 1 Pitch": -24.0
-                    }
+                    },
+                    "fallback": "Wavetable"
                 },
                 {
-                    "name": "EQ Eight",
+                    "name": "EQ Three",
                     "parameters": {
                         "1 Gain A": 6.0
-                    }
+                    },
+                    "fallback": "EQ Eight"
                 }
             ],
             "midi_clips": [
@@ -479,8 +486,9 @@
             "pan": -0.1,
             "devices": [
                 {
-                    "name": "Drift",
-                    "parameters": {}
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Drift"
                 },
                 {
                     "name": "Compressor",
@@ -521,8 +529,9 @@
             "pan": 0.2,
             "devices": [
                 {
-                    "name": "Wavetable",
-                    "parameters": {}
+                    "name": "Impulse",
+                    "parameters": {},
+                    "fallback": "Wavetable"
                 },
                 {
                     "name": "Reverb",
@@ -551,8 +560,9 @@
             "pan": 0.0,
             "devices": [
                 {
-                    "name": "EQ Eight",
-                    "parameters": {}
+                    "name": "EQ Three",
+                    "parameters": {},
+                    "fallback": "EQ Eight"
                 },
                 {
                     "name": "Compressor",
