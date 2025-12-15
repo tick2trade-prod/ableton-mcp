@@ -137,3 +137,4 @@ Use `verifier_agent` to check against spec:
 - Low-end phase coherence
 - Frequency spectrum (kick+rumble+bass no masking)
 - Groove pocket (sidechain pumping)
+
