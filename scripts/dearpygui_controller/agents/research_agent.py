@@ -1,4 +1,7 @@
-"""Research Agent for sound design research."""
+"""Research Agent for sound design research.
+
+Reference: Ableton Manual Section 1 "General Documentation" (page 1)
+"""
 
 from .base_agent import AgentResult, BaseAgent
 

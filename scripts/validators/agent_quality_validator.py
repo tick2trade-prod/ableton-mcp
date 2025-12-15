@@ -41,7 +41,7 @@ class AgentQualityValidator:
         if not docstring:
             return []
 
-        pattern = r'Section\\s+([\\d\\.]+)\\s+"([^"]+)"\\s+\\(page\\s+(\\d+)\\)'
+        pattern = r'Reference:\s+Ableton\s+Manual\s+Section\s+([\d\.]+)\s+"([^"]+)"\s+\(page\s+(\d+)\)'
         matches = re.findall(pattern, docstring)
 
         references = []
@@ -394,7 +394,7 @@ if __name__ == "__main__":
     report = validator.generate_report()
 
     # Save to artifacts
-    output_path = Path("artifacts/agent_quality_report.md")
+    output_path = Path("artifacts/report/agent_quality_report.md")
     output_path.parent.mkdir(exist_ok=True)
     output_path.write_text(report)
 

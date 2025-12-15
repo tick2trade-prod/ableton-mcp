@@ -339,7 +339,7 @@ if __name__ == "__main__":
     report = validator.generate_report()
 
     # Save to artifacts
-    output_path = Path("artifacts/test_quality_report.md")
+    output_path = Path("artifacts/report/test_quality_report.md")
     output_path.parent.mkdir(exist_ok=True)
     output_path.write_text(report)
 
