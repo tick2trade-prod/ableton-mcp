@@ -1,0 +1,247 @@
+# TDD Implementation Plan: Phase 1 Intro Section
+
+## Goal
+Recreate **"I Am Machine" by Thomas Schumacher & Lilly Palmer** (Bars 1-16) using TDD.
+
+**Reference**: [assets/audio/reference/I_AM_MACHINE_LILLY_PALMER.mp3](file:///Users/alexzh/ableton-mcp/assets/audio/reference/I_AM_MACHINE_LILLY_PALMER.mp3)
+
+---
+
+## Benchmark Comparison
+
+| Lane | Our Recreation | Reference Stem |
+|------|----------------|----------------|
+| Drums | `/intro-drums` | `stems/drums.wav` |
+| Bass | `/intro-bass` | `stems/bass.wav` |
+| Synths | `/intro-synths` | `stems/other.wav` |
+| Vocals | `/intro-vocals` | `stems/vocals.wav` |
+
+**Stem Separation**: Use Ableton Suite's built-in feature or Demucs.
+
+---
+
+## TDD Approach
+
+```
+RED    → Write failing test
+GREEN  → Minimum code to pass
+REFACTOR → Clean up
+```
+
+---
+
+## Sprint 0: Unblock P0 Tools (1-2 hrs)
+
+### 0.1 `set_sidechain_input` (RED → GREEN)
+
+```python
+# tests/test_tools.py
+def test_set_sidechain_input():
+    # RED: This fails because tool doesn't exist
+    result = mcp.set_sidechain_input(
+        target_track=1,  # Rumble
+        device_index=0,  # Compressor
+        source_track=0   # Kick
+    )
+    assert result["status"] == "success"
+```
+
+**Implementation:**
+1. Add to [MCP_Server/server.py](file:///Users/alexzh/ableton-mcp/MCP_Server/server.py)
+2. Add handler to [AbletonMCP_Remote_Script/__init__.py](file:///Users/alexzh/ableton-mcp/AbletonMCP_Remote_Script/__init__.py)
+3. Run `just mcp-test`
+
+---
+
+### 0.2 `create_return_track` (RED → GREEN)
+
+```python
+def test_create_return_track():
+    result = mcp.create_return_track(name="Reverb")
+    assert result["status"] == "success"
+    assert "index" in result["result"]
+```
+
+---
+
+### 0.3 `load_roar` (RED → GREEN)
+
+```python
+@pytest.mark.suite  # Only run on Suite edition
+def test_load_roar():
+    mcp.create_midi_track()
+    result = mcp.load_instrument_or_effect(
+        track_index=0,
+        uri="query:AudioFx#Roar"
+    )
+    assert result["status"] == "success"
+```
+
+---
+
+## Sprint 1: Intro Tracks (4 Parallel Lanes)
+
+### Lane 1: Drums (`/intro-drums`)
+
+| # | Track | Test File | Status |
+|---|-------|-----------|--------|
+| 1 | Kick | `test_intro_kick.py` | [ ] |
+| 2 | Snare | `test_intro_snare.py` | [ ] |
+| 3 | Hi-hats | `test_intro_hihats.py` | [ ] |
+| 4 | Toms | `test_intro_toms.py` | [ ] |
+| 5 | Glitch | `test_intro_glitch.py` | [ ] |
+| 6 | Ride | `test_intro_ride.py` | [ ] |
+
+**TDD Pattern per Track:**
+
+```python
+# tests/phases/test_intro_kick.py
+
+class TestIntroKick:
+    """RED/GREEN/REFACTOR for Kick track."""
+
+    def test_track_exists(self, session):
+        """RED: Track must exist."""
+        tracks = session.get_tracks()
+        assert any(t["name"] == "Kick" for t in tracks)
+
+    def test_drum_rack_loaded(self, session):
+        """RED: Drum Rack on track."""
+        track = session.get_track_info(0)
+        assert track["devices"][0]["name"] == "Drum Rack"
+
+    def test_clip_has_notes(self, session):
+        """RED: 16-bar clip with 4-on-floor."""
+        clip = session.get_clip(0, 0)
+        assert clip["length"] == 64.0  # 16 bars
+        assert len(clip["notes"]) >= 64  # One kick per beat
+```
+
+---
+
+### Lane 2: Bass (`/intro-bass`)
+
+| # | Track | Key Test | Status |
+|---|-------|----------|--------|
+| 7 | Rumble | Has Roar + sidechain | [ ] |
+| 8 | Rolling Bass | Acid pattern | [ ] |
+| 9 | Acid | 303 sound | [ ] |
+
+**Rumble TDD (P0 blocker user story):**
+
+```python
+class TestIntroRumble:
+    def test_roar_loaded(self, session):
+        """Suite-only: Roar saturation."""
+        track = session.get_track_by_name("Rumble")
+        devices = [d["name"] for d in track["devices"]]
+        assert "Roar" in devices
+
+    def test_sidechain_to_kick(self, session):
+        """Compressor sidechained to Kick."""
+        track = session.get_track_by_name("Rumble")
+        compressor = next(d for d in track["devices"] if d["name"] == "Compressor")
+        assert compressor["sidechain_source"] == "Kick"
+```
+
+---
+
+### Lane 3: Synths (`/intro-synths`)
+
+| # | Track | Instrument | Status |
+|---|-------|------------|--------|
+| 10 | Stabs | Wavetable | [ ] |
+| 11 | Drone | Operator | [ ] |
+
+---
+
+### Lane 4: Vocals/FX (`/intro-vocals`)
+
+| # | Track | Type | Status |
+|---|-------|------|--------|
+| 12 | Main Vocal | Audio/Sampler | [ ] |
+| 13 | Vocal FX | Effects | [ ] |
+| 14 | Risers | FX | [ ] |
+| 15 | Return A | Reverb | [ ] |
+| 16 | Return B | Delay | [ ] |
+
+---
+
+## Test Structure
+
+```
+tests/
+├── phases/
+│   ├── conftest.py          # Live session fixtures
+│   ├── test_intro_kick.py
+│   ├── test_intro_snare.py
+│   ├── test_intro_rumble.py
+│   └── ...
+└── tools/
+    ├── test_sidechain.py    # P0 tool tests
+    ├── test_returns.py
+    └── test_roar.py
+```
+
+---
+
+## Justfile Targets
+
+```bash
+# Run all Phase 1 tests
+just test-phase1
+
+# Run specific lane
+just test-lane-drums
+just test-lane-bass
+
+# TDD workflow
+just tdd track=kick    # Watch mode for one track
+```
+
+---
+
+## Execution Order (Bottom-Up TDD)
+
+```mermaid
+graph TD
+    A[Sprint 0: P0 Tools] --> B[Lane 1: Drums]
+    A --> C[Lane 2: Bass]
+    A --> D[Lane 3: Synths]
+    A --> E[Lane 4: Vocals]
+    B --> F[Integration: Intro Section]
+    C --> F
+    D --> F
+    E --> F
+    F --> G[Verify vs Reference]
+```
+
+---
+
+## Definition of Done
+
+- [ ] All 16 track tests pass
+- [ ] `just test-phase1` = GREEN
+- [ ] Intro plays in Ableton (manual verify)
+- [ ] Sidechain pumping audible on Rumble
+- [ ] Returns have reverb/delay
+
+---
+
+## Commands
+
+```bash
+# Sprint 0: Unblock tools
+/add-tool set_sidechain_input
+/add-tool create_return_track
+
+# Sprint 1: Run parallel
+/intro-drums   # Lane 1
+/intro-bass    # Lane 2
+/intro-synths  # Lane 3
+/intro-vocals  # Lane 4
+
+# Verify
+just test-phase1
+just doctor
+```
