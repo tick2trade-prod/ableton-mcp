@@ -60,7 +60,7 @@ def check_connection():
             print(f"⚠️  Ableton responded with error: {result.get('message')}")
             return False
 
-    except socket.timeout:
+    except TimeoutError:
         print("❌ Ableton: Connection timeout")
         return False
     except ConnectionRefusedError:

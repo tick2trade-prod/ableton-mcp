@@ -1,9 +1,9 @@
-
-import socket
 import json
+import socket
 import time
 
 PORT = 9877
+
 
 def main():
     print("🧹 Clearing Ableton Tracks...")
@@ -11,17 +11,17 @@ def main():
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5.0)
-        sock.connect(('localhost', PORT))
+        sock.connect(("localhost", PORT))
     except Exception as e:
         print(f"❌ Could not connect to Ableton: {e}")
         return
 
     def send(cmd, params=None):
         msg = {"type": cmd, "params": params or {}}
-        sock.sendall(json.dumps(msg).encode('utf-8'))
+        sock.sendall(json.dumps(msg).encode("utf-8"))
         # Simple receive (not robust for large data but fine for status)
         data = sock.recv(8192)
-        return json.loads(data.decode('utf-8'))
+        return json.loads(data.decode("utf-8"))
 
     # 1. Get Session Info
     res = send("get_session_info")
@@ -47,6 +47,7 @@ def main():
 
     print(f"✅ Cleared {deleted} tracks. (1 track remains)")
     sock.close()
+
 
 if __name__ == "__main__":
     main()

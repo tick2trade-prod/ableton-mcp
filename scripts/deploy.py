@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Deploy Ableton Remote Script.
-Reads configuration from config.yaml and copies the remote script to the correct location.
+Reads configuration and copies the remote script to Ableton.
 """
+
 import shutil
 import sys
 from pathlib import Path
@@ -11,18 +12,22 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    print("❌ PyYAML not found. Please run 'uv pip install pyyaml' or 'pip install pyyaml'")
+    print(
+        "❌ PyYAML not found. Run: uv pip install pyyaml"
+    )
     sys.exit(1)
 
 CONFIG_FILE = Path("config.yaml")
 SOURCE_DIR = Path("AbletonMCP_Remote_Script")
 
+
 def load_config():
     if not CONFIG_FILE.exists():
         print(f"❌ Config file not found: {CONFIG_FILE.absolute()}")
         return {}
-    with open(CONFIG_FILE, "r") as f:
+    with open(CONFIG_FILE) as f:
         return yaml.safe_load(f)
+
 
 def expand_path(path_str):
     if not path_str:
@@ -33,14 +38,20 @@ def expand_path(path_str):
         pass
     return path
 
+
 def deploy():
     print("🚀 Starting Deployment...")
     config = load_config()
 
     # 1. Determine Destination
+    # Support both old format (REMOTE_SCRIPT_PATH) and new format (paths.remote_script)
     raw_path = config.get("REMOTE_SCRIPT_PATH")
     if not raw_path:
-        print("❌ REMOTE_SCRIPT_PATH not set in config.yaml")
+        paths = config.get("paths", {})
+        raw_path = paths.get("remote_script")
+    if not raw_path:
+        print("❌ Remote script path not set in config.yaml")
+        print("   Set either REMOTE_SCRIPT_PATH or paths.remote_script")
         sys.exit(1)
 
     dest_path = expand_path(raw_path)
@@ -53,19 +64,19 @@ def deploy():
 
     # 3. Perform Copy
     try:
-        # Create destination if it doesn't exist (though usually the parent should exist)
+        # Create destination directory if needed
         if not dest_path.exists():
             print(f"  ✨ Creating directory: {dest_path}")
             dest_path.mkdir(parents=True, exist_ok=True)
 
-        # We only want to copy the contents, specifically __init__.py and any other python files
+        # Copy __init__.py and other python files
         # The user specifically mentioned replacing __init__.py
 
         # Check source __init__.py
         src_init = SOURCE_DIR / "__init__.py"
         if not src_init.exists():
-             print(f"❌ Source __init__.py not found at {src_init}")
-             sys.exit(1)
+            print(f"❌ Source __init__.py not found at {src_init}")
+            sys.exit(1)
 
         dest_init = dest_path / "__init__.py"
 
@@ -78,6 +89,7 @@ def deploy():
     except Exception as e:
         print(f"❌ Deployment failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     deploy()
