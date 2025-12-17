@@ -107,7 +107,14 @@ addopts = "-v --tb=short --timeout=300"
 
 [tool.ruff]
 line-length = 88
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Core files have long docstrings, legacy exception handling, and nested ifs
+"MCP_Server/server.py" = ["E501", "B904"]
+"AbletonMCP_Remote_Script/__init__.py" = ["E501", "SIM102", "SIM105", "UP030"]
 
 [project.urls]
 "Homepage" = "https://github.com/ahujasid/ableton-mcp"

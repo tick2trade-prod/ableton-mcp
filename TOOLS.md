@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Current Tools**: 28 implemented in `MCP_Server/server.py`
+**Current Tools**: 32 implemented in `MCP_Server/server.py`
 **Edition**: Suite (auto-detected or from config)
 
 ---
@@ -15,6 +15,7 @@
 | `get_session_info` | Intro | Get tempo, track count, etc. |
 | `get_track_info` | Intro | Get track details |
 | `create_midi_track` | Intro | Create new MIDI track |
+| `create_audio_track` | Intro | Create new audio track |
 | `delete_track` | Intro | Delete a track |
 | `set_track_name` | Intro | Rename a track |
 | `set_track_volume` | Intro | Set track volume |
@@ -25,10 +26,17 @@
 |------|---------|-------------|
 | `create_clip` | Intro | Create MIDI clip |
 | `add_notes_to_clip` | Intro | Add MIDI notes |
+| `get_clip_notes` | Intro | Get all MIDI notes from clip |
 | `set_clip_name` | Intro | Rename clip |
 | `duplicate_clip` | Intro | Copy clip to new slot |
 | `empty_clip_slot` | Intro | Clear clip slot |
 | `relocate_clip` | Intro | Move clip to new slot |
+
+### Audio
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `load_audio_file` | Intro | Load audio file onto audio track |
+| `separate_stems` | Suite | Guide for stem separation (Ableton 12.3) |
 
 ### Devices & Effects
 | Tool | Edition | Description |
@@ -65,11 +73,15 @@
 
 | Tool | Status | Priority | Needed For |
 |------|--------|----------|------------|
-| `separate_stems` | ❌ TODO | P0 | Benchmark comparison |
+| `separate_stems` | ✅ Done | P0 | Benchmark comparison (guidance mode) |
 | `load_roar` | ✅ Working | P0 | `query:AudioFx#Roar` |
 | `load_meld` | ❌ TODO | P1 | Synth textures |
 | `load_drift` | ✅ Working | P2 | `query:Synths#Drift` |
 | `load_wavetable` | ⚠️ Partial | P1 | Synth leads |
+
+> **Note**: `separate_stems` provides guidance for manual stem separation as Ableton's
+> stem separation API is not exposed to Remote Scripts. Stems must be separated via
+> Ableton's UI (Create menu > Separate Stems to New Audio Tracks).
 
 > **Prerequisite**: Install Core Library pack in Ableton to access Suite devices.
 
@@ -82,15 +94,16 @@
 | `set_send_level` | ✅ Done | P1 | Send routing |
 | `set_track_output` | ⚠️ Partial | P1 | Routing |
 
-### Intro (Base) - Missing
+### Intro (Base)
 
 | Tool | Status | Priority | Notes |
 |------|--------|----------|-------|
-| `create_audio_track` | ❌ TODO | P1 | Audio clips |
+| `create_audio_track` | ✅ Done | P1 | Audio clips |
+| `load_audio_file` | ✅ Done | P1 | Load audio to track |
+| `get_clip_notes` | ✅ Done | P2 | Read MIDI |
 | `set_track_arm` | ❌ TODO | P2 | Recording |
 | `set_track_mute` | ❌ TODO | P1 | Mixing |
 | `set_track_solo` | ❌ TODO | P1 | Mixing |
-| `get_clip_notes` | ❌ TODO | P2 | Read MIDI |
 | `delete_notes` | ❌ TODO | P2 | Edit MIDI |
 
 ---

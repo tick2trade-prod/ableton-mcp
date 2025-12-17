@@ -31,3 +31,7 @@ docs/live12-manual-en.pdf
 
 # Local config (use config.template.yaml)
 config.yaml
+assets/audio/stems/*
+
+# Workflow logs
+scripts/workflows/*.log

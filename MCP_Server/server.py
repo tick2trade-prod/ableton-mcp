@@ -3,9 +3,9 @@ import json
 import logging
 import socket
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP  # type: ignore[import-not-found]
 
@@ -20,7 +20,7 @@ logger = logging.getLogger("AbletonMCPServer")
 class AbletonConnection:
     host: str
     port: int
-    sock: Optional[socket.socket] = field(default=None)
+    sock: socket.socket | None = field(default=None)
 
     def connect(self) -> bool:
         """Connect to the Ableton Remote Script socket server"""
@@ -74,7 +74,7 @@ class AbletonConnection:
                     except json.JSONDecodeError:
                         # Incomplete JSON, continue receiving
                         continue
-                except socket.timeout:
+                except TimeoutError:
                     logger.warning("Socket timeout during chunked receive")
                     break
                 except (ConnectionError, BrokenPipeError, ConnectionResetError) as e:
@@ -97,7 +97,7 @@ class AbletonConnection:
             raise Exception("No data received")
 
     def send_command(
-        self, command_type: str, params: Optional[dict[str, Any]] = None
+        self, command_type: str, params: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Send a command to Ableton and return the response"""
         if not self.sock and not self.connect():
@@ -174,7 +174,7 @@ class AbletonConnection:
                 time.sleep(0.1)  # 100ms delay
 
             return response.get("result", {})
-        except socket.timeout:
+        except TimeoutError:
             logger.error("Socket timeout while waiting for response from Ableton")
             self.sock = None
             raise Exception("Timeout waiting for Ableton response")
@@ -238,10 +238,8 @@ def get_ableton_connection():
             return _ableton_connection
         except Exception as e:
             logger.warning(f"Existing connection is no longer valid: {e}")
-            try:
+            with suppress(Exception):
                 _ableton_connection.disconnect()
-            except Exception:
-                pass
             _ableton_connection = None
 
     # Connection doesn't exist or is invalid, create a new one
@@ -342,6 +340,145 @@ def create_midi_track(index: int = -1) -> str:
 
 
 @mcp.tool()
+def create_audio_track(index: int = -1) -> str:
+    """
+    Create a new audio track in the Ableton session.
+
+    Parameters:
+    - index: The index to insert the track at (-1 = end of list)
+    """
+    try:
+        ableton = get_ableton_connection()
+        result = ableton.send_command("create_audio_track", {"index": index})
+        return f"Created new audio track: {result.get('name', 'unknown')}"
+    except Exception as e:
+        logger.exception("Error creating audio track")
+        return f"Error creating audio track: {e}"
+
+
+@mcp.tool()
+def load_audio_file(track_index: int, file_path: str, clip_slot: int = 0) -> str:
+    """
+    Load an audio file onto an audio track.
+
+    Note: The file must be accessible via Ableton's browser (in User Library,
+    project folder, or added to Places). For external files, add them to
+    Ableton's User Library first or drag them into the project manually.
+
+    Parameters:
+    - track_index: The index of the audio track to load onto
+    - file_path: Path to the audio file or browser URI (query:...)
+    - clip_slot: The clip slot index to load into (default: 0)
+    """
+    try:
+        ableton = get_ableton_connection()
+        result = ableton.send_command(
+            "load_audio_file",
+            {
+                "track_index": track_index,
+                "file_path": file_path,
+                "clip_slot": clip_slot,
+            },
+        )
+        if result.get("loaded"):
+            return (
+                f"Loaded audio file '{result.get('file_name')}' on track {track_index}"
+            )
+        else:
+            return f"Could not load audio file: {result.get('error', 'Unknown error')}. {result.get('suggestion', '')}"
+    except Exception as e:
+        logger.exception("Error loading audio file")
+        return f"Error loading audio file: {e}"
+
+
+@mcp.tool()
+def get_clip_notes(track_index: int, clip_index: int) -> str:
+    """
+    Get all MIDI notes from a clip.
+
+    Parameters:
+    - track_index: The index of the track containing the clip
+    - clip_index: The index of the clip slot containing the clip
+    """
+    try:
+        ableton = get_ableton_connection()
+        result = ableton.send_command(
+            "get_clip_notes",
+            {"track_index": track_index, "clip_index": clip_index},
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.exception("Error getting clip notes")
+        return f"Error getting clip notes: {e}"
+
+
+@mcp.tool()
+def separate_stems(track_index: int, clip_index: int = 0) -> str:
+    """
+    Separate an audio clip into stems (Vocals, Drums, Bass, Others).
+
+    IMPORTANT: Ableton 12.3's stem separation feature is not accessible via the
+    Live API. This tool provides guidance for manual stem separation.
+
+    To separate stems manually in Ableton:
+    1. Select the audio clip you want to separate
+    2. Go to Create menu > "Separate Stems to New Audio Tracks"
+       OR right-click the clip > "Separate Stems to New Audio Tracks"
+    3. Choose quality mode: High Speed or High Quality
+    4. Wait for processing (may take several minutes for long tracks)
+    5. Stems will appear in a new Group Track with sub-tracks for each stem
+
+    Parameters:
+    - track_index: The index of the track containing the audio clip
+    - clip_index: The index of the clip slot containing the clip (default: 0)
+
+    Returns information about the track and guidance for manual separation.
+    """
+    try:
+        ableton = get_ableton_connection()
+        # Get track info to verify it's an audio track with a clip
+        result = ableton.send_command("get_track_info", {"track_index": track_index})
+
+        track_name = result.get("name", f"Track {track_index}")
+        clip_slots = result.get("clip_slots", [])
+
+        has_clip = False
+        clip_name = "Unknown"
+        if clip_index < len(clip_slots):
+            slot = clip_slots[clip_index]
+            has_clip = slot.get("has_clip", False)
+            if has_clip and slot.get("clip"):
+                clip_name = slot["clip"].get("name", "Unknown")
+
+        if not has_clip:
+            return f"No clip found at track {track_index}, slot {clip_index}. Load an audio clip first."
+
+        return f"""Stem separation guidance for '{clip_name}' on track '{track_name}':
+
+1. In Ableton, select the clip at track {track_index}, slot {clip_index}
+2. Go to Create menu > "Separate Stems to New Audio Tracks"
+   OR right-click the clip > "Separate Stems to New Audio Tracks"
+3. Choose quality mode:
+   - High Speed: Faster processing, good for previewing
+   - High Quality: Better separation quality, slower
+4. Wait for processing to complete
+5. A new Group Track will be created with 4 stem tracks:
+   - Vocals
+   - Drums
+   - Bass
+   - Others
+
+After separation, the stems will be saved to:
+  <Project>/Samples/Processed/Stems/
+
+Note: Stem separation requires Ableton Live Suite and is computationally intensive.
+"""
+    except Exception as e:
+        logger.exception("Error with stem separation")
+        return f"Error: {e}"
+
+
+@mcp.tool()
 def delete_track(track_index: int) -> str:
     """
     Delete a track at the specified index.
@@ -402,7 +539,7 @@ def create_clip(track_index: int, clip_index: int, length: float = 4.0) -> str:
 
 @mcp.tool()
 def add_notes_to_clip(
-    track_index: int, clip_index: int, notes: list[dict[str, Union[int, float, bool]]]
+    track_index: int, clip_index: int, notes: list[dict[str, int | float | bool]]
 ) -> str:
     """
     Add MIDI notes to a clip.
@@ -779,7 +916,7 @@ def set_sidechain_input(
     """
     try:
         ableton = get_ableton_connection()
-        result = ableton.send_command(
+        ableton.send_command(
             "set_sidechain_input",
             {
                 "track_index": track_index,

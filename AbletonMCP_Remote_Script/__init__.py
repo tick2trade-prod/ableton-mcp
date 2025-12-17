@@ -1,5 +1,6 @@
 # AbletonMCP/init.py
 
+import contextlib
 import json
 import socket
 import threading
@@ -59,10 +60,8 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
 
         # Stop the server
         if self.server:
-            try:
+            with contextlib.suppress(Exception):
                 self.server.close()
-            except Exception:
-                pass
 
         # Wait for the server thread to exit
         if self.server_thread and self.server_thread.is_alive():
@@ -211,10 +210,8 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
         except Exception as e:
             self.log_message("Error in client handler: " + str(e))
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 client.close()
-            except Exception:
-                pass
             self.log_message("Client handler stopped")
 
     def _process_command(self, command):
@@ -251,6 +248,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                 "stop_playback",
                 "load_browser_item",
                 "set_track_volume",
+                "set_track_mute",
                 "set_master_volume",
                 "set_track_output",
                 "create_audio_effect_rack",
@@ -262,6 +260,8 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                 "set_sidechain_input",
                 "create_return_track",
                 "set_send_level",
+                "load_audio_file",
+                "get_clip_notes",
             ]:
                 # Use a thread-safe approach with a response queue
                 response_queue = queue.Queue()
@@ -273,6 +273,9 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                         if command_type == "create_midi_track":
                             index = params.get("index", -1)
                             result = self._create_midi_track(index)
+                        elif command_type == "create_audio_track":
+                            index = params.get("index", -1)
+                            result = self._create_audio_track(index)
                         elif command_type == "delete_track":
                             track_index = params.get("track_index", 0)
                             result = self._delete_track(track_index)
@@ -353,6 +356,10 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                             track_index = params.get("track_index", 0)
                             volume = params.get("volume", 0.85)
                             result = self._set_track_volume(track_index, volume)
+                        elif command_type == "set_track_mute":
+                            track_index = params.get("track_index", 0)
+                            mute = params.get("mute", False)
+                            result = self._set_track_mute(track_index, mute)
                         elif command_type == "set_master_volume":
                             volume = params.get("volume", 0.85)
                             result = self._set_master_volume(volume)
@@ -424,6 +431,17 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                             result = self._set_send_level(
                                 track_index, return_index, level
                             )
+                        elif command_type == "load_audio_file":
+                            track_index = params.get("track_index", 0)
+                            file_path = params.get("file_path", "")
+                            clip_slot = params.get("clip_slot", 0)
+                            result = self._load_audio_file(
+                                track_index, file_path, clip_slot
+                            )
+                        elif command_type == "get_clip_notes":
+                            track_index = params.get("track_index", 0)
+                            clip_index = params.get("clip_index", 0)
+                            result = self._get_clip_notes(track_index, clip_index)
 
                         # Put the result in the queue
                         response_queue.put({"status": "success", "result": result})
@@ -584,6 +602,22 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
             return result
         except Exception as e:
             self.log_message("Error creating MIDI track: " + str(e))
+            raise
+
+    def _create_audio_track(self, index):
+        """Create a new audio track at the specified index"""
+        try:
+            # Create the track
+            self._song.create_audio_track(index)
+
+            # Get the new track
+            new_track_index = len(self._song.tracks) - 1 if index == -1 else index
+            new_track = self._song.tracks[new_track_index]
+
+            result = {"index": new_track_index, "name": new_track.name}
+            return result
+        except Exception as e:
+            self.log_message("Error creating audio track: " + str(e))
             raise
 
     def _set_track_name(self, track_index, name):
@@ -846,6 +880,24 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
             return result
         except Exception as e:
             self.log_message("Error setting track volume: " + str(e))
+            raise
+
+    def _set_track_mute(self, track_index, mute):
+        """Set the mute state of a track"""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+            track.mute = mute
+
+            result = {
+                "track_index": track_index,
+                "mute": track.mute,
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting track mute: " + str(e))
             raise
 
     def _set_master_volume(self, volume):
@@ -1657,7 +1709,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                         self.log_message(f"Error processing {attr}: {str(e)}")
 
             self.log_message(
-                "Browser tree generated for {0} with {1} root categories".format(
+                "Browser tree generated for {} with {} root categories".format(
                     category_type, len(result["categories"])
                 )
             )
@@ -1752,7 +1804,7 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                 if not hasattr(current_item, "children"):
                     return {
                         "path": path,
-                        "error": "Item at '{0}' has no children".format(
+                        "error": "Item at '{}' has no children".format(
                             "/".join(path_parts[:i])
                         ),
                         "items": [],
@@ -1898,4 +1950,178 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
             return result
         except Exception as e:
             self.log_message("Error setting send level: " + str(e))
+            raise
+
+    def _load_audio_file(self, track_index, file_path, clip_slot=0):
+        """Load an audio file onto an audio track.
+
+        Note: The file must be accessible via Ableton's browser (in User Library,
+        project folder, or added to Places). External file paths may not work directly.
+        """
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            # Verify it's an audio track (has audio input capability)
+            if not track.has_audio_input:
+                raise ValueError(
+                    f"Track {track_index} is not an audio track. "
+                    "Use create_audio_track first."
+                )
+
+            if clip_slot < 0 or clip_slot >= len(track.clip_slots):
+                raise IndexError("Clip slot index out of range")
+
+            slot = track.clip_slots[clip_slot]
+            if slot.has_clip:
+                raise ValueError(f"Clip slot {clip_slot} already has a clip")
+
+            # Try to find the file in the browser
+            app = self.application()
+            browser = app.browser
+
+            # Search for the file in user files
+            item = None
+
+            # Try to find by searching user library paths
+            # The file_path could be:
+            # 1. A relative path within user library
+            # 2. An absolute path (needs to be in user library or places)
+            # 3. A URI (query:...)
+
+            if file_path.startswith("query:"):
+                # It's a browser URI
+                item = self._find_browser_item_by_uri(browser, file_path)
+            else:
+                # Try to find in user_folders or user_library
+                # This is limited - external files need to be in user library
+                self.log_message(f"Searching for audio file: {file_path}")
+
+                # Check if we can access user_folders
+                if hasattr(browser, "user_folders"):
+                    for folder in browser.user_folders.children:
+                        self.log_message(f"Checking folder: {folder.name}")
+                        item = self._search_for_file(folder, file_path)
+                        if item:
+                            break
+
+            if not item:
+                # Return info about how to add the file
+                result = {
+                    "loaded": False,
+                    "error": "File not found in browser",
+                    "file_path": file_path,
+                    "suggestion": (
+                        "Add the file to Ableton's User Library or drag it "
+                        "into the project manually. External files must be "
+                        "accessible via Places in Ableton's browser."
+                    ),
+                }
+                return result
+
+            # Select the track and load the item
+            self._song.view.selected_track = track
+
+            # browser.load_item() loads to the selected track
+            browser.load_item(item)
+
+            # Wait for async load
+            import time
+
+            time.sleep(0.3)
+
+            result = {
+                "loaded": True,
+                "track_index": track_index,
+                "clip_slot": clip_slot,
+                "file_name": item.name if item else file_path,
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error loading audio file: " + str(e))
+            raise
+
+    def _search_for_file(self, browser_item, file_path, max_depth=5, current_depth=0):
+        """Recursively search for a file in browser items."""
+        if current_depth >= max_depth:
+            return None
+
+        try:
+            # Check if this item matches
+            if hasattr(browser_item, "name"):
+                # Check if the file name matches
+                import os
+
+                target_name = os.path.basename(file_path)
+                if browser_item.name.lower() == target_name.lower():
+                    if (
+                        hasattr(browser_item, "is_loadable")
+                        and browser_item.is_loadable
+                    ):
+                        return browser_item
+
+            # Search children
+            if hasattr(browser_item, "children"):
+                for child in browser_item.children:
+                    result = self._search_for_file(
+                        child, file_path, max_depth, current_depth + 1
+                    )
+                    if result:
+                        return result
+        except Exception as e:
+            self.log_message(f"Error searching for file: {str(e)}")
+
+        return None
+
+    def _get_clip_notes(self, track_index, clip_index):
+        """Get all MIDI notes from a clip."""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            if clip_index < 0 or clip_index >= len(track.clip_slots):
+                raise IndexError("Clip index out of range")
+
+            clip_slot = track.clip_slots[clip_index]
+
+            if not clip_slot.has_clip:
+                raise Exception("No clip in slot")
+
+            clip = clip_slot.clip
+
+            if not clip.is_midi_clip:
+                raise Exception("Clip is not a MIDI clip")
+
+            # Get all notes
+            clip_length = clip.length
+            notes = clip.get_notes(0, 0, clip_length, 128)
+
+            # Convert to list of dicts
+            notes_list = []
+            for note in notes:
+                notes_list.append(
+                    {
+                        "pitch": note[0],
+                        "start_time": note[1],
+                        "duration": note[2],
+                        "velocity": note[3],
+                        "mute": note[4],
+                    }
+                )
+
+            result = {
+                "track_index": track_index,
+                "clip_index": clip_index,
+                "clip_name": clip.name,
+                "clip_length": clip_length,
+                "note_count": len(notes_list),
+                "notes": notes_list,
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error getting clip notes: " + str(e))
             raise
