@@ -1,0 +1,25 @@
+# config.template.yaml - Copy to config.yaml and customize
+# DO NOT commit config.yaml (it's gitignored)
+
+# === Ableton ===
+ableton:
+  # 'auto' (detect at runtime) | 'intro' | 'standard' | 'suite'
+  edition: auto
+  port: 9877
+  version: "12.3.1"
+
+# === Paths (customize for your system) ===
+paths:
+  remote_script: ~/Library/Preferences/Ableton/Live 12.3.1/User Remote Scripts/AbletonMCP
+  mcp_config: ~/.gemini/antigravity/mcp_config.json
+  ableton_log: ~/Library/Preferences/Ableton/Live 12.3.1/Log.txt
+
+# === Docker ===
+docker:
+  image: ableton-mcp
+  tag: latest
+
+# === IDE ===
+ide: antigravity
+model: gemini
+os: macos

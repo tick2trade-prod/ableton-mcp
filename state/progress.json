@@ -1,0 +1,97 @@
+{
+    "project": "I Am Machine Recreation",
+    "total_tasks": 144,
+    "completed": 0,
+    "current_phase": "Sprint 0: P0 Tools",
+    "current": {
+        "track": null,
+        "section": null
+    },
+    "tracks": {
+        "kick": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "snare": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "hihats": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "toms": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "glitch": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "ride": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "rumble": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "rolling_bass": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "acid": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "stabs": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "drone": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "main_vocal": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "vocal_fx": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "risers": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "return_reverb": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        },
+        "return_delay": {
+            "complete": 0,
+            "total": 9,
+            "status": "pending"
+        }
+    },
+    "p0_blockers": {
+        "set_sidechain_input": "pending",
+        "create_return_track": "pending",
+        "load_roar": "pending"
+    }
+}

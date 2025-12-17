@@ -1,8 +1,24 @@
-OS: MACOS
-IDE: ANTIGRAVITY
-MODEL: GEMINI
-REMOTE_SCRIPT_PATH: ~/Music/Ableton/User Library/Remote Scripts/AbletonMCP
-DOCKER_IMAGE_NAME: ableton-mcp
-DOCKER_TAG: latest
+# config.yaml - Local configuration (DO NOT COMMIT)
+# Generated from config.template.yaml
 
-# tests/config.py
+# === Ableton ===
+ableton:
+  edition: suite # Developer has Suite edition
+  port: 9877
+  version: "12.3.1"
+
+# === Paths ===
+paths:
+  remote_script: ~/Library/Preferences/Ableton/Live 12.3.1/User Remote Scripts/AbletonMCP
+  mcp_config: ~/.gemini/antigravity/mcp_config.json
+  ableton_log: ~/Library/Preferences/Ableton/Live 12.3.1/Log.txt
+
+# === Docker ===
+docker:
+  image: ableton-mcp
+  tag: latest
+
+# === IDE ===
+ide: antigravity
+model: gemini
+os: macos

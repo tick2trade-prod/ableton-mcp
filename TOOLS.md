@@ -1,56 +1,156 @@
-# Available Tools
+# MCP Tools Documentation
 
-The Ableton MCP Server provides 27 tools to control Ableton Live.
+## Overview
 
-## Session & Transport
+**Current Tools**: 28 implemented in `MCP_Server/server.py`
+**Edition**: Suite (auto-detected or from config)
 
-| Tool | Description |
-|------|-------------|
-| `get_session_info()` | Get details about tracks, clips, and tempo. |
-| `start_playback()` | Start global playback. |
-| `stop_playback()` | Stop global playback. |
-| `set_tempo(tempo)` | Set global BPM (e.g., 120.0). |
+---
 
-## Track Management
+## Current Tools by Category
 
-| Tool | Description |
-|------|-------------|
-| `get_track_info(track_index)` | Get detailed info for a specific track. |
-| `create_midi_track(index)` | Create a new MIDI track. |
-| `delete_track(track_index)` | Delete a track. |
-| `set_track_name(track_index, name)` | Rename a track. |
-| `set_track_volume(track_index, volume)` | Set track volume (0.0 - 1.0). |
-| `set_master_volume(volume)` | Set master volume (0.0 - 1.0). |
+### Session & Tracks
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `get_session_info` | Intro | Get tempo, track count, etc. |
+| `get_track_info` | Intro | Get track details |
+| `create_midi_track` | Intro | Create new MIDI track |
+| `delete_track` | Intro | Delete a track |
+| `set_track_name` | Intro | Rename a track |
+| `set_track_volume` | Intro | Set track volume |
+| `set_master_volume` | Intro | Set master volume |
 
-## Clip Management
+### Clips & Notes
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `create_clip` | Intro | Create MIDI clip |
+| `add_notes_to_clip` | Intro | Add MIDI notes |
+| `set_clip_name` | Intro | Rename clip |
+| `duplicate_clip` | Intro | Copy clip to new slot |
+| `empty_clip_slot` | Intro | Clear clip slot |
+| `relocate_clip` | Intro | Move clip to new slot |
 
-| Tool | Description |
-|------|-------------|
-| `create_clip(track_index, clip_index, length)` | Create a new empty MIDI clip. |
-| `add_notes_to_clip(track_index, clip_index, notes)` | Add MIDI notes to a clip. |
-| `fire_clip(track_index, clip_index)` | Launch a clip. |
-| `stop_clip(track_index, clip_index)` | Stop a playing clip. |
-| `set_clip_name(track_index, clip_index, name)` | Rename a clip. |
-| `duplicate_clip(source_track, source_clip, dest_track, dest_clip)` | Duplicate a clip to a new slot. |
-| `empty_clip_slot(track_index, clip_index)` | Delete a clip from a slot. |
-| `relocate_clip(source_track, source_clip, dest_track, dest_clip)` | Move a clip to a new slot. |
+### Devices & Effects
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `load_instrument_or_effect` | Intro | Load device by URI |
+| `load_effect_on_main` | Intro | Load effect on master |
+| `set_device_parameter` | Intro | Set device param |
+| `get_device_parameters` | Intro | Get device params |
+| `create_audio_effect_rack` | Standard | Create effect rack |
+| `create_rack_chain` | Standard | Add chain to rack |
+| `load_effect_to_chain` | Standard | Load effect into chain |
+| `load_drum_kit` | Intro | Load drum rack + kit |
 
-## Devices & Racks
+### Browser
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `get_browser_tree` | Intro | Browse categories |
+| `get_browser_items_at_path` | Intro | Browse specific path |
 
-| Tool | Description |
-|------|-------------|
-| `load_instrument_or_effect(track_index, uri)` | Load device from Browser URI. |
-| `load_effect_on_main(uri)` | Load effect onto Master track. |
-| `create_audio_effect_rack(track_index, device_index)` | Create an empty Audio Effect Rack. |
-| `create_rack_chain(track_index, device_index, chain_name)` | Add a chain to a Rack. |
-| `load_effect_to_chain(track, rack_dev, chain, uri)` | Load effect into a Rack Chain. |
-| `get_device_parameters(track, device, ...)` | Get list of device parameters. |
-| `set_device_parameter(track, device, param, value)` | Control device parameters. |
+### Transport
+| Tool | Edition | Description |
+|------|---------|-------------|
+| `set_tempo` | Intro | Set BPM |
+| `fire_clip` | Intro | Start clip |
+| `stop_clip` | Intro | Stop clip |
+| `start_playback` | Intro | Start transport |
+| `stop_playback` | Intro | Stop transport |
 
-## Browser & Loading
+---
 
-| Tool | Description |
-|------|-------------|
-| `get_browser_tree(category_type)` | Explore browser categories. |
-| `get_browser_items_at_path(path)` | List items in a browser folder. |
-| `load_drum_kit(track, rack_uri, kit_path)` | Helper to load Drum Rack + Kit. |
+## Edition Backlog
+
+### Suite-Only (Priority)
+
+| Tool | Status | Priority | Needed For |
+|------|--------|----------|------------|
+| `separate_stems` | ❌ TODO | P0 | Benchmark comparison |
+| `load_roar` | ✅ Working | P0 | `query:AudioFx#Roar` |
+| `load_meld` | ❌ TODO | P1 | Synth textures |
+| `load_drift` | ✅ Working | P2 | `query:Synths#Drift` |
+| `load_wavetable` | ⚠️ Partial | P1 | Synth leads |
+
+> **Prerequisite**: Install Core Library pack in Ableton to access Suite devices.
+
+### Standard (Incremental)
+
+| Tool | Status | Priority | Notes |
+|------|--------|----------|-------|
+| `set_sidechain_input` | ✅ Done | P0 | Rumble pumping |
+| `create_return_track` | ✅ Done | P0 | FX buses |
+| `set_send_level` | ✅ Done | P1 | Send routing |
+| `set_track_output` | ⚠️ Partial | P1 | Routing |
+
+### Intro (Base) - Missing
+
+| Tool | Status | Priority | Notes |
+|------|--------|----------|-------|
+| `create_audio_track` | ❌ TODO | P1 | Audio clips |
+| `set_track_arm` | ❌ TODO | P2 | Recording |
+| `set_track_mute` | ❌ TODO | P1 | Mixing |
+| `set_track_solo` | ❌ TODO | P1 | Mixing |
+| `get_clip_notes` | ❌ TODO | P2 | Read MIDI |
+| `delete_notes` | ❌ TODO | P2 | Edit MIDI |
+
+---
+
+## Phase 1 Required Tools
+
+For "I Am Machine" Intro section (16 tracks):
+
+| Track | Required Tools | Status |
+|-------|----------------|--------|
+| Kick | create_midi_track, load_drum_kit, add_notes_to_clip | ✅ |
+| Rumble | load_roar, set_sidechain_input | ❌ Need Roar + SC |
+| Snare | create_midi_track, add_notes_to_clip | ✅ |
+| Hi-hats | create_midi_track, add_notes_to_clip | ✅ |
+| Returns | create_return_track, set_send_level | ❌ Need returns |
+| Acid | load_instrument_or_effect (Wavetable) | ✅ |
+
+---
+
+## Agent → MCP Gap Analysis
+
+Methods referenced in agents but **NOT in MCP**:
+
+| Agent | Missing Method | Priority |
+|-------|----------------|----------|
+| SidechainAgent | `load_device` | P0 |
+| SidechainAgent | `set_sidechain_input` | P0 |
+| EffectsChainAgent | `set_chain_selector_zone` | P2 |
+| EffectsChainAgent | `map_macro_control` | P2 |
+| ReturnTrackAgent | `create_return_track` | P0 |
+| MixerAgent | `set_send_level` | P1 |
+
+---
+
+## Priority Implementation Order
+
+### Sprint 1: Phase 1 Blockers
+1. `set_sidechain_input` - Rumble track pumping
+2. `create_return_track` - FX buses
+3. `load_roar` (Suite) - Rumble saturation
+
+### Sprint 2: Mixing
+4. `set_send_level` - Send routing
+5. `set_track_mute` / `set_track_solo`
+6. `set_track_output` (complete)
+
+### Sprint 3: Suite Features
+7. `separate_stems` (Suite) - Reference analysis
+8. `load_meld` / `load_drift` (Suite)
+
+---
+
+## Workflow: Adding New Tool
+
+```bash
+/add-tool
+```
+
+1. Add to `MCP_Server/server.py` with `@mcp.tool()` + `@requires_edition()`
+2. Add handler to `AbletonMCP_Remote_Script/__init__.py`
+3. Run `just mcp-tools` to verify
+4. Run `just doctor` to validate
+5. Create test in `tests/test_tools.py`

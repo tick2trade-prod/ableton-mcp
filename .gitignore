@@ -28,3 +28,6 @@ htmlcov/
 
 external/*
 docs/live12-manual-en.pdf
+
+# Local config (use config.template.yaml)
+config.yaml

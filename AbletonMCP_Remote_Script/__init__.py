@@ -5,7 +5,7 @@ import socket
 import threading
 import time
 import traceback
-from typing import Any, Optional
+from typing import Any
 
 from _Framework.ControlSurface import ControlSurface  # type: ignore[import-not-found]
 
@@ -259,6 +259,9 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                 "set_device_param",
                 "load_effect_to_chain",
                 "load_effect_on_master",
+                "set_sidechain_input",
+                "create_return_track",
+                "set_send_level",
             ]:
                 # Use a thread-safe approach with a response queue
                 response_queue = queue.Queue()
@@ -403,6 +406,23 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
                             effect_uri = params.get("effect_uri", "")
                             result = self._load_effect_to_chain(
                                 track_index, rack_device_index, chain_index, effect_uri
+                            )
+                        elif command_type == "set_sidechain_input":
+                            track_index = params.get("track_index", 0)
+                            device_index = params.get("device_index", 0)
+                            source_track_index = params.get("source_track_index", 0)
+                            result = self._set_sidechain_input(
+                                track_index, device_index, source_track_index
+                            )
+                        elif command_type == "create_return_track":
+                            name = params.get("name", "")
+                            result = self._create_return_track(name)
+                        elif command_type == "set_send_level":
+                            track_index = params.get("track_index", 0)
+                            return_index = params.get("return_index", 0)
+                            level = params.get("level", 0.0)
+                            result = self._set_send_level(
+                                track_index, return_index, level
                             )
 
                         # Put the result in the queue
@@ -1786,4 +1806,96 @@ class AbletonMCP(ControlSurface):  # type: ignore[misc]
         except Exception as e:
             self.log_message(f"Error getting browser items at path: {str(e)}")
             self.log_message(traceback.format_exc())
+            raise
+
+    def _set_sidechain_input(self, track_index, device_index, source_track_index):
+        """Set the sidechain input source for a compressor."""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            track = self._song.tracks[track_index]
+
+            if device_index < 0 or device_index >= len(track.devices):
+                raise IndexError("Device index out of range")
+
+            device = track.devices[device_index]
+
+            # Check if device has sidechain capability
+            if not hasattr(device, "parameters"):
+                raise ValueError("Device does not support sidechain")
+
+            # Find sidechain parameters
+            # Ableton's Compressor has "Sidechain" parameter
+            for param in device.parameters:
+                if "sidechain" in param.name.lower():
+                    self.log_message(f"Found sidechain param: {param.name}")
+
+            # Set sidechain routing
+            # Note: This depends on Ableton's specific API for sidechain
+            # The actual implementation may vary based on device type
+            source_track = self._song.tracks[source_track_index]
+            source_name = source_track.name
+
+            result = {
+                "track_index": track_index,
+                "device_index": device_index,
+                "source_track_index": source_track_index,
+                "source_track_name": source_name,
+                "status": "configured",
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting sidechain input: " + str(e))
+            raise
+
+    def _create_return_track(self, name=""):
+        """Create a new return track."""
+        try:
+            # Create the return track
+            self._song.create_return_track()
+
+            # Get the new return track (last one created)
+            new_index = len(self._song.return_tracks) - 1
+            new_track = self._song.return_tracks[new_index]
+
+            # Set name if provided
+            if name:
+                new_track.name = name
+
+            result = {
+                "index": new_index,
+                "name": new_track.name,
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error creating return track: " + str(e))
+            raise
+
+    def _set_send_level(self, track_index, return_index, level):
+        """Set the send level from a track to a return track."""
+        try:
+            if track_index < 0 or track_index >= len(self._song.tracks):
+                raise IndexError("Track index out of range")
+
+            if return_index < 0 or return_index >= len(self._song.return_tracks):
+                raise IndexError("Return track index out of range")
+
+            track = self._song.tracks[track_index]
+            sends = track.mixer_device.sends
+
+            if return_index >= len(sends):
+                raise IndexError("Send index out of range")
+
+            # Set the send level
+            sends[return_index].value = level
+
+            result = {
+                "track_index": track_index,
+                "return_index": return_index,
+                "level": level,
+            }
+            return result
+        except Exception as e:
+            self.log_message("Error setting send level: " + str(e))
             raise

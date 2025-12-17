@@ -1,0 +1,72 @@
+{
+    "song": "I Am Machine",
+    "artist": "Lily Palmer & Thomas Schumacher",
+    "bpm": 136,
+    "key": "A minor",
+    "total_bars": 224,
+    "sections": {
+        "intro": {
+            "start": 1,
+            "end": 16,
+            "bars": 16,
+            "energy": "low",
+            "description": "Minimal intro with kick, bass rumble, sparse elements"
+        },
+        "build1": {
+            "start": 17,
+            "end": 32,
+            "bars": 16,
+            "energy": "rising",
+            "description": "Building tension, adding elements"
+        },
+        "drop1": {
+            "start": 33,
+            "end": 64,
+            "bars": 32,
+            "energy": "high",
+            "description": "Main drop with full arrangement"
+        },
+        "breakdown1": {
+            "start": 65,
+            "end": 96,
+            "bars": 32,
+            "energy": "low",
+            "description": "Breakdown, stripping elements"
+        },
+        "build2": {
+            "start": 97,
+            "end": 112,
+            "bars": 16,
+            "energy": "rising",
+            "description": "Second build with variations"
+        },
+        "drop2": {
+            "start": 113,
+            "end": 144,
+            "bars": 32,
+            "energy": "high",
+            "description": "Second drop with peak energy"
+        },
+        "breakdown2": {
+            "start": 145,
+            "end": 176,
+            "bars": 32,
+            "energy": "low",
+            "description": "Second breakdown"
+        },
+        "build3": {
+            "start": 177,
+            "end": 192,
+            "bars": 16,
+            "energy": "rising",
+            "description": "Final build"
+        },
+        "outro": {
+            "start": 193,
+            "end": 224,
+            "bars": 32,
+            "energy": "high",
+            "description": "Outro/final drop"
+        }
+    }
+}

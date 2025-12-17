@@ -1,4 +1,137 @@
+# Redis MCP
 [submodule "external/redis-mcp"]
 	path = external/redis-mcp
 	url = https://github.com/redis/mcp-redis.git
+	ignore = dirty
+
+# ideoforms - Sound synthesis and music generation frameworks
+# 🎛 signalflow: real-time sound synthesis, processing and DSP
+# 🎵 isobar: generate and manipulate musical patterns
+# 🎹 AbletonOSC: control Ableton Live with OSC
+# 🔌 pylive: control Ableton Live from Python
+# 🔊 python-supercollider: control SuperCollider from Python
+
+[submodule "external/ideoforms/isobar"]
+	path = external/ideoforms/isobar
+	url = https://github.com/ideoforms/isobar.git
+	ignore = dirty
+
+[submodule "external/ideoforms/signalflow"]
+	path = external/ideoforms/signalflow
+	url = https://github.com/ideoforms/signalflow.git
+	ignore = dirty
+
+[submodule "external/ideoforms/pylive"]
+	path = external/ideoforms/pylive
+	url = https://github.com/ideoforms/pylive.git
+	ignore = dirty
+
+[submodule "external/ideoforms/python-supercollider"]
+	path = external/ideoforms/python-supercollider
+	url = https://github.com/ideoforms/python-supercollider.git
+	ignore = dirty
+
+[submodule "external/ideoforms/AbletonOSC"]
+	path = external/ideoforms/AbletonOSC
+	url = https://github.com/ideoforms/AbletonOSC.git
+	ignore = dirty
+
+# librosa - Audio analysis library
+
+[submodule "external/librosa/librosa"]
+	path = external/librosa/librosa
+	url = https://github.com/librosa/librosa.git
+	ignore = dirty
+
+[submodule "external/librosa/data"]
+	path = external/librosa/data
+	url = https://github.com/librosa/data.git
+	ignore = dirty
+
+[submodule "external/librosa/tutorial"]
+	path = external/librosa/tutorial
+	url = https://github.com/librosa/tutorial.git
+	ignore = dirty
+
+[submodule "external/librosa/librosa_gallery"]
+	path = external/librosa/librosa_gallery
+	url = https://github.com/librosa/librosa_gallery.git
+	ignore = dirty
+
+[submodule "external/librosa/blog"]
+	path = external/librosa/blog
+	url = https://github.com/librosa/blog.git
+	ignore = dirty
+
+# Audio/MIDI tools
+
+[submodule "external/audio-tools/pretty-midi"]
+	path = external/audio-tools/pretty-midi
+	url = https://github.com/craffel/pretty-midi.git
+	ignore = dirty
+
+[submodule "external/audio-tools/music21"]
+	path = external/audio-tools/music21
+	url = https://github.com/cuthbertLab/music21.git
+	ignore = dirty
+
+[submodule "external/audio-tools/pydub"]
+	path = external/audio-tools/pydub
+	url = https://github.com/jiaaro/pydub.git
+	ignore = dirty
+
+[submodule "external/audio-tools/essentia"]
+	path = external/audio-tools/essentia
+	url = https://github.com/MTG/essentia.git
+	ignore = dirty
+
+[submodule "external/audio-tools/pedalboard"]
+	path = external/audio-tools/pedalboard
+	url = https://github.com/spotify/pedalboard.git
+	ignore = dirty
+
+[submodule "external/audio-tools/MIDIUtil"]
+	path = external/audio-tools/MIDIUtil
+	url = https://github.com/MarkCWirt/MIDIUtil.git
+	ignore = dirty
+
+[submodule "external/audio-tools/mir_eval"]
+	path = external/audio-tools/mir_eval
+	url = https://github.com/craffel/mir_eval.git
+	ignore = dirty
+
+[submodule "external/audio-tools/music21-tools"]
+	path = external/audio-tools/music21-tools
+	url = https://github.com/cuthbertLab/music21-tools.git
+	ignore = dirty
+
+# MTG - Music Technology Group additional tools
+
+[submodule "external/MTG/sms-tools"]
+	path = external/MTG/sms-tools
+	url = https://github.com/MTG/sms-tools.git
+	ignore = dirty
+
+[submodule "external/MTG/gaia"]
+	path = external/MTG/gaia
+	url = https://github.com/MTG/gaia.git
+	ignore = dirty
+
+[submodule "external/MTG/essentia.js"]
+	path = external/MTG/essentia.js
+	url = https://github.com/MTG/essentia.js.git
+	ignore = dirty
+
+# Spotify - Audio Intelligence Lab
+
+[submodule "external/spotify/basic-pitch"]
+	path = external/spotify/basic-pitch
+	url = https://github.com/spotify/basic-pitch.git
+	ignore = dirty
+
+# Google Magenta - Music AI research
+
+[submodule "external/magenta/note-seq"]
+	path = external/magenta/note-seq
+	url = https://github.com/magenta/note-seq.git
 	ignore = dirty
